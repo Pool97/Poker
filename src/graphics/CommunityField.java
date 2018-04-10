@@ -16,10 +16,10 @@ public class CommunityField extends JPanel {
         setLayout(new BorderLayout());
         cardsContainer = new JPanel();
         cardsContainer.setLayout(new FlowLayout());
-        for(int i = 0; i < 5; i++){
+        /*for(int i = 0; i < 5; i++){
             communityCards.add(new Card());
             cardsContainer.add(communityCards.get(i));
-        }
+        }*/
 
         add(tooltip, BorderLayout.NORTH);
         add(cardsContainer, BorderLayout.CENTER);

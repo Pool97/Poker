@@ -5,102 +5,92 @@ import graphics.Scalr;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Card extends JPanel implements MouseMotionListener, MouseListener {
-    private Point2D mousePos;
-    private int screenX;
-    private int screenY;
-    private int myX = 0;
-    private int myY = 0;
-    private BufferedImage card;
-    private String faceName;
-    private String suit;
-    private int faceValue;
+/**
+ * View che crea lo scheletro della carta da Poker.
+ */
 
-    public Card(){
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        setOpaque(false);
-        try {
-            BufferedImage originalImage = ImageIO.read(new File(System.getProperty("user.dir").concat("/res/2_of_clubs.png")));
-            card = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, 111, 162, Scalr.OP_DARKER);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //card = new ImageIcon(System.getProperty("user.dir").concat("/res/2_of_clubs.png")).getImage();
+public class Card extends JPanel{
+    private static BufferedImage cardBack;
+    private BufferedImage cardFront;
+    private Dimension imageSize;
+
+    public static final String RES = "/res/";
+    public static final String WORKING_DIR = "user.dir";
+    public static final String CARD_BACK_FILE_NAME = "back.png";
+    public static final int IMAGE_PADDING = 20;
+    public static final int LEFT_PADDING = 2;
+    public static final int RIGHT_PADDING = 3;
+
+
+    /**
+     * Costruttore della view Card. L'idea è ottenere il nome del file della carta da caricare nell'oggetto attraverso
+     * un Controller specifico, incaricato di restare in ascolto del Server.
+     * @param cardSize Dimensione della View.
+     * @param filename Nome del file associato alla carta da caricare.
+     */
+
+    public Card(Dimension cardSize, String filename){
+        this.imageSize = new Dimension(cardSize.width - IMAGE_PADDING, cardSize.height - IMAGE_PADDING);
+        this.cardFront = loadImage(filename, imageSize.getSize());
+        setSize(cardSize);
+        cardBack = loadImage(CARD_BACK_FILE_NAME, imageSize.getSize());
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if(card == null)
-            return;
-        Graphics2D g2 = (Graphics2D)g;
 
+        if(cardFront == null)
+            return;
+
+        Graphics2D g2 = (Graphics2D)g;
         g2.setStroke(new BasicStroke(2.0F));
-        g2.drawRect(2,2, 127, 177);
-        int offsetX = (getWidth() - 111)/2;
-        int offsety = (getHeight() - 162)/2;
-        g2.drawImage(card, offsetX,offsety, 111, 162, null);
+        g2.drawRect(LEFT_PADDING,LEFT_PADDING, getWidth() - RIGHT_PADDING, getHeight() - RIGHT_PADDING);
+        int offsetX = (getWidth() - imageSize.width)/2;
+        int offsetY = (getHeight() - imageSize.height)/2;
+        g2.drawImage(cardFront, offsetX, offsetY, null);
+
     }
+
+    /**
+     * Dimensione ottimizzata per i FlowLayout.
+     * Per i BorderLayout è consigliato inserire la Card all'interno di un container (es:JPanel) per evitare
+     * che le dimensioni si modifichino a causa della logica del BorderLayout.
+     * @return Dimensione ottimale per i FlowLayout.
+     */
 
     public Dimension getPreferredSize(){
-        return new Dimension(130,180);
+        return new Dimension(getWidth(), getHeight());
+    }
+
+    /**
+     * Permette di assegnare la versione riscalata dell'immagine originale alla Card.
+     * @param filename Nome del file relativo all'immagine da caricare.
+     * @param scaleSize Dimensione dell'immagine riscalata.
+     * @return Immagine riscalata.
+     */
+
+    private static BufferedImage loadImage(String filename, Dimension scaleSize){
+        BufferedImage scaledImage = null;
+
+        try {
+            BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIR) + RES + filename));
+            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int)scaleSize.getWidth(), (int)scaleSize.getHeight(), Scalr.OP_DARKER);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return scaledImage;
     }
 
 
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        mousePos = e.getPoint();
-        int deltaX = e.getXOnScreen() - screenX;
-        int deltaY = e.getYOnScreen() - screenY;
-
-        setLocation(myX + deltaX, myY + deltaY);
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        Point mousePosition = e.getPoint();
-
-        if((e.getLocationOnScreen().getX() >= getX() && e.getLocationOnScreen().getX() <= getX() + getWidth()) && (mousePosition.getY() >= getY() && mousePosition.getY() <= getY() + getHeight()))
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        else
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        screenX = e.getXOnScreen();
-        screenY = e.getYOnScreen();
-
-        myX = getX();
-        myY = getY();
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    /*private String getImageFileName(){
+        StringBuilder fileName = new StringBuilder(System.getProperty("user.dir"));
+        fileName.append(RES).append(faceName).append("_").append(suit).append(".png");
+        return fileName.toString();
+    }*/
 }

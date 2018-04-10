@@ -12,8 +12,8 @@ public class Field extends JPanel {
     public Field(Dimension dimension){
         setSize(dimension);
         setLayout(new FlowLayout(FlowLayout.CENTER));
-        for(int i = 0; i < 5; i++)
-            add(new Card());
+      //  add(new Card("2", "fiori", 2));
+        //add(new Card("2", "fiori", 2));
 
     }
 
