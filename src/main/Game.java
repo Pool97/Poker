@@ -2,7 +2,7 @@ package main;
 
 import graphics.CommunityField;
 import graphics.Field;
-import graphics.GBC;
+import utils.GBC;
 
 import javax.swing.*;
 import java.awt.*;

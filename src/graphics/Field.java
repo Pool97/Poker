@@ -1,7 +1,5 @@
 package graphics;
 
-import main.Card;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,8 +10,8 @@ public class Field extends JPanel {
     public Field(Dimension dimension){
         setSize(dimension);
         setLayout(new FlowLayout(FlowLayout.CENTER));
-      //  add(new Card("2", "fiori", 2));
-        //add(new Card("2", "fiori", 2));
+      //  add(new CardView("2", "fiori", 2));
+        //add(new CardView("2", "fiori", 2));
 
     }
 

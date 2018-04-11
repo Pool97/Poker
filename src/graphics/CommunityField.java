@@ -1,13 +1,11 @@
 package graphics;
 
-import main.Card;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
 public class CommunityField extends JPanel {
-    private ArrayList<Card> communityCards = new ArrayList<>(5);
+    private ArrayList<CardView> communityCards = new ArrayList<>(5);
     private JPanel cardsContainer;
     private JLabel tooltip = new JLabel("Community Cards", JLabel.CENTER);
 
@@ -17,7 +15,7 @@ public class CommunityField extends JPanel {
         cardsContainer = new JPanel();
         cardsContainer.setLayout(new FlowLayout());
         /*for(int i = 0; i < 5; i++){
-            communityCards.add(new Card());
+            communityCards.add(new CardView());
             cardsContainer.add(communityCards.get(i));
         }*/
 

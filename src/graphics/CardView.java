@@ -1,19 +1,16 @@
-package main;
+package graphics;
 
-import graphics.Scalr;
+import utils.Utils;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * View che crea lo scheletro della carta da Poker.
  */
 
-public class Card extends JPanel{
+public class CardView extends JPanel{
     private static BufferedImage cardBack;
     private BufferedImage cardFront;
     private Dimension imageSize;
@@ -27,17 +24,17 @@ public class Card extends JPanel{
 
 
     /**
-     * Costruttore della view Card. L'idea è ottenere il nome del file della carta da caricare nell'oggetto attraverso
+     * Costruttore della view CardView. L'idea è ottenere il nome del file della carta da caricare nell'oggetto attraverso
      * un Controller specifico, incaricato di restare in ascolto del Server.
      * @param cardSize Dimensione della View.
      * @param filename Nome del file associato alla carta da caricare.
      */
 
-    public Card(Dimension cardSize, String filename){
+    public CardView(Dimension cardSize, String filename){
         this.imageSize = new Dimension(cardSize.width - IMAGE_PADDING, cardSize.height - IMAGE_PADDING);
-        this.cardFront = loadImage(filename, imageSize.getSize());
+        this.cardFront = Utils.loadImage(filename, imageSize.getSize());
         setSize(cardSize);
-        cardBack = loadImage(CARD_BACK_FILE_NAME, imageSize.getSize());
+        cardBack = Utils.loadImage(CARD_BACK_FILE_NAME, imageSize.getSize());
     }
 
     @Override
@@ -58,7 +55,7 @@ public class Card extends JPanel{
 
     /**
      * Dimensione ottimizzata per i FlowLayout.
-     * Per i BorderLayout è consigliato inserire la Card all'interno di un container (es:JPanel) per evitare
+     * Per i BorderLayout è consigliato inserire la CardView all'interno di un container (es:JPanel) per evitare
      * che le dimensioni si modifichino a causa della logica del BorderLayout.
      * @return Dimensione ottimale per i FlowLayout.
      */
@@ -67,30 +64,5 @@ public class Card extends JPanel{
         return new Dimension(getWidth(), getHeight());
     }
 
-    /**
-     * Permette di assegnare la versione riscalata dell'immagine originale alla Card.
-     * @param filename Nome del file relativo all'immagine da caricare.
-     * @param scaleSize Dimensione dell'immagine riscalata.
-     * @return Immagine riscalata.
-     */
 
-    private static BufferedImage loadImage(String filename, Dimension scaleSize){
-        BufferedImage scaledImage = null;
-
-        try {
-            BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIR) + RES + filename));
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int)scaleSize.getWidth(), (int)scaleSize.getHeight(), Scalr.OP_DARKER);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return scaledImage;
-    }
-
-
-    /*private String getImageFileName(){
-        StringBuilder fileName = new StringBuilder(System.getProperty("user.dir"));
-        fileName.append(RES).append(faceName).append("_").append(suit).append(".png");
-        return fileName.toString();
-    }*/
 }
