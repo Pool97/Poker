@@ -31,10 +31,12 @@ public class CardView extends JPanel{
      */
 
     public CardView(Dimension cardSize, String filename){
-        this.imageSize = new Dimension(cardSize.width - IMAGE_PADDING, cardSize.height - IMAGE_PADDING);
+        this.imageSize = new Dimension(cardSize.width - 10, cardSize.height - 10);
         this.cardFront = Utils.loadImage(filename, imageSize.getSize());
         setSize(cardSize);
         cardBack = Utils.loadImage(CARD_BACK_FILE_NAME, imageSize.getSize());
+        setOpaque(true);
+        setBackground(new Color(0,0,0,0));
     }
 
     @Override
@@ -46,7 +48,7 @@ public class CardView extends JPanel{
 
         Graphics2D g2 = (Graphics2D)g;
         g2.setStroke(new BasicStroke(2.0F));
-        g2.drawRect(LEFT_PADDING,LEFT_PADDING, getWidth() - RIGHT_PADDING, getHeight() - RIGHT_PADDING);
+        //g2.drawRect(LEFT_PADDING,LEFT_PADDING, getWidth() - RIGHT_PADDING, getHeight() - RIGHT_PADDING);
         int offsetX = (getWidth() - imageSize.width)/2;
         int offsetY = (getHeight() - imageSize.height)/2;
         g2.drawImage(cardFront, offsetX, offsetY, null);

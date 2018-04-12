@@ -14,11 +14,17 @@ public class CommunityField extends JPanel {
         setLayout(new BorderLayout());
         cardsContainer = new JPanel();
         cardsContainer.setLayout(new FlowLayout());
-        for(int i = 0; i < 5; i++){
-            communityCards.add(new CardView(new Dimension(130, 180), "2_fiori.png"));
+        communityCards.add(new CardView(new Dimension(130, 180), "2_fiori.png"));
+        communityCards.add(new CardView(new Dimension(130, 180), "2_quadri.png"));
+        communityCards.add(new CardView(new Dimension(130, 180), "10_cuori.png"));
+        communityCards.add(new CardView(new Dimension(130, 180), "asso_picche.png"));
+        communityCards.add(new CardView(new Dimension(130, 180), "asso_fiori.png"));
+
+        for(int i = 0; i < communityCards.size(); i++){
             cardsContainer.add(communityCards.get(i));
         }
 
+        tooltip.setFont(new Font("Helvetica", Font.BOLD, 24));
         add(tooltip, BorderLayout.NORTH);
         add(cardsContainer, BorderLayout.CENTER);
     }

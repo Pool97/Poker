@@ -13,21 +13,23 @@ import static java.awt.GridBagConstraints.*;
  * View che permette di creare lo scheletro dei Players avversari.
  */
 
-//TODO: Configurare e gestire la dimensione minima che può assumere la View! (Utile per risoluzioni molto basse)
+
 //TODO: Implementare un ComponentListener in modo che si abbia il resize automatico in base al cambio delle dimensioni della View
 
-public class PlayerView extends JPanel {
+public class PlayerView extends JPanel{
     private JLabel nickname;
     private JLabel action;
     private JLabel totalChips;
     private JLabel actualPosition;
-    //private ArrayList<CardView> cards;
     private JLabel ranking;
     private Dimension viewSize;
 
-    private final static int START_BORDER_PADDING = 2;
-    private final static int END_BORDER_PADDING = 4;
-    private final static int VIEW_PADDING = 5;
+    private final static int START_BORDER_PADDING = 1;
+    private final static int END_BORDER_PADDING = 2;
+    private final static int VIEW_PADDING = 10;
+    private final static float BORDER_WIDTH = 2.0F;
+    private final static int MINIMUM_WIDTH = 350;
+    private final static int MINIMUM_HEIGHT = 150;
     public final static String AVATAR_FILE_NAME = "avatar.png";
     public final static String BLANK = "";
 
@@ -38,37 +40,37 @@ public class PlayerView extends JPanel {
      * al cambiamento di dimensione della View padre.
      *
      * @param viewSize Dimensione della View.
-     * @param nickname Nickname del Player
-     * @param totalChips Numero totale di chips a disposizione
-     * @param actualPosition Posizione attuale (es: Dealer, Small Blind ecc..)
-     * @param action Azione effettuata dal Player nel turno attuale
-     * @param ranking Posizione attuale in classifica in termini di numero di chips a disposizione
+     * @param playerModel Informazioni provenienti dal server. Rimarrà come argomento del costruttore finchè non verrà implementato a tutti
+     *                    gli effetti il Pattern MVC.
      */
 
-    //TODO: Restyling grafico dello scheletro base della View.
+    //TODO: Implementare il pattern MVC Server-Client in modo da aggiornare la View solo tramite le modifiche avvenute nell'effettivo Model.
 
-    public PlayerView(Dimension viewSize, String nickname, String totalChips, String actualPosition, String action, String ranking) {
+    //A scopo di test, le informazioni vengono ricevute come argomento del costruttore ma in futuro verranno integrate tramite opportuni listeners.
+
+    public PlayerView(Dimension viewSize, PlayerModel playerModel) {
         this.viewSize = viewSize;
-        this.nickname = new JLabel(nickname);
-        this.totalChips = new JLabel(totalChips);
-        this.actualPosition = new JLabel(actualPosition);
-        this.action = new JLabel(action);
-        this.ranking = new JLabel(ranking);
+        nickname = new JLabel(playerModel.getNickname());
+        totalChips = new JLabel(playerModel.getTotalChips());
+        actualPosition = new JLabel(playerModel.getActualPosition());
+        action = new JLabel(playerModel.getAction());
+        ranking = new JLabel(playerModel.getRanking());
 
         BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
         setBorder(BorderFactory.createEmptyBorder(VIEW_PADDING, VIEW_PADDING, VIEW_PADDING, VIEW_PADDING));
         setLayout(layout);
-        initAvatar();
+        setBackground(new Color(27,27,27, 150));
+        initAvatarPanel();
         add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
-        initPlayerPanel();
-
+        initPlayerPanel(playerModel.getFirstCardFilename(), playerModel.getSecondCardFilename());
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
-        g2.setStroke(new BasicStroke(2.0F));
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(BORDER_WIDTH));
         g2.drawRect(START_BORDER_PADDING, START_BORDER_PADDING, viewSize.width - END_BORDER_PADDING, viewSize.height - END_BORDER_PADDING);
     }
 
@@ -79,8 +81,7 @@ public class PlayerView extends JPanel {
      * avrà in tal caso un allineamento a sinistra.
      */
 
-    //TODO Implementare una classe separata per la gestione dell'Avatar!
-    private void initAvatar(){
+    private void initAvatarPanel(){
         JLabel avatar = new JLabel(BLANK, JLabel.CENTER);
         BufferedImage avatarScaled = Utils.loadImage(AVATAR_FILE_NAME, new Dimension((viewSize.width / 3), viewSize.height / 2));
         avatar.setIcon(new ImageIcon(avatarScaled));
@@ -93,29 +94,82 @@ public class PlayerView extends JPanel {
      * Inizializzazione del pannello delle informazioni relative al Player avversario.
      * Se il layout è costretto per qualsiasi motivo a essere esteso oltre la dimensione
      * prevista il componente avrà in tal caso un allineamento a destra.
+     * @param firstFilename Nome del file della prima carta.
+     * @param secondFilename Nome del file della seconda carta.
      */
 
-    private void initPlayerPanel(){
+    private void initPlayerPanel(String firstFilename, String secondFilename){
         JPanel container = new JPanel();
+        container.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        container.setBackground(new Color(0,0,0,0));
+
         GridBagLayout playerInfoLayout = new GridBagLayout();
         container.setMaximumSize(new Dimension((2 * viewSize.width)/3, viewSize.height));
         container.setLayout(playerInfoLayout);
 
-        GBC cardsConstr = new GBC(0, 0, 1, 1, WEST);
-        container.add(new JButton("Placeholder"), cardsConstr); //TODO: da aggiungere ancora le carte del Player!
-        GBC rankConstr = new GBC(1, 0,100, 100, NORTHEAST);
-        container.add(ranking, rankConstr);
-        GBC nickConstr = new GBC(0, 1,10, 10, WEST);
-        container.add(nickname, nickConstr);
-        GBC positionConstr = new GBC(1, 1, 10, 10, EAST);
-        container.add(actualPosition, positionConstr);
-        GBC actionConstr = new GBC(0, 2, 10, 10, WEST);
-        container.add(action, actionConstr);
-        GBC chipsConstr = new GBC(1, 2,10, 10, EAST);
-        container.add(totalChips, chipsConstr);
-        container.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        add(container);
+        GBC cardsConstr = new GBC(0, 0, 1, 4, NORTHWEST);
+        container.add(initCardsPanel(firstFilename, secondFilename), cardsConstr);
 
+        GBC rankConstr = new GBC(1, 0,1, 4, NORTHEAST);
+        setComponentStyle(ranking, Color.WHITE, Font.BOLD, 26F);
+        container.add(ranking, rankConstr);
+
+        GBC nickConstr = new GBC(0, 1,1, 5, NORTHWEST);
+        setComponentStyle(nickname, Color.WHITE, Font.BOLD, 20F);
+        container.add(nickname, nickConstr);
+
+        GBC positionConstr = new GBC(1, 1, 1, 5, NORTHEAST);
+        setComponentStyle(actualPosition, Color.WHITE, Font.BOLD, 20F);
+        container.add(actualPosition, positionConstr);
+
+        GBC actionConstr = new GBC(0, 2, 1, 1, WEST);
+        setComponentStyle(action, Color.WHITE, Font.BOLD, 18F);
+        container.add(action, actionConstr);
+
+        setComponentStyle(totalChips, Color.WHITE, Font.BOLD, 18F);
+        GBC chipsConstr = new GBC(1, 2,1, 1, EAST);
+
+        container.add(totalChips, chipsConstr);
+        add(container);
+    }
+
+    /**
+     * Inizializzazione del pannello contenente le carte del player avversario.
+     * @param firstFilename Nome del file della prima carta.
+     * @param secondFilename Nome del file della seconda carta.
+     * @return Pannello.
+     */
+    //TODO: Da aggiungere come attributi le CardView in modo da poterle modificare dall'esterno. Questo andrà fatto appena funzionerà MVC.
+
+    private JPanel initCardsPanel(String firstFilename, String secondFilename){
+        JPanel cardContainer = new JPanel();
+        BoxLayout cardLayout = new BoxLayout(cardContainer, BoxLayout.X_AXIS);
+        cardContainer.setLayout(cardLayout);
+
+        cardContainer.setBackground(new Color(0,0,0, 0)); //per fare in modo che in fase di rendering si veda solo il colore di sfondo del layout sottostante
+
+        CardView firstCard = new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), firstFilename);
+        firstCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cardContainer.add(firstCard);
+
+        CardView secondCard = new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), secondFilename);
+        secondCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cardContainer.add(secondCard);
+
+        return cardContainer;
+    }
+
+    /**
+     * Settaggio delle prorpietà dei componenti della View.
+     * @param component Componente
+     * @param foregroundColor Colore in primo piano
+     * @param fontStyle Stile del font
+     * @param fontSize Dimensione in pixel del font
+     */
+
+    private void setComponentStyle(JComponent component, Color foregroundColor, int fontStyle, float fontSize){
+        component.setForeground(foregroundColor);
+        component.setFont(Utils.getCustomFont(fontStyle, fontSize));
     }
 
     /**
@@ -129,5 +183,17 @@ public class PlayerView extends JPanel {
     @Override
     public Dimension getPreferredSize() {
         return viewSize;
+    }
+
+    /**
+     * Impostazione della dimensione minima della View per il BoxLayout.
+     * @return Dimensione minima.
+     */
+
+    //TODO: Gestire la dimensione minima che può assumere la View! (Utile per risoluzioni molto basse)
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT);
     }
 }

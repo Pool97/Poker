@@ -29,4 +29,18 @@ public class Utils {
 
         return scaledImage;
     }
+
+    public static Font getCustomFont(int fontStyle, float fontSize){
+        File font_file = new File(System.getProperty("user.dir").concat("/rotis.ttf"));
+        Font derivedFont = null;
+        try {
+            Font font = Font.createFont(Font.TRUETYPE_FONT, font_file);
+            derivedFont = font.deriveFont(fontStyle, fontSize);
+        } catch (FontFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return derivedFont;
+    }
 }
