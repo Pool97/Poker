@@ -1,7 +1,7 @@
 package main;
 
 import graphics.CommunityField;
-import graphics.Field;
+import graphics.PlayerView;
 import utils.GBC;
 
 import javax.swing.*;
@@ -14,22 +14,31 @@ public class Game extends JFrame{
     private JPanel container2;
 
     public Game(){
-        info = new JLabel("Benvenuto sciocco al mio nuovo giuoco");
-        container2 = new JPanel();
-        container2.add(new Field(container2.getSize()));
-        container2.setLayout(new FlowLayout());
         GridBagLayout mainLayout = new GridBagLayout();
         setLayout(mainLayout);
-        GBC firstConstraint = new GBC(0, 1, 1, 1, 100, 100);
-        GBC secondConstraint = new GBC(0, 2, 1, 1, 100, 100);
-        GBC thirdConstraint = new GBC(0, 0, 1, 1, 100, 100);
-        firstConstraint.setFill(GBC.HORIZONTAL);
-        setSize(1366, 768);
-        setLayout(new GridBagLayout());
+        JPanel players = new JPanel();
+        setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
+        System.out.println(getSize().width);
+        players.setLayout(new FlowLayout(FlowLayout.CENTER, (getSize().width - 3 * 400) / 4, 0));
+        players.add(new PlayerView(new Dimension(400, 150), "HARRY POTTER", "1000000$", "SB", "FOLD", "1"));
+        players.add(new PlayerView(new Dimension(400, 150), "HARRY POTTER", "1000000$", "SB", "FOLD", "1"));
+        players.add(new PlayerView(new Dimension(400, 150), "HARRY POTTER", "1000000$", "SB", "FOLD", "1"));
+        container2 = new JPanel();
+        container2.add(new CommunityField());
+        container2.setLayout(new FlowLayout());
+
+        GBC firstConstraint = new GBC(0, 0, 50, 30);
+        GBC secondConstraint = new GBC(0, 2, 100, 100);
+        secondConstraint.fill = GBC.BOTH;
+        secondConstraint.anchor = GBC.NORTH;
+        GBC thirdConstraint = new GBC(0, 1, 100, 30);
+        thirdConstraint.anchor = GBC.CENTER;
+        thirdConstraint.fill = GBC.BOTH;
+
 
         add(container2, secondConstraint);
-        add(new CommunityField(), firstConstraint);
-        add(info, thirdConstraint);
+        add(new JButton("Qua ci andranno le informazione della partitaaaaaaa"), firstConstraint);
+        add(players, thirdConstraint);
         JLabel community = new JLabel("Community Cards", JLabel.CENTER);
         community.setFont(new Font("Helvetica", Font.PLAIN, 40));
     }
