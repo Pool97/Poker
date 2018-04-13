@@ -38,6 +38,7 @@ public class CommunityField extends JPanel {
 
     public void addNextCard(CardView nextCard){
         communityCards.add(nextCard);
+        cardsContainer.add(nextCard);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class CommunityField extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
         g2.setStroke(new BasicStroke(2.0F));
-        g2.setColor(Color.WHITE);
-        g2.drawRect(1,1, getWidth() - 2, getHeight() - 2);
+        //g2.setColor(Color.WHITE);
+        //g2.drawRect(1,1, getWidth() - 2, getHeight() - 2);
     }
 }

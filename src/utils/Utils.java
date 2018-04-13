@@ -6,10 +6,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import static graphics.CardView.RES;
-import static graphics.CardView.WORKING_DIR;
+
 
 public class Utils {
+    public static final String RES = "/res/";
+    public static final String WORKING_DIR = "user.dir";
+    public static final Color TRANSPARENT = new Color(0,0,0,0);
+
     /**
      * Permette di assegnare la versione riscalata dell'immagine originale.
      * @param filename Nome del file relativo all'immagine da caricare.

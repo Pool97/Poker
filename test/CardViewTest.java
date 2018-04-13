@@ -9,7 +9,7 @@ public class CardViewTest {
         EventQueue.invokeLater(() ->{
             JFrame frame = new JFrame();
             frame.setLayout(new FlowLayout());
-            frame.add(new CardView(new Dimension(130, 180), "2_fiori.png"));
+            frame.add(new CardView(new Dimension(130, 180), "2_fiori.png", "backBluePP.png"));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
             frame.setSize(1366, 768);

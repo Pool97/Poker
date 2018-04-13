@@ -10,10 +10,11 @@ public class PlayerModel {
     private String actualPosition;
     private String action;
     private String ranking;
+    private String avatarFilename;
     private String firstCardFilename;
     private String secondCardFilename;
 
-    public PlayerModel(String nickname, String totalChips, String actualPosition, String action, String ranking, String firstCardFilename, String secondCardFilename) {
+    public PlayerModel(String nickname, String totalChips, String actualPosition, String action, String ranking, String firstCardFilename, String secondCardFilename, String avatarFilename) {
         this.nickname = nickname;
         this.totalChips = totalChips;
         this.actualPosition = actualPosition;
@@ -21,6 +22,7 @@ public class PlayerModel {
         this.ranking = ranking;
         this.firstCardFilename = firstCardFilename;
         this.secondCardFilename = secondCardFilename;
+        this.avatarFilename = avatarFilename;
     }
 
     public String getFirstCardFilename() {
@@ -77,5 +79,13 @@ public class PlayerModel {
 
     public void setRanking(String ranking) {
         this.ranking = ranking;
+    }
+
+    public String getAvatarFilename() {
+        return avatarFilename;
+    }
+
+    public void setAvatarFilename(String avatarFilename) {
+        this.avatarFilename = avatarFilename;
     }
 }
