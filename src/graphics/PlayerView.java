@@ -41,7 +41,7 @@ public class PlayerView extends JPanel{
      *
      * @param viewSize Dimensione della View.
      * @param playerModel Informazioni provenienti dal server. Rimarrà come argomento del costruttore finchè non verrà implementato a tutti
-     *                    gli effetti il Pattern MVC.
+     *                    li effetti il Pattern MVC.
      */
 
     //TODO: Implementare il pattern MVC Server-Client in modo da aggiornare la View solo tramite le modifiche avvenute nell'effettivo Model.
