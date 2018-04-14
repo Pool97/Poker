@@ -5,48 +5,52 @@ import utils.Utils;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.ArrayList;
+
+/**
+ * View che rappresenta e gestisce le Community Cards del Poker.
+ * @author Roberto Poletti
+ * @author Nipuna Perera
+ * @since 1.0
+ */
 
 public class CommunityField extends JPanel {
-    private ArrayList<CardView> communityCards;
-    private JPanel cardsContainer;
+    private CardsPanel cardsPanel;
     private JLabel tooltip = new JLabel("Community Cards", JLabel.CENTER);
 
+    /**
+     * Costruttore vuoto del CommunityField.
+     */
+
     public CommunityField(){
-        communityCards = new ArrayList<>(5);
-        communityCards.trimToSize();
-
+        cardsPanel = new CardsPanel(5);
         initView();
-        setOpaque(true);
-        tooltip.setForeground(Color.WHITE);
-        tooltip.setFont(Utils.getCustomFont(Font.BOLD, 40F));
-        tooltip.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        cardsContainer = new JPanel();
-        cardsContainer.setLayout(new FlowLayout());
-        cardsContainer.setBackground(new Color(0,0,0,0));
-
-        add(tooltip, BorderLayout.NORTH);
-        add(cardsContainer, BorderLayout.CENTER);
     }
+
+    /**
+     * Inizializzazione della View.
+     */
 
     private void initView(){
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        setBackground(new Color(0,0,0,0));
+        setBackground(Utils.TRANSPARENT);
+
+        tooltip.setForeground(Color.WHITE);
+        tooltip.setFont(Utils.getCustomFont(Font.BOLD, 40F));
+        tooltip.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cardsPanel.setAlignmentX(CENTER_ALIGNMENT);
+        add(tooltip);
+        add(Box.createVerticalGlue());
+        add(cardsPanel);
     }
+
+    /**
+     * Permette di aggiungere al CommunityField una nuova carta. Tipicamente questa azione avviene durante il Flop,
+     * il Turn o il River.
+     * @param nextCard Prossima carta da aggiungere alle Community Cards.
+     */
 
     public void addNextCard(CardView nextCard){
-        communityCards.add(nextCard);
-        cardsContainer.add(nextCard);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g;
-        g2.setStroke(new BasicStroke(2.0F));
-        //g2.setColor(Color.WHITE);
-        //g2.drawRect(1,1, getWidth() - 2, getHeight() - 2);
+        cardsPanel.addNextCard(nextCard);
     }
 }

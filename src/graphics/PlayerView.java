@@ -10,7 +10,10 @@ import java.awt.image.BufferedImage;
 import static java.awt.GridBagConstraints.*;
 
 /**
- * View che permette di creare lo scheletro dei Players avversari.
+ * View che permette di mostrare in real-time la situazione dei Player avversari in tutti gli istanti del match.
+ * @author Roberto Poletti
+ * @author Nipuna Perera
+ * @since 1.0
  */
 
 
@@ -25,6 +28,7 @@ public class PlayerView extends JPanel{
     private JLabel actualPosition;
     private JLabel ranking;
     private Dimension viewSize;
+    private CardsPanel cardsPanel;
 
     private final static int START_BORDER_PADDING = 1;
     private final static int END_BORDER_PADDING = 2;
@@ -52,11 +56,14 @@ public class PlayerView extends JPanel{
         actualPosition = new JLabel(playerModel.getActualPosition());
         action = new JLabel(playerModel.getAction());
         ranking = new JLabel(playerModel.getRanking());
+        cardsPanel = new CardsPanel(2);
+        cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getFirstCardFilename(), "backBluePP.png"));
+        cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getSecondCardFilename(), "backBluePP.png"));
 
         initView();
         initAvatarPanel(playerModel.getAvatarFilename());
         add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
-        initPlayerPanel(playerModel.getFirstCardFilename(), playerModel.getSecondCardFilename());
+        initPlayerPanel();
     }
 
     /**
@@ -91,18 +98,16 @@ public class PlayerView extends JPanel{
      * Inizializzazione del pannello delle informazioni relative al Player avversario.
      * Se il layout è costretto per qualsiasi motivo a essere esteso oltre la dimensione
      * prevista il componente avrà in tal caso un allineamento a destra.
-     * @param firstFilename Nome del file della prima carta.
-     * @param secondFilename Nome del file della seconda carta.
      */
 
-    private void initPlayerPanel(String firstFilename, String secondFilename){
+    private void initPlayerPanel(){
         JPanel playerPanel = new JPanel();
         playerPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         playerPanel.setBackground(Utils.TRANSPARENT);
         playerPanel.setMaximumSize(new Dimension((2 * viewSize.width)/3, viewSize.height));
         playerPanel.setLayout(new GridBagLayout());
 
-        playerPanel.add(initCardsPanel(firstFilename, secondFilename, "backBluePP.png"), new GBC(0, 0, 1, 4, NORTHWEST));
+        playerPanel.add(cardsPanel, new GBC(0, 0, 1, 4, NORTHWEST));
 
         setComponentStyle(ranking, Color.WHITE, Font.BOLD, 26F);
         playerPanel.add(ranking, new GBC(1, 0,1, 4, NORTHEAST));
@@ -120,32 +125,6 @@ public class PlayerView extends JPanel{
         playerPanel.add(totalChips, new GBC(1, 2,1, 1, EAST));
 
         add(playerPanel);
-    }
-
-    /**
-     * Inizializzazione del pannello contenente le carte del player avversario.
-     * @param firstCardFilename Nome del file della prima carta.
-     * @param secondCardFilename Nome del file della seconda carta.
-     * @param cardBackFilename Nome del file della parte posteriore delle carte.
-     * @return Pannello.
-     */
-
-    private JPanel initCardsPanel(String firstCardFilename, String secondCardFilename, String cardBackFilename){
-        JPanel cardsPanel = new JPanel();
-        cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.X_AXIS));
-        cardsPanel.setBackground(Utils.TRANSPARENT);
-
-        CardView firstCard = new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), firstCardFilename, cardBackFilename);
-        firstCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        cardsPanel.add(firstCard);
-
-        cardsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-
-        CardView secondCard = new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), secondCardFilename, cardBackFilename);
-        secondCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        cardsPanel.add(secondCard);
-
-        return cardsPanel;
     }
 
     @Override
