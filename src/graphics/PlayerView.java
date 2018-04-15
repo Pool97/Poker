@@ -1,6 +1,7 @@
 package graphics;
 
 import utils.GBC;
+import utils.PlayerModelTest;
 import utils.Utils;
 
 import javax.swing.*;
@@ -49,7 +50,7 @@ public class PlayerView extends JPanel{
      *                    li effetti il Pattern MVC.
      */
 
-    public PlayerView(Dimension viewSize, PlayerModel playerModel) {
+    public PlayerView(Dimension viewSize, PlayerModelTest playerModel) {
         this.viewSize = viewSize;
         nickname = new JLabel(playerModel.getNickname());
         totalChips = new JLabel(playerModel.getTotalChips());

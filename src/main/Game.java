@@ -2,9 +2,9 @@ package main;
 
 import graphics.CardView;
 import graphics.CommunityField;
-import graphics.PlayerModel;
 import graphics.PlayerView;
 import utils.GBC;
+import utils.PlayerModelTest;
 import utils.Utils;
 
 import javax.swing.*;
@@ -35,16 +35,16 @@ public class Game extends JFrame{
         JPanel players = new JPanel();
         setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
         players.setLayout(new FlowLayout(FlowLayout.CENTER, (getSize().width - 3 * 400) / 4, 0));
-        PlayerView test = new PlayerView(new Dimension(400, 200), new PlayerModel("HARRY POTTER", "1000000$", "D", "FOLD", "1", "backOrangePP.png", "backOrangePP.png", "avatar.png"));
+        PlayerView test = new PlayerView(new Dimension(400, 200), new PlayerModelTest("HARRY POTTER", "1000000$", "D", "FOLD", "1", "backOrangePP.png", "backOrangePP.png", "avatar.png"));
         players.add(test);
-        players.add(new PlayerView(new Dimension(400, 200), new PlayerModel("HERMIONE", "60000$", "SB", "CALL", "2", "backOrangePP.png", "backOrangePP.png", "avatar2.png")));
-        players.add(new PlayerView(new Dimension(400, 200), new PlayerModel("TIZIO", "40000$", "BB", "CHECK", "3", "backOrangePP.png", "backOrangePP.png", "zappa_avatar.png")));
+        players.add(new PlayerView(new Dimension(400, 200), new PlayerModelTest("HERMIONE", "60000$", "SB", "CALL", "2", "backOrangePP.png", "backOrangePP.png", "avatar2.png")));
+        players.add(new PlayerView(new Dimension(400, 200), new PlayerModelTest("TIZIO", "40000$", "BB", "CHECK", "3", "backOrangePP.png", "backOrangePP.png", "zappa_avatar.png")));
         players.setBackground(new Color(0,0,0,0));
         JPanel container3 = new JPanel();
         BoxLayout box = new BoxLayout(container3, BoxLayout.X_AXIS);
         container3.setLayout(box);
         container3.setBackground(new Color(0,0,0,0));
-        PlayerView playerFour = new PlayerView(new Dimension(400, 200), new PlayerModel("CAIO", "60000$", "SB", "CALL", "2","backOrangePP.png", "backOrangePP.png", "avatar3.png"));
+        PlayerView playerFour = new PlayerView(new Dimension(400, 200), new PlayerModelTest("CAIO", "60000$", "SB", "CALL", "2","backOrangePP.png", "backOrangePP.png", "avatar3.png"));
         playerFour.setAlignmentX(Component.LEFT_ALIGNMENT);
         container3.add(Box.createHorizontalGlue());
         container3.add(playerFour);
@@ -62,7 +62,7 @@ public class Game extends JFrame{
         GBC thirdConstraint = new GBC(0, 1, 2, 1, 100, 30);
         thirdConstraint.anchor = GBC.CENTER;
         thirdConstraint.fill = GBC.BOTH;
-        PlayerView playerFive  = new PlayerView(new Dimension(400, 200), new PlayerModel("SEMPRONIO", "60000$", "SB", "CALL", "2","backOrangePP.png", "backOrangePP.png", "avatar4.png"));
+        PlayerView playerFive  = new PlayerView(new Dimension(400, 200), new PlayerModelTest("SEMPRONIO", "60000$", "SB", "CALL", "2","backOrangePP.png", "backOrangePP.png", "avatar4.png"));
         playerFive.setAlignmentX(Component.RIGHT_ALIGNMENT);
         container3.add(playerFive);
         container3.add(Box.createHorizontalGlue());

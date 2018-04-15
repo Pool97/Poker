@@ -1,6 +1,5 @@
-
-import graphics.PlayerModel;
 import graphics.PlayerView;
+import utils.PlayerModelTest;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +8,7 @@ public class PlayerViewTest extends JFrame {
     private JPanel container;
     public PlayerViewTest(){
         container = new JPanel();
-        container.add(new PlayerView(new Dimension(400, 150),new PlayerModel("HARRY POTTER", "1000000$", "SB", "FOLD", "1", "2_cuori.png", "2_quadri1.png", "avatar.png")));
+        container.add(new PlayerView(new Dimension(400, 150),new PlayerModelTest("HARRY POTTER", "1000000$", "SB", "FOLD", "1", "2_cuori.png", "2_quadri1.png", "avatar.png")));
         add(container, BorderLayout.NORTH);
     }
 

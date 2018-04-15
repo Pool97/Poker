@@ -1,10 +1,10 @@
-package graphics;
+package utils;
 
 /**
  * Rappresenta un messaggio proveniente dal Server contenente le informazioni riguardo a un giocatore avversario.
  */
 
-public class PlayerModel {
+public class PlayerModelTest {
     private String nickname;
     private String totalChips;
     private String actualPosition;
@@ -14,7 +14,7 @@ public class PlayerModel {
     private String firstCardFilename;
     private String secondCardFilename;
 
-    public PlayerModel(String nickname, String totalChips, String actualPosition, String action, String ranking, String firstCardFilename, String secondCardFilename, String avatarFilename) {
+    public PlayerModelTest(String nickname, String totalChips, String actualPosition, String action, String ranking, String firstCardFilename, String secondCardFilename, String avatarFilename) {
         this.nickname = nickname;
         this.totalChips = totalChips;
         this.actualPosition = actualPosition;
