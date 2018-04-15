@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class CardsPanel extends JPanel {
     private ArrayList<CardView> cardsList;
+    private Dimension cardsSize;
 
     /**
      * Costruttore vuoto di CardsPanel.
@@ -24,7 +25,8 @@ public class CardsPanel extends JPanel {
      * @param sizeLimit Limite massimo della lunghezza della sequenza.
      */
 
-    public CardsPanel(int sizeLimit){
+    public CardsPanel(Dimension cardsSize, int sizeLimit){
+        this.cardsSize = cardsSize;
         cardsList = new ArrayList<>(sizeLimit);
         cardsList.trimToSize();
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -63,6 +65,6 @@ public class CardsPanel extends JPanel {
 
     @Override
     public Dimension getMaximumSize() {
-        return new Dimension(cardsList.get(0).getPreferredSize().width * cardsList.size(), cardsList.get(0).getPreferredSize().height* cardsList.size());
+        return new Dimension(cardsSize.width * cardsList.size(), cardsSize.height * cardsList.size());
     }
 }

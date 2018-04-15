@@ -21,8 +21,8 @@ public class CommunityField extends JPanel {
      * Costruttore vuoto del CommunityField.
      */
 
-    public CommunityField(){
-        cardsPanel = new CardsPanel(5);
+    public CommunityField(Dimension cardsSize){
+        cardsPanel = new CardsPanel(cardsSize, 5);
         initView();
     }
 
@@ -34,13 +34,12 @@ public class CommunityField extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(Utils.TRANSPARENT);
-
         tooltip.setForeground(Color.WHITE);
         tooltip.setFont(Utils.getCustomFont(Font.BOLD, 40F));
         tooltip.setAlignmentX(Component.CENTER_ALIGNMENT);
         cardsPanel.setAlignmentX(CENTER_ALIGNMENT);
+        cardsPanel.setAlignmentY(CENTER_ALIGNMENT);
         add(tooltip);
-        add(Box.createVerticalGlue());
         add(cardsPanel);
     }
 
@@ -53,4 +52,5 @@ public class CommunityField extends JPanel {
     public void addNextCard(CardView nextCard){
         cardsPanel.addNextCard(nextCard);
     }
+
 }

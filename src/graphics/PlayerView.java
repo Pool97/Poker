@@ -57,7 +57,7 @@ public class PlayerView extends JPanel{
         actualPosition = new JLabel(playerModel.getActualPosition());
         action = new JLabel(playerModel.getAction());
         ranking = new JLabel(playerModel.getRanking());
-        cardsPanel = new CardsPanel(2);
+        cardsPanel = new CardsPanel(new Dimension((viewSize.width)/5, viewSize.height/2), 2);
         cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getFirstCardFilename(), "backBluePP.png"));
         cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getSecondCardFilename(), "backBluePP.png"));
 
@@ -176,5 +176,9 @@ public class PlayerView extends JPanel{
     @Override
     public Dimension getMaximumSize() {
         return viewSize;
+    }
+
+    public JLabel getNickname() {
+        return nickname;
     }
 }

@@ -10,75 +10,129 @@ import utils.Utils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 
 public class Game extends JFrame{
-    private JLabel info;
-    private JPanel container;
-    private JPanel container2;
+    private JPanel boardPanel;
+    private JPanel topPlayersPanel;
+    private JPanel middleContainer;
+    private ArrayList<PlayerView> playerViews;
+    private CommunityField communityField;
 
-    public Game(){
+    public final static String FIELD_IMAGE = "board.png";
+    public final static String CARD_BACK = "backBluePP.png";
+
+    public Game(ArrayList<PlayerView> playerViews, CommunityField communityField){
+        this.playerViews = playerViews;
+        this.communityField = communityField;
+        middleContainer= new JPanel();
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(screenSize);
+
+        initBoardPanel();
+        initTopPlayersPanel();
+        initMiddleContainer();
+
+        boardPanel.add(new JButton(""), new GBC(0, 0, 1, 20));
+
+        GBC secondConstr = new GBC(0, 1, 2, 1, 1, 25);
+        secondConstr.anchor = GBC.CENTER;
+        secondConstr.fill = GBC.BOTH;
+        boardPanel.add(topPlayersPanel, secondConstr);
+
+        GBC thirdConstr = new GBC(0, 2, 1, 25);
+        thirdConstr.anchor = GBC.NORTH;
+        thirdConstr.fill = GBC.BOTH;
+        boardPanel.add(middleContainer, thirdConstr);
+
+        boardPanel.add(new JButton("Interfaccia utente"), new GBC(0,3, 1, 30));
+    }
+
+    private void initBoardPanel(){
         GridBagLayout mainLayout = new GridBagLayout();
-        BufferedImage board = Utils.loadImage("board2.png", new Dimension(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height));
-        Graphics g = board.getGraphics();
-        JPanel containerOfAll = new JPanel(){
+        BufferedImage board = Utils.loadImage(FIELD_IMAGE, getSize());
+        boardPanel = new JPanel(){
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(board, 0, 0, getContentPane().getSize().width, getContentPane().getSize().height, null);
+                g.drawImage(board, 0, 0, getSize().width, getSize().height, null);
             }
         };
 
-        containerOfAll.setBackground(Color.DARK_GRAY);
-        containerOfAll.setLayout(mainLayout);
-        add(containerOfAll);
-        JPanel players = new JPanel();
-        setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
-        players.setLayout(new FlowLayout(FlowLayout.CENTER, (getSize().width - 3 * 400) / 4, 0));
-        PlayerView test = new PlayerView(new Dimension(400, 200), new PlayerModelTest("HARRY POTTER", "1000000$", "D", "FOLD", "1", "backOrangePP.png", "backOrangePP.png", "avatar.png"));
-        players.add(test);
-        players.add(new PlayerView(new Dimension(400, 200), new PlayerModelTest("HERMIONE", "60000$", "SB", "CALL", "2", "backOrangePP.png", "backOrangePP.png", "avatar2.png")));
-        players.add(new PlayerView(new Dimension(400, 200), new PlayerModelTest("TIZIO", "40000$", "BB", "CHECK", "3", "backOrangePP.png", "backOrangePP.png", "zappa_avatar.png")));
-        players.setBackground(new Color(0,0,0,0));
-        JPanel container3 = new JPanel();
-        BoxLayout box = new BoxLayout(container3, BoxLayout.X_AXIS);
-        container3.setLayout(box);
-        container3.setBackground(new Color(0,0,0,0));
-        PlayerView playerFour = new PlayerView(new Dimension(400, 200), new PlayerModelTest("CAIO", "60000$", "SB", "CALL", "2","backOrangePP.png", "backOrangePP.png", "avatar3.png"));
-        playerFour.setAlignmentX(Component.LEFT_ALIGNMENT);
-        container3.add(Box.createHorizontalGlue());
-        container3.add(playerFour);
-        container3.add(Box.createHorizontalGlue());
-        CommunityField field  = new CommunityField();
-        field.addNextCard(new CardView(new Dimension(130, 180), "2CuoriR.png", "backBluePP.png"));
-        field.addNextCard(new CardView(new Dimension(130, 180), "7PiccheN.png", "backBluePP.png"));
-        field.addNextCard(new CardView(new Dimension(130, 180), "AQuadriR.png", "backBluePP.png"));
-        field.addNextCard(new CardView(new Dimension(130, 180), "KCuoriR.png", "backBluePP.png"));
-        field.addNextCard(new CardView(new Dimension(130, 180), "8FioriN.png", "backBluePP.png"));
-        field.setAlignmentX(Component.CENTER_ALIGNMENT);
-        container3.add(field);
-        container3.add(Box.createHorizontalGlue());
-        GBC firstConstraint = new GBC(0, 0, 50, 30);
-        GBC thirdConstraint = new GBC(0, 1, 2, 1, 100, 30);
-        thirdConstraint.anchor = GBC.CENTER;
-        thirdConstraint.fill = GBC.BOTH;
-        PlayerView playerFive  = new PlayerView(new Dimension(400, 200), new PlayerModelTest("SEMPRONIO", "60000$", "SB", "CALL", "2","backOrangePP.png", "backOrangePP.png", "avatar4.png"));
-        playerFive.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        container3.add(playerFive);
-        container3.add(Box.createHorizontalGlue());
-        GBC fourthConstraint = new GBC(0, 2, 100, 100 );
-        fourthConstraint.anchor = GBC.NORTHWEST;
-        fourthConstraint.fill = GBC.HORIZONTAL;
-        containerOfAll.add(container3, fourthConstraint);
-        containerOfAll.add(new JButton(""), firstConstraint);
-        containerOfAll.add(players, thirdConstraint);
-        JLabel community = new JLabel("Community Cards", JLabel.CENTER);
-        community.setFont(new Font("Helvetica", Font.PLAIN, 40));
+        boardPanel.setBackground(Color.DARK_GRAY);
+        boardPanel.setLayout(mainLayout);
+        add(boardPanel);
     }
 
+    private void initTopPlayersPanel(){
+        topPlayersPanel = new JPanel();
+        topPlayersPanel.setLayout(new FlowLayout(FlowLayout.CENTER, (getSize().width - 3 * playerViews.get(0).getPreferredSize().width)/3, 0));
+        topPlayersPanel.add(playerViews.get(0));
+        topPlayersPanel.setBackground(Utils.TRANSPARENT);
+        for(int i = 0; i < 3; i++){
+            playerViews.get(i).setAlignmentX(Component.CENTER_ALIGNMENT);
+            topPlayersPanel.add(playerViews.get(i));
+        }
+
+    }
+
+    private void initMiddleContainer(){
+        middleContainer.setLayout(new BoxLayout(middleContainer, BoxLayout.X_AXIS));
+        middleContainer.setBackground(Utils.TRANSPARENT);
+        middleContainer.add(Box.createHorizontalGlue());
+        System.out.println(playerViews.get(3).getNickname().getText());
+        System.out.println(playerViews.get(4).getNickname().getText());
+        playerViews.get(3).setAlignmentX(Component.LEFT_ALIGNMENT);
+        middleContainer.add(playerViews.get(3));
+        middleContainer.add(Box.createHorizontalGlue());
+
+        communityField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        middleContainer.add(communityField);
+        middleContainer.add(Box.createHorizontalGlue());
+
+        playerViews.get(4).setAlignmentX(Component.RIGHT_ALIGNMENT);
+        middleContainer.add(playerViews.get(4));
+        middleContainer.add(Box.createHorizontalGlue());
+
+    }
+
+
     public static void main(String [] args){
+
+        //Creazione di Players di test
+        Dimension playersSize = new Dimension(400, 200);
+        PlayerView test = new PlayerView(playersSize, new PlayerModelTest("HARRY POTTER", "1000000$",
+                "D", "FOLD", "1","backOrangePP.png", "backOrangePP.png", "avatar.png"));
+        PlayerView test1 = new PlayerView(playersSize, new PlayerModelTest("HERMIONE", "60000$", "SB", "CALL", "2",
+                "backOrangePP.png", "backOrangePP.png", "avatar2.png"));
+
+        PlayerView test2 = new PlayerView(playersSize, new PlayerModelTest("TIZIO", "40000$", "BB", "CHECK",
+                "3", "backOrangePP.png", "backOrangePP.png", "zappa_avatar.png"));
+
+        PlayerView test3 = new PlayerView(playersSize, new PlayerModelTest("CAIO", "60000$", "SB", "CALL",
+                "2","backOrangePP.png", "backOrangePP.png", "avatar3.png"));
+        PlayerView test4 = new PlayerView(playersSize, new PlayerModelTest("SEMPRONIO", "60000$", "SB", "CALL",
+                "2","backOrangePP.png", "backOrangePP.png", "avatar4.png"));
+
+        ArrayList<PlayerView> playerViewsTest = new ArrayList<>();
+        playerViewsTest.add(test);
+        playerViewsTest.add(test1);
+        playerViewsTest.add(test2);
+        playerViewsTest.add(test3);
+        playerViewsTest.add(test4);
+
+        Dimension cardsSize = new Dimension(130, 180);
+        CommunityField testField = new CommunityField(cardsSize);
+        testField.addNextCard(new CardView(cardsSize, "2CuoriR.png", "backBluePP.png"));
+        testField.addNextCard(new CardView(cardsSize, "7PiccheN.png", "backBluePP.png"));
+        testField.addNextCard(new CardView(cardsSize, "AQuadriR.png", "backBluePP.png"));
+        testField.addNextCard(new CardView(cardsSize, "KCuoriR.png", "backBluePP.png"));
+        testField.addNextCard(new CardView(cardsSize, "8FioriN.png", "backBluePP.png"));
+
         EventQueue.invokeLater(() -> {
-            Game game = new Game();
+            Game game = new Game(playerViewsTest, testField);
             game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             game.setVisible(true);
         });

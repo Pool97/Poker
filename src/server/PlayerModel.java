@@ -14,15 +14,17 @@ public class PlayerModel {
     private int rank;
     private int totalChips;
     private ArrayList<CardModel> turnCards;
+    private ArrayList<StakeAction> turnActions;
 
-    public PlayerModel(String nickname, TurnPosition turnPosition, StakeAction stakeAction, String avatarFilename, int rank, int totalChips, ArrayList<CardModel> turnCards) {
+    public PlayerModel(String nickname, TurnPosition turnPosition, StakeAction stakeAction, String avatarFilename, int rank, int totalChips) {
         this.nickname = nickname;
         this.turnPosition = turnPosition;
         this.stakeAction = stakeAction;
         this.avatarFilename = avatarFilename;
         this.rank = rank;
         this.totalChips = totalChips;
-        this.turnCards = turnCards;
+        turnCards = new ArrayList<>();
+        turnActions = new ArrayList<>();
     }
 
     public String getNickname() {
