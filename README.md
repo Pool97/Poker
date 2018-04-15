@@ -5,6 +5,7 @@ Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** d
 ## Built With
 
 * [IntelliJ](https://www.jetbrains.com/idea/) - The Java IDE for Professional Developers
+* [imgscalr](https://github.com/rkalla/imgscalr) - Java Image-Scaling Library 
 
 ## Authors
 
@@ -13,4 +14,4 @@ Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** d
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
