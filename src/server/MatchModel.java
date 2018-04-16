@@ -1,7 +1,5 @@
 package server;
 
-import java.util.ArrayList;
-
 /**
  * Il Model fondamentale del gioco.
  * È colui che gestisce l'inizio e la fine del match, come anche il proseguire di tutto il Match,
@@ -9,5 +7,24 @@ import java.util.ArrayList;
  */
 
 public class MatchModel {
-    private ArrayList<TurnModel> turns;
+    private int pot;
+    private int smallBlind;
+    private int bigBlind;
+
+    public MatchModel(){
+
+    }
+
+
+    public void setPot(int pot) {
+        this.pot = pot;
+    }
+
+    public void setSmallBlind(int smallBlind) {
+        this.smallBlind = smallBlind;
+    }
+
+    public void setBigBlind(int bigBlind) {
+        this.bigBlind = bigBlind;
+    }
 }
