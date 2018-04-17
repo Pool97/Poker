@@ -1,4 +1,9 @@
-package server;
+package server.states;
+
+import server.interfaces.Observable;
+import server.interfaces.Observer;
+import server.interfaces.PokerState;
+import server.model.MatchModel;
 
 import java.util.ArrayList;
 
@@ -23,14 +28,19 @@ public class StartMatch implements PokerState, Observable {
      */
 
     public StartMatch(MatchModel matchModel){
-        this.matchModel = matchModel;
         observers = new ArrayList<>();
-        matchModel.setPot(0);
-        matchModel.setSmallBlind(2000);
-        matchModel.setBigBlind(4000);
-        //informo i players e aggiorno la grafica
-        update();
+        this.matchModel = matchModel;
+        this.matchModel.resetPot();
 
+        //settare i parametri iniziali di Big e Small blind.
+    }
+
+    /**
+     * Permette di notificare a tutti i clients che la partita è iniziata.
+     */
+
+    public void notifyAllPlayers(){
+        update();
     }
 
     @Override
@@ -45,7 +55,8 @@ public class StartMatch implements PokerState, Observable {
 
     @Override
     public void update() {
-        for(Observer observer : observers)
+        for(Observer observer : observers) {
             observer.update(this);
+        }
     }
 }

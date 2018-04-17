@@ -1,4 +1,4 @@
-package server;
+package server.model;
 
 /**
  * I quattro semi previsti dal Poker.

@@ -1,4 +1,4 @@
-package graphics;
+package view;
 
 import utils.GBC;
 import utils.PlayerModelTest;

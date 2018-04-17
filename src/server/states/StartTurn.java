@@ -1,4 +1,9 @@
-package server;
+package server.states;
+
+import server.interfaces.Observable;
+import server.interfaces.Observer;
+import server.interfaces.PokerState;
+import server.model.MatchModel;
 
 import java.util.ArrayList;
 
@@ -14,9 +19,10 @@ import java.util.ArrayList;
  * @since 1.0
  */
 
-public class StartTurn implements PokerState, Observable{
+public class StartTurn implements PokerState, Observable {
     private MatchModel matchModel;
     private ArrayList<Observer> observers;
+
 
     /**
      * Costruttore della classe StartTurn.
@@ -26,12 +32,12 @@ public class StartTurn implements PokerState, Observable{
      */
 
     public StartTurn(MatchModel matchModel){
-        this.matchModel = matchModel;
         observers = new ArrayList<>();
-        matchModel.setPot(0);
-        matchModel.setBigBlind(20000);
-        matchModel.setSmallBlind(10000);
-        //aggiornare la posizione dei Players
+        this.matchModel = matchModel;
+        this.matchModel.resetPot();
+        this.matchModel.increaseBigBlind();
+        this.matchModel.increaseSmallBlind();
+        this.matchModel.movePlayersPosition();
         update();
     }
 

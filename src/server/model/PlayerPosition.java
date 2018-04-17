@@ -1,4 +1,4 @@
-package server;
+package server.model;
 
 /**
  * Le possibili posizioni previste dal Poker.
@@ -16,6 +16,6 @@ package server;
  * @author Nipuna Perera
  */
 
-public enum TurnPosition {
+public enum PlayerPosition {
     D, SB, BB, UTG, HJ, CO
 }

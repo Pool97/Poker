@@ -1,4 +1,4 @@
-import graphics.CardView;
+import view.CardView;
 
 import javax.swing.*;
 import java.awt.*;

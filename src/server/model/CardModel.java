@@ -1,4 +1,4 @@
-package server;
+package server.model;
 
 /**
  * Model della carta da Poker.
