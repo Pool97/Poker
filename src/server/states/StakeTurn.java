@@ -12,6 +12,7 @@ public class StakeTurn implements PokerState, Observable {
     private ArrayList<Observer> observers;
 
     public StakeTurn(){
+        observers = new ArrayList<>();
         stakeManager = new StakeManager();
     }
 
@@ -26,9 +27,7 @@ public class StakeTurn implements PokerState, Observable {
     }
 
     @Override
-    public void update() {
-        for(Observer observer : observers){
-            observer.update(this);
-        }
+    public void notifyObservers() {
+        observers.stream().forEach(observer -> observer.update(this));
     }
 }

@@ -684,7 +684,7 @@ public class Scalr {
 					(int) Math.round(resultBounds.getWidth()),
 					(int) Math.round(resultBounds.getHeight()));
 
-			// Perform the operation, update our result to return.
+			// Perform the operation, notifyObservers our result to return.
 			BufferedImage result = op.filter(src, dest);
 
 			/*
@@ -696,7 +696,7 @@ public class Scalr {
 				src.flush();
 
 			/*
-			 * Incase there are more operations to perform, update what we
+			 * Incase there are more operations to perform, notifyObservers what we
 			 * consider the 'src' reference to our last result so on the next
 			 * iteration the next op is applied to this result and not back
 			 * against the original src passed in.

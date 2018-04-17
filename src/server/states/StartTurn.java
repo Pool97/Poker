@@ -38,7 +38,7 @@ public class StartTurn implements PokerState, Observable {
         this.matchModel.increaseBigBlind();
         this.matchModel.increaseSmallBlind();
         this.matchModel.movePlayersPosition();
-        update();
+        this.notifyObservers();
     }
 
     /**
@@ -67,9 +67,7 @@ public class StartTurn implements PokerState, Observable {
      */
 
     @Override
-    public void update() {
-        for(Observer observer : observers){
-            observer.update(this);
-        }
+    public void notifyObservers() {
+        observers.stream().forEach(observer -> observer.update(this));
     }
 }

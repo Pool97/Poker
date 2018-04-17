@@ -40,7 +40,7 @@ public class StartMatch implements PokerState, Observable {
      */
 
     public void notifyAllPlayers(){
-        update();
+        this.notifyObservers();
     }
 
     @Override
@@ -54,9 +54,7 @@ public class StartMatch implements PokerState, Observable {
     }
 
     @Override
-    public void update() {
-        for(Observer observer : observers) {
-            observer.update(this);
-        }
+    public void notifyObservers() {
+        observers.stream().forEach(observer -> observer.update(this));
     }
 }
