@@ -35,8 +35,7 @@ public class StartTurn implements PokerState, Observable {
         observers = new ArrayList<>();
         this.matchModel = matchModel;
         this.matchModel.resetPot();
-        this.matchModel.increaseBigBlind();
-        this.matchModel.increaseSmallBlind();
+        this.matchModel.increaseBlinds();
         this.matchModel.movePlayersPosition();
         this.notifyObservers();
     }
@@ -63,7 +62,7 @@ public class StartTurn implements PokerState, Observable {
 
     /**
      * Permette di informare tutti gli osservatori che lo StartTurn si è concluso e che è possibile
-     * passare al prossimo turno.
+     * passare al prossimo stato.
      */
 
     @Override

@@ -31,16 +31,19 @@ public class StartMatch implements PokerState, Observable {
         observers = new ArrayList<>();
         this.matchModel = matchModel;
         this.matchModel.resetPot();
-
-        //settare i parametri iniziali di Big e Small blind.
+        this.matchModel.setStartingChipAmount();
+        this.matchModel.setInitialBlinds();
+        this.matchModel.setFinalBigBlind();
     }
 
     /**
      * Permette di notificare a tutti i clients che la partita è iniziata.
      */
 
+    //TODO: impostare la logica con i Sockets
+
     public void notifyAllPlayers(){
-        this.notifyObservers();
+        notifyObservers();
     }
 
     @Override
