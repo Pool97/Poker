@@ -17,6 +17,7 @@ public class MatchModel {
     private int bigBlind;
     private int finalBigBlind;
     private ArrayList<PlayerModel> players;
+    private DeckModel deckModel;
     public final static int STARTING_CHIP_AMOUNT = 20000;
 
     /**

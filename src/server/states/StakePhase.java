@@ -7,11 +7,11 @@ import server.interfaces.PokerState;
 
 import java.util.ArrayList;
 
-public class StakeTurn implements PokerState, Observable {
+public class StakePhase implements PokerState, Observable {
     private StakeManager stakeManager;
     private ArrayList<Observer> observers;
 
-    public StakeTurn(){
+    public StakePhase(){
         observers = new ArrayList<>();
         stakeManager = new StakeManager();
     }

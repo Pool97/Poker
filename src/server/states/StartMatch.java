@@ -29,6 +29,7 @@ public class StartMatch implements PokerState, Observable {
 
     public StartMatch(MatchModel matchModel){
         observers = new ArrayList<>();
+        notifyAllPlayers();
         this.matchModel = matchModel;
         this.matchModel.resetPot();
         this.matchModel.setStartingChipAmount();

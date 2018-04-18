@@ -2,5 +2,5 @@ package server.states;
 
 import server.interfaces.PokerState;
 
-public class ShowdownTurn implements PokerState {
+public class ShowdownPhase implements PokerState {
 }

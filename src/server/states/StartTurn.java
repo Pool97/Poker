@@ -3,6 +3,7 @@ package server.states;
 import server.interfaces.Observable;
 import server.interfaces.Observer;
 import server.interfaces.PokerState;
+import server.model.DeckModel;
 import server.model.MatchModel;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
  * StartTurn rappresenta il secondo stato dell'automa.
  * Esso può iniziare per via di due transizioni:
  * - Transizione da StartMatch: StartTurn rappresenta il primo turno della partita di Poker.
- * - Transizione da ShowdownTurn: StartTurn rappresenta un nuovo turno della partita di Poker, subito
+ * - Transizione da ShowdownPhase: StartTurn rappresenta un nuovo turno della partita di Poker, subito
  * dopo la conclusione del precedente, conclusosi con lo stato di Showdown.
  *
  * @author Roberto Poletti
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 public class StartTurn implements PokerState, Observable {
     private MatchModel matchModel;
+    private DeckModel deckModel;
     private ArrayList<Observer> observers;
 
 
@@ -33,10 +35,13 @@ public class StartTurn implements PokerState, Observable {
 
     public StartTurn(MatchModel matchModel){
         observers = new ArrayList<>();
+        deckModel = new DeckModel();
+        deckModel.createAndShuffle();
         this.matchModel = matchModel;
         this.matchModel.resetPot();
         this.matchModel.increaseBlinds();
         this.matchModel.movePlayersPosition();
+        //informa i players del cambiamento
         this.notifyObservers();
     }
 

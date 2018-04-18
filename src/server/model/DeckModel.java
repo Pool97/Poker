@@ -3,7 +3,10 @@ package server.model;
 
 import javafx.util.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -15,29 +18,37 @@ import java.util.stream.Collectors;
  */
 
 public class DeckModel {
-
-    private Set<Pair<CardSuit, CardRank>> deck;
+    private Stack<Pair<CardSuit, CardRank>> deck;
 
     /**
-     * Costruttore vuoto di DeckModel
+     * Costruttore vuoto di DeckModel.
      */
 
     public DeckModel(){
-        deck = new HashSet<>();
+        deck = new Stack<>();
+    }
+
+    private static List<Pair<Integer, Integer>> createDeck(){
+        List<Pair<Integer, Integer>> orderedDeck = new ArrayList<>();
+        for (int i = 0; i < 14; ++i)
+            for (int j = 0; j < 4; ++j)
+                orderedDeck.add(new Pair<>(j, i));
+        return orderedDeck;
     }
 
     /**
-     * Permette di creare il Deck, effettuando un mescolamento di tutte le carte.
-     * Ancora da testare il suo funzionamento.
+     * Permette la creazione di un Deck di carte da Poker e il suo mescolamento.
      */
 
-    public void shuffle(){
-        List<Pair<Integer, Integer>> shuffled = new ArrayList<>();
-        for (int i = 0; i < 14; ++i)
-            for (int j = 0; j < 4; ++j)
-                shuffled.add(new Pair<>(i, j));
+    public void createAndShuffle(){
+        List<Pair<Integer, Integer>> deckShuffled = createDeck();
+        Collections.shuffle(deckShuffled);
+        deck = deckShuffled.stream()
+                .map(pair -> new Pair<>(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()]))
+                .collect(Collectors.toCollection(Stack<Pair<CardSuit, CardRank>>::new));
+    }
 
-       Collections.shuffle(shuffled);
-       deck = shuffled.stream().map(pair -> new Pair<>(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()])).collect(Collectors.toSet());
+    public Pair<CardSuit, CardRank> nextCard(){
+        return deck.pop();
     }
 }

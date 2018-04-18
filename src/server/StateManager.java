@@ -3,8 +3,8 @@ package server;
 import server.interfaces.Observable;
 import server.interfaces.Observer;
 import server.model.MatchModel;
-import server.states.ShowdownTurn;
-import server.states.StakeTurn;
+import server.socket.ServerSocketManager;
+import server.states.StakePhase;
 import server.states.StartMatch;
 import server.states.StartTurn;
 
@@ -23,6 +23,7 @@ public class StateManager implements Observer {
     private MatchModel matchModel;
 
     public StateManager(){
+        ServerSocketManager connectionHandler = new ServerSocketManager();
         matchModel = new MatchModel();
         StartMatch startMatch = new StartMatch(matchModel);
         startMatch.attach(this);
@@ -37,10 +38,10 @@ public class StateManager implements Observer {
             startTurn.attach(this);
         }
         if(observable instanceof StartTurn)
-            new StakeTurn();
+            new StakePhase();
 
-        if(observable instanceof StakeTurn)
-            new ShowdownTurn();
+        //if(observable instanceof StakePhase)
+            //new FlopPhase();
     }
 
     public static void main(String [] args){
