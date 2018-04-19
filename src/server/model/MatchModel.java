@@ -31,6 +31,9 @@ public class MatchModel {
         bigBlind = 0;
     }
 
+    public int getPot(){
+        return pot;
+    }
     public int getSmallBlind() {
         return smallBlind;
     }

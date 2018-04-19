@@ -8,6 +8,10 @@ import server.states.StakePhase;
 import server.states.StartMatch;
 import server.states.StartTurn;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
+
 /**
  * Gestore dell'automa a stati finiti. Permette di effettuare le varie transizioni da uno stato all'altro attraverso
  * il pattern Observer. Ogni stato, appena si conclude, notifica allo StateManager che può effettuare la transizione
@@ -21,13 +25,30 @@ import server.states.StartTurn;
 
 public class StateManager implements Observer {
     private MatchModel matchModel;
+    private CountDownLatch waitingForNumberPlayers;
+    private CountDownLatch waitingPlayers;
+    private ServerSocketManager connectionHandler;
+    private static Logger logger = Logger.getLogger(ServerSocketManager.class.getName());
 
-    public StateManager(){
-        ServerSocketManager connectionHandler = new ServerSocketManager();
+    public StateManager() throws InterruptedException {
         matchModel = new MatchModel();
-        StartMatch startMatch = new StartMatch(matchModel);
-        startMatch.attach(this);
-        startMatch.notifyAllPlayers();
+        waitingForNumberPlayers = new CountDownLatch(1);
+        connectionHandler = new ServerSocketManager(waitingForNumberPlayers);
+        new Thread(connectionHandler).start();
+        waitingForNumberPlayers.await();
+        int playerNumbers = connectionHandler.getTotalPlayers();
+        waitingPlayers = new CountDownLatch(playerNumbers);
+        connectionHandler.setCountdownForPlayers(waitingPlayers);
+
+        try {
+            waitingPlayers.await(); //aspetta finchè tutti i Clients non si sono connessi
+            logger.info("SERVER -> TUTTI I GIOCATORI SONO CONNESSI, LA PARTITA PUÒ INIZIARE.");
+            StartMatch startMatch = new StartMatch(matchModel);
+            startMatch.attach(this);
+            startMatch.notifyAllPlayers(connectionHandler.getAllClientsConnection());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -37,6 +58,7 @@ public class StateManager implements Observer {
             StartTurn startTurn = new StartTurn(matchModel);
             startTurn.attach(this);
         }
+
         if(observable instanceof StartTurn)
             new StakePhase();
 
@@ -44,7 +66,7 @@ public class StateManager implements Observer {
             //new FlopPhase();
     }
 
-    public static void main(String [] args){
+    public static void main(String [] args) throws ExecutionException, InterruptedException {
         StateManager manager = new StateManager();
     }
 }

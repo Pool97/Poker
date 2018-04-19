@@ -21,7 +21,6 @@ public class PlayerModel {
     private String avatarFilename;
     private int rank;
     private int totalChips;
-    //private ArrayList<CardModel> turnCards;
     private ArrayList<StakeAction> turnActions;
 
     public PlayerModel(String nickname, PlayerPosition turnPosition, StakeAction stakeAction, String avatarFilename, int rank, int totalChips) {
@@ -31,7 +30,6 @@ public class PlayerModel {
         this.avatarFilename = avatarFilename;
         this.rank = rank;
         this.totalChips = totalChips;
-        //turnCards = new ArrayList<>();
         turnActions = new ArrayList<>();
     }
 
@@ -59,7 +57,7 @@ public class PlayerModel {
      */
 
     public boolean hasLost(){
-        return totalChips == 0 ? true : false;
+        return totalChips == 0;
     }
 
 }

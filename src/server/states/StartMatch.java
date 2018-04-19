@@ -5,6 +5,7 @@ import server.interfaces.Observer;
 import server.interfaces.PokerState;
 import server.model.MatchModel;
 
+import java.net.Socket;
 import java.util.ArrayList;
 
 /**
@@ -22,6 +23,7 @@ public class StartMatch implements PokerState, Observable {
     private MatchModel matchModel;
     private ArrayList<Observer> observers;
 
+
     /**
      * Costruttore vuoto della classe StartMatch.
      * Setta i parametri iniziali del match e informa tutti i Players che la partità può iniziare.
@@ -29,7 +31,6 @@ public class StartMatch implements PokerState, Observable {
 
     public StartMatch(MatchModel matchModel){
         observers = new ArrayList<>();
-        notifyAllPlayers();
         this.matchModel = matchModel;
         this.matchModel.resetPot();
         this.matchModel.setStartingChipAmount();
@@ -41,9 +42,9 @@ public class StartMatch implements PokerState, Observable {
      * Permette di notificare a tutti i clients che la partita è iniziata.
      */
 
-    //TODO: impostare la logica con i Sockets
-
-    public void notifyAllPlayers(){
+    public void notifyAllPlayers(ArrayList<Socket> clientConnections){
+        /*for(int i = 0; i < clientConnections.size(); i++)
+            new EchoThread(clientConnections.get(i), "" + i);*/
         notifyObservers();
     }
 
