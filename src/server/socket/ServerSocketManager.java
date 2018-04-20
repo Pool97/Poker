@@ -32,7 +32,7 @@ public class ServerSocketManager implements Runnable {
     private final static String REMOTE_PORT_INFO = " ALLA PORTA REMOTA ";
     private final static String LOCAL_PORT_INFO = " E ALLA PORTA LOCALE ";
     private final static String SERVER_ERROR = "I/O ERROR. ";
-    private final static String WAITING_FOR_INFO= "SERVER -> IN ATTESA DI ";
+    private final static String WAITING_FOR_INFO= "SERVER -> IN ATTESA DI ALTRI ";
     private final static String PLAYERS = " GIOCATORI \n";
 	private final static String SERVER_SHUTDOWN_INFO = "SHUTTING DOWN THE SERVER...\n";
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";

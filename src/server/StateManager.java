@@ -9,7 +9,6 @@ import server.states.StartMatch;
 import server.states.StartTurn;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
@@ -25,24 +24,24 @@ import java.util.logging.Logger;
 
 public class StateManager implements Observer {
     private MatchModel matchModel;
-    private CountDownLatch waitingForNumberPlayers;
-    private CountDownLatch waitingPlayers;
-    private ServerSocketManager connectionHandler;
     private static Logger logger = Logger.getLogger(ServerSocketManager.class.getName());
+    private final static String PLAYERS_CONNECTED_INFO = "SERVER -> TUTTI I GIOCATORI SONO CONNESSI, LA PARTITA PUÒ INIZIARE. \n";
 
     public StateManager() throws InterruptedException {
         matchModel = new MatchModel();
-        waitingForNumberPlayers = new CountDownLatch(1);
-        connectionHandler = new ServerSocketManager(waitingForNumberPlayers);
+
+        CountDownLatch waitingForNumberPlayers = new CountDownLatch(1);
+        ServerSocketManager connectionHandler = new ServerSocketManager(waitingForNumberPlayers);
         new Thread(connectionHandler).start();
         waitingForNumberPlayers.await();
+
         int playerNumbers = connectionHandler.getTotalPlayers();
-        waitingPlayers = new CountDownLatch(playerNumbers);
+        CountDownLatch waitingPlayers = new CountDownLatch(playerNumbers);
         connectionHandler.setCountdownForPlayers(waitingPlayers);
 
         try {
-            waitingPlayers.await(); //aspetta finchè tutti i Clients non si sono connessi
-            logger.info("SERVER -> TUTTI I GIOCATORI SONO CONNESSI, LA PARTITA PUÒ INIZIARE.");
+            waitingPlayers.await();
+            logger.info(PLAYERS_CONNECTED_INFO);
             StartMatch startMatch = new StartMatch(matchModel);
             startMatch.attach(this);
             startMatch.notifyAllPlayers(connectionHandler.getAllClientsConnection());
@@ -66,7 +65,7 @@ public class StateManager implements Observer {
             //new FlopPhase();
     }
 
-    public static void main(String [] args) throws ExecutionException, InterruptedException {
+    public static void main(String [] args) throws InterruptedException {
         StateManager manager = new StateManager();
     }
 }

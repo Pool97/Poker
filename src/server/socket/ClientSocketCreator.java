@@ -26,18 +26,18 @@ public class ClientSocketCreator implements Runnable{
 
     private static Logger logger = Logger.getLogger(ClientSocketCreator.class.getName());
 
-    private final static String CLIENT_CREATOR_INFO = "CLIENT CREATOR ";
-    private final static String CONNECTING_INFO = " -> STA CERCANDO DI STABILIRE UNA CONNESSIONE VERSO IL SERVER";
-    private final static String CONNECTION_ESTABLISHED_INFO = " -> CONNESSIONE AVVENUTA VERSO IL SERVER ";
-    private final static String CLOSING_STREAMS_INFO = " -> CHIUSURA DEGLI STREAMS";
-    private final static String STREAMS_CREATION_INFO = "-> STREAMS CREATI";
-    private final static String MESSAGE_SENT_INFO = " -> INFORMATO IL SERVER SUL NUMERO TOTALE DEI GIOCATORI";
-    private final static String SERVICE_INTERRUPTED = " -> STO INTERROMPENDO IL SERVIZIO PER UN ERRORE I/O";
+    private final static String CLIENT_CREATOR_INFO = "CLIENT CREATOR ->";
+    private final static String CONNECTING_INFO = " STA CERCANDO DI STABILIRE UNA CONNESSIONE VERSO IL SERVER ";
+    private final static String CONNECTION_ESTABLISHED_INFO = " CONNESSIONE AVVENUTA VERSO IL SERVER ";
+    private final static String CLOSING_STREAMS_INFO = " CHIUSURA DEGLI STREAMS \n";
+    private final static String STREAMS_CREATION_INFO = " STREAMS CREATI \n";
+    private final static String MESSAGE_SENT_INFO = " INFORMATO IL SERVER SUL NUMERO TOTALE DEI GIOCATORI \n";
+    private final static String SERVICE_INTERRUPTED = " STO INTERROMPENDO IL SERVIZIO PER UN ERRORE I/O \n";
     private final static String PORT_INFO = " ALLA PORTA ";
 
     /**
      * Costruttore della classe ClientSocketCreator.
-     * Per creare la partita sono necessarie come informazioni solo gli argomenti in ingresso al costruttore.
+     * Per creare la partita sono necessari solo gli argomenti in ingresso al costruttore.
      *
      * @param nickname Nickname del Player che crea la stanza
      * @param totalPlayers Numero dei partecipanti alla partita
@@ -61,10 +61,10 @@ public class ClientSocketCreator implements Runnable{
     }
 
     private void attemptToConnect(){
-        logger.info(CLIENT_CREATOR_INFO + nickname + CONNECTING_INFO + serverName + PORT_INFO + serverPort);
+        logger.info(CLIENT_CREATOR_INFO + nickname + CONNECTING_INFO + serverName + PORT_INFO + serverPort + "\n");
         try {
             socket = new Socket(serverName, serverPort);
-            logger.info(CLIENT_CREATOR_INFO + nickname + CONNECTION_ESTABLISHED_INFO + serverName + PORT_INFO + serverPort);
+            logger.info(CLIENT_CREATOR_INFO + nickname + CONNECTION_ESTABLISHED_INFO + serverName + PORT_INFO + serverPort + "\n");
         } catch (IOException e) {
             e.printStackTrace();
             interruptService();
