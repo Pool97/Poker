@@ -1,11 +1,8 @@
-package main;
+package view;
 
 import utils.GBC;
 import utils.PlayerModelTest;
 import utils.Utils;
-import view.CardView;
-import view.CommunityField;
-import view.PlayerView;
 
 import javax.swing.*;
 import java.awt.*;

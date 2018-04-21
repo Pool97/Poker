@@ -1,4 +1,6 @@
-package server.socket;
+package client;
+
+import server.socket.WelcomePlayerMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -50,6 +52,11 @@ public class ClientSocket implements Runnable{
     public void run() {
         attemptToConnect();
         createStreams();
+        try {
+            output_stream.writeObject(new WelcomePlayerMessage(nickname, "avatarPlaceholder.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         close();
     }
 

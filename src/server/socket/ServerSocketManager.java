@@ -1,5 +1,7 @@
 package server.socket;
 
+import server.interfaces.Message;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,19 +22,19 @@ import java.util.logging.Logger;
 
 public class ServerSocketManager implements Runnable {
     private ServerSocket serverSocket;
-	private Socket socket;
-	private final Logger logger = Logger.getLogger(ServerSocketManager.class.getName());
 	private CountDownLatch playersSignal;
-	private CountDownLatch clientCreatorSignal;
+	private CountDownLatch roomCreationSignal;
 	private ArrayList<Socket> clients;
 	private int totalPlayers;
 
-    private final static String LISTEN_FOR_CLIENTS_INFO = "SERVER -> IN ATTESA DI CONNESSIONI... \n";
-    private final static String CLIENT_CONNECTED_INFO = "SERVER -> CONNESSO CON";
+	private final Logger logger = Logger.getLogger(ServerSocketManager.class.getName());
+	public final static String SERVER_INFO = "SERVER -> ";
+    private final static String LISTEN_FOR_CLIENTS_INFO = "IN ATTESA DI CONNESSIONI... \n";
+    private final static String CLIENT_CONNECTED_INFO = "CONNESSO CON";
     private final static String REMOTE_PORT_INFO = " ALLA PORTA REMOTA ";
     private final static String LOCAL_PORT_INFO = " E ALLA PORTA LOCALE ";
     private final static String SERVER_ERROR = "I/O ERROR. ";
-    private final static String WAITING_FOR_INFO= "SERVER -> IN ATTESA DI ALTRI ";
+    private final static String WAITING_FOR_INFO= "IN ATTESA DI ALTRI ";
     private final static String PLAYERS = " GIOCATORI \n";
 	private final static String SERVER_SHUTDOWN_INFO = "SHUTTING DOWN THE SERVER...\n";
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";
@@ -46,8 +48,8 @@ public class ServerSocketManager implements Runnable {
      * Viene inoltre effettuata un'istanza del ServerSocket.
      */
 
-	public ServerSocketManager(CountDownLatch clientCreatorSignal){
-		this.clientCreatorSignal = clientCreatorSignal;
+	public ServerSocketManager(CountDownLatch roomCreationSignal){
+		this.roomCreationSignal = roomCreationSignal;
 	    clients = new ArrayList<>();
 
 		try {
@@ -65,29 +67,32 @@ public class ServerSocketManager implements Runnable {
 	}
 
     /**
-     * Permette di rimanere in ascolto delle richieste di connessione da parte dei giocatori.
+     * Permette di rimanere in ascolto delle richieste iniziali di connessione da parte dei giocatori.
 	 * Il primo Client deve essere necessariamente il creatore della stanza.
 	 * Per ogni giocatore viene memorizzata la reference al suo Socket.
      * Si ricorda che la massima lunghezza della connection queue è pari a 8.
      */
 
 	private void listen(){
-        logger.info(LISTEN_FOR_CLIENTS_INFO);
+        logger.info(SERVER_INFO + LISTEN_FOR_CLIENTS_INFO);
 
         try {
-			socket = serverSocket.accept();
-			logger.info(CLIENT_CONNECTED_INFO + socket.getInetAddress() + REMOTE_PORT_INFO + socket.getPort() + LOCAL_PORT_INFO + socket.getLocalPort() + "\n");
+			Socket socket = serverSocket.accept();
+			logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + REMOTE_PORT_INFO + socket.getPort() + LOCAL_PORT_INFO + socket.getLocalPort() + "\n");
 
-			if(playersSignal != null)
+			if(isRoomCreationSignalExpire()) {
 				playersSignal.countDown();
-			else{
-				totalPlayers = new WelcomeThread(socket).call();
-				logger.info(WAITING_FOR_INFO + totalPlayers + PLAYERS);
-				clientCreatorSignal.countDown();
+				WelcomePlayerMessage message = listenForAMessage(socket);
+			} else{
+				WelcomeCreatorMessage message = listenForAMessage(socket);
+				totalPlayers = message.getMaxPlayers();
+				logger.info(SERVER_INFO + WAITING_FOR_INFO + totalPlayers + PLAYERS);
+				roomCreationSignal.countDown();
 			}
 
 			clients.add(socket);
 			logger.info(PLAYER_ADDED);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
@@ -105,8 +110,29 @@ public class ServerSocketManager implements Runnable {
 	 * @param waitingPlayers Segnale di Countdown per l'attesa dei giocatori del Match.
 	 */
 
-	public void setCountdownForPlayers(CountDownLatch waitingPlayers){
+	public void setCountdownForClients(CountDownLatch waitingPlayers){
 		this.playersSignal = waitingPlayers;
+	}
+
+	/**
+	 * Permette di settare un CountDown per l'attesa del creatore della stanza.
+	 * Una volta che il creatore si è connesso al Server, viene configurato il Match secondo i parametri scelti da esso
+	 * e mette il ServerSocketManager in condizione di aspettare tutte le altre connessioni dei players.
+	 *
+	 * @param roomCreationSignal Segnale di avvenuta ricezione del creatore della stanza.
+	 */
+
+	public void setCountdownForCreatorClient(CountDownLatch roomCreationSignal){
+		this.roomCreationSignal = roomCreationSignal;
+	}
+
+	/**
+	 * Permette di determinare se la connessione con il creatore della stanza è avvenuta oppure no.
+	 * @return True se è già avvenuta, False altrimenti.
+	 */
+
+	public boolean isRoomCreationSignalExpire(){
+		return roomCreationSignal.getCount() == 0;
 	}
 
 	/**
@@ -126,6 +152,18 @@ public class ServerSocketManager implements Runnable {
 
 	public ArrayList<Socket> getAllClientsConnection(){
 		return clients;
+	}
+
+	/**
+	 * Permette di rimanere in ascolto di un qualsiasi messaggio informativo inviato da un qualsiasi Client.
+	 *
+	 * @param socket Socket relativo al Player che si vuole ascoltare.
+	 * @param <T> Il messaggio da ascoltare dovrà essere un qualsiasi tipo di messaggio conforme all'interfaccia Message.
+	 * @return Il messaggio inviato dal Client.
+	 */
+
+	public <T extends Message> T listenForAMessage(Socket socket){
+		return new RequestHandler<T>(socket).call();
 	}
 }
 

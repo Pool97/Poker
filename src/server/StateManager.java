@@ -37,7 +37,7 @@ public class StateManager implements Observer {
 
         int playerNumbers = connectionHandler.getTotalPlayers();
         CountDownLatch waitingPlayers = new CountDownLatch(playerNumbers);
-        connectionHandler.setCountdownForPlayers(waitingPlayers);
+        connectionHandler.setCountdownForClients(waitingPlayers);
 
         try {
             waitingPlayers.await();

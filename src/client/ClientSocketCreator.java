@@ -1,4 +1,6 @@
-package server.socket;
+package client;
+
+import server.socket.WelcomeCreatorMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -56,7 +58,15 @@ public class ClientSocketCreator implements Runnable{
     public void run() {
         attemptToConnect();
         createStreams();
-        initProcessing();
+        try {
+            output_stream.writeObject(new WelcomeCreatorMessage(nickname, totalPlayers, 10000, "avatarPlaceholder.png"));
+            output_stream.writeObject(nickname);
+            output_stream.writeInt(totalPlayers);
+            logger.info(CLIENT_CREATOR_INFO + nickname + MESSAGE_SENT_INFO);
+        } catch (IOException e) {
+            e.printStackTrace();
+            interruptService();
+        }
         closeStreams();
     }
 
@@ -65,22 +75,6 @@ public class ClientSocketCreator implements Runnable{
         try {
             socket = new Socket(serverName, serverPort);
             logger.info(CLIENT_CREATOR_INFO + nickname + CONNECTION_ESTABLISHED_INFO + serverName + PORT_INFO + serverPort + "\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-            interruptService();
-        }
-    }
-
-    /**
-     * Permette al creatore della stanza di identificarsi presso il server e di informarlo sul numero massimo
-     * di partecipanti alla partita.
-     */
-
-    private void initProcessing(){
-        try {
-            output_stream.writeObject(nickname);
-            output_stream.writeInt(totalPlayers);
-            logger.info(CLIENT_CREATOR_INFO + nickname + MESSAGE_SENT_INFO);
         } catch (IOException e) {
             e.printStackTrace();
             interruptService();
