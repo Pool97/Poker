@@ -79,7 +79,6 @@ public class ServerSocketManager implements Runnable {
         try {
 			Socket socket = serverSocket.accept();
 			logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + REMOTE_PORT_INFO + socket.getPort() + LOCAL_PORT_INFO + socket.getLocalPort() + "\n");
-
 			if(isRoomCreationSignalExpire()) {
 				playersSignal.countDown();
 				WelcomePlayerMessage message = listenForAMessage(socket);
