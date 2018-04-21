@@ -1,17 +1,19 @@
 package server.states;
 
-import server.interfaces.Observable;
-import server.interfaces.Observer;
-import server.interfaces.PokerState;
+import interfaces.Observable;
+import interfaces.Observer;
+import interfaces.PokerState;
 import server.model.DeckModel;
 import server.model.MatchModel;
 
 import java.util.ArrayList;
 
 /**
- * StartTurn rappresenta il secondo stato dell'automa.
+ * Si supponga che il match di Poker sia rappresentato logicamente da un automa a stati finiti.
+ * StartTurn è lo stato iniziale dell'automa
+ *
  * Esso può iniziare per via di due transizioni:
- * - Transizione da StartMatch: StartTurn rappresenta il primo turno della partita di Poker.
+ * - Transizione da MatchConfigurator: StartTurn rappresenta il primo turno della partita di Poker.
  * - Transizione da ShowdownPhase: StartTurn rappresenta un nuovo turno della partita di Poker, subito
  * dopo la conclusione del precedente, conclusosi con lo stato di Showdown.
  *

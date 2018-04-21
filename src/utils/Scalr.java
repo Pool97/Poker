@@ -2038,7 +2038,7 @@ public class Scalr {
 	 * otherwise) to convert any inbound image from a poorly supported image
 	 * type into the 2 most well-supported image types in Java2D (
 	 * {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}
-	 * ) in order to ensure all subsequent view operations are performed as
+	 * ) in order to ensure all subsequent client.view operations are performed as
 	 * efficiently and correctly as possible.
 	 * <p/>
 	 * When using Java2D to work with image types that are not well supported,
@@ -2157,7 +2157,7 @@ public class Scalr {
 				interpolationHintValue);
 		resultGraphics.drawImage(src, 0, 0, targetWidth, targetHeight, null);
 
-		// Just to be clean, explicitly dispose our temporary view object
+		// Just to be clean, explicitly dispose our temporary client.view object
 		resultGraphics.dispose();
 
 		// Return the scaled image to the caller.

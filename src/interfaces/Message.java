@@ -1,4 +1,4 @@
-package server.interfaces;
+package interfaces;
 
 /**
  * Interfaccia standard per qualsiasi messaggio inviato tra Server e Client.

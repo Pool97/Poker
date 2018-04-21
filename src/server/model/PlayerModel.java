@@ -33,6 +33,11 @@ public class PlayerModel {
         turnActions = new ArrayList<>();
     }
 
+    public PlayerModel(String nickname, String avatarFilename){
+        this.nickname = nickname;
+        this.avatarFilename = avatarFilename;
+    }
+
     public PlayerModel(String nickname, PlayerPosition turnPosition) {
         this.nickname = nickname;
         this.turnPosition = turnPosition;

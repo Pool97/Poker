@@ -1,6 +1,6 @@
-package server.socket;
+package client.messages;
 
-import server.interfaces.Message;
+import interfaces.Message;
 
 import java.io.Serializable;
 
@@ -16,30 +16,20 @@ import java.io.Serializable;
  * @since 1.0
  */
 
-public class WelcomeCreatorMessage implements Message, Serializable {
-    private String nickname;
+public class CreationRoomMessage implements Message, Serializable {
     private int maxPlayers;
     private int totalChips;
-    private String avatarFilename;
 
     /**
-     * Costruttore della classe WelcomeCreatorMessage
+     * Costruttore della classe CreationRoomMessage
      *
-     * @param nickname Nickname del creatore della stanza.
      * @param maxPlayers Numero massimo di giocatori scelti per il Match.
      * @param totalChips Numero totale di chips iniziali per giocatore.
-     * @param avatarFilename Il nome dell'avatar scelto.
      */
 
-    public WelcomeCreatorMessage(String nickname, int maxPlayers, int totalChips, String avatarFilename) {
-        this.nickname = nickname;
+    public CreationRoomMessage(int maxPlayers, int totalChips) {
         this.maxPlayers = maxPlayers;
         this.totalChips = totalChips;
-        this.avatarFilename = avatarFilename;
-    }
-
-    public String getNickname() {
-        return nickname;
     }
 
     public int getMaxPlayers() {
@@ -48,9 +38,5 @@ public class WelcomeCreatorMessage implements Message, Serializable {
 
     public int getTotalChips() {
         return totalChips;
-    }
-
-    public String getAvatarFilename() {
-        return avatarFilename;
     }
 }

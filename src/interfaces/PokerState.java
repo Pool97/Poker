@@ -1,4 +1,4 @@
-package server.interfaces;
+package interfaces;
 
 public interface PokerState {
 }

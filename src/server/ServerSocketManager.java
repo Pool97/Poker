@@ -1,18 +1,25 @@
-package server.socket;
+package server;
 
-import server.interfaces.Message;
+import client.messages.CreationRoomMessage;
+import client.messages.WelcomePlayerMessage;
+import interfaces.Message;
+import utils.RequestHandler;
+import utils.RequestSender;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 /**
- * Classe che permette di gestire l'intera infrastruttura Server. È la principale responsabile del collegamento tra i Client e
+ * Classe che permette di gestire l'intera infrastruttura di rete lato Server. È la principale responsabile del collegamento tra i Client e
  * il Server.
  *
  * @author Nipuna Perera
@@ -25,10 +32,16 @@ public class ServerSocketManager implements Runnable {
 	private CountDownLatch playersSignal;
 	private CountDownLatch roomCreationSignal;
 	private ArrayList<Socket> clients;
-	private int totalPlayers;
+    private ArrayList<WelcomePlayerMessage> playersInfo;
+	private CreationRoomMessage matchConfig;
 
+    private final static ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final Logger logger = Logger.getLogger(ServerSocketManager.class.getName());
+
 	public final static String SERVER_INFO = "SERVER -> ";
+    public final static int SERVER_PORT = 4040;
+    public final static int MAX_CONNECTION_QUEUE_LENGTH = 8;
+
     private final static String LISTEN_FOR_CLIENTS_INFO = "IN ATTESA DI CONNESSIONI... \n";
     private final static String CLIENT_CONNECTED_INFO = "CONNESSO CON";
     private final static String REMOTE_PORT_INFO = " ALLA PORTA REMOTA ";
@@ -38,8 +51,6 @@ public class ServerSocketManager implements Runnable {
     private final static String PLAYERS = " GIOCATORI \n";
 	private final static String SERVER_SHUTDOWN_INFO = "SHUTTING DOWN THE SERVER...\n";
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";
-    private final static int SERVER_PORT = 4040;
-    private final static int MAX_CONNECTION_QUEUE_LENGTH = 8;
 
     /**
      * Costruttore vuoto di ServerSocketManager.
@@ -51,6 +62,7 @@ public class ServerSocketManager implements Runnable {
 	public ServerSocketManager(CountDownLatch roomCreationSignal){
 		this.roomCreationSignal = roomCreationSignal;
 	    clients = new ArrayList<>();
+	    playersInfo = new ArrayList<>();
 
 		try {
 			serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
@@ -59,6 +71,10 @@ public class ServerSocketManager implements Runnable {
 			logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
 		}
 	}
+
+	/**
+	 * {@link Runnable#run()}
+	 */
 
 	public void run() {
 		do
@@ -78,20 +94,19 @@ public class ServerSocketManager implements Runnable {
 
         try {
 			Socket socket = serverSocket.accept();
+            clients.add(socket);
 			logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + REMOTE_PORT_INFO + socket.getPort() + LOCAL_PORT_INFO + socket.getLocalPort() + "\n");
-			if(isRoomCreationSignalExpire()) {
+            logger.info(PLAYER_ADDED);
+
+            if(isRoomCreationSignalExpire()) {
+				playersInfo.add(listenForAMessage(socket));
 				playersSignal.countDown();
-				WelcomePlayerMessage message = listenForAMessage(socket);
-			} else{
-				WelcomeCreatorMessage message = listenForAMessage(socket);
-				totalPlayers = message.getMaxPlayers();
-				logger.info(SERVER_INFO + WAITING_FOR_INFO + totalPlayers + PLAYERS);
+			}else{
+				matchConfig = listenForAMessage(socket);
+				playersInfo.add(listenForAMessage(socket));
+				logger.info(SERVER_INFO + WAITING_FOR_INFO + (matchConfig.getMaxPlayers() - 1) + PLAYERS);
 				roomCreationSignal.countDown();
 			}
-
-			clients.add(socket);
-			logger.info(PLAYER_ADDED);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
@@ -135,18 +150,26 @@ public class ServerSocketManager implements Runnable {
 	}
 
 	/**
-	 * Restituisce il numero totale dei giocatori previsti dal match.
-	 * Si esclude dalla lista il creatore della stanza.
-	 * @return Numero totale dei giocatori del match.
+	 * Restituisce la configurazione del Match scelta dal creatore della stanza.
+	 * @return Configurazione del Match.
 	 */
 
-	public int getTotalPlayers(){
-		return totalPlayers;
-	}
+	public CreationRoomMessage getMatchConfiguration(){
+	    return matchConfig;
+    }
 
 	/**
-	 * Permette di restituire le reference ai Socket di tutti i giocatori del match.
-	 * @return Lista contenente i Socket dei vari giocatori.
+	 * Permette di restituire le informazioni impostate dai Players in fase pre-partita.
+	 * @return Informazioni iniziali provenienti dai Players.
+	 */
+
+	public ArrayList<WelcomePlayerMessage> getPlayersInformation(){
+	    return playersInfo;
+    }
+
+	/**
+	 * Permette di ritornare le connessioni con tutti i Clients.
+	 * @return ClientSockets
 	 */
 
 	public ArrayList<Socket> getAllClientsConnection(){
@@ -162,7 +185,41 @@ public class ServerSocketManager implements Runnable {
 	 */
 
 	public <T extends Message> T listenForAMessage(Socket socket){
-		return new RequestHandler<T>(socket).call();
+	    T message = null;
+        try {
+            message = executor.submit(new RequestHandler<T>(socket,logger)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+	/**
+	 * Permette di inviare un messaggio a un Client su un altro Thread.
+	 * @param socket Connessione con il Client.
+	 * @param message Messaggio da inviare
+	 * @param <T> Tipo di messaggio da inviare (tutti devono implementare {@link Message}
+	 */
+
+	public <T extends Message> void sendMessage(Socket socket, T message){
+		executor.submit(new RequestSender<>(socket, message, logger));
 	}
+
+	/**
+	 * Versione di {@link ServerSocketManager#sendMessage(Socket, Message)} temporizzata.
+	 * Questa si differenzia dalla sopraccitata per il fatto che il Thread chiamante viene bloccato
+	 * in attesa che il messaggio sia andato a buon fine.
+	 *
+	 * @param socket Connessione con il Client.
+	 * @param waiter Temporizzatore
+	 * @param message Messaggio da inviare
+	 * @param <T> Tipo di messaggio da inviare (tutti devono implementare {@link Message}
+	 */
+
+	public <T extends Message> void sendMessage(Socket socket, CountDownLatch waiter, T message){
+		executor.submit(new RequestSender<>(socket, message, logger));
+		waiter.countDown();
+	}
+
 }
 

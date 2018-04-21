@@ -1,4 +1,4 @@
-package view;
+package client.view;
 
 import utils.Utils;
 
@@ -22,7 +22,7 @@ public class CardView extends JPanel{
     private final static int TOP_LEFT_CORNER = 0;
 
     /**
-     * Costruttore della view CardView. L'idea è ottenere il nome del file della carta da caricare nell'oggetto attraverso
+     * Costruttore della client.view CardView. L'idea è ottenere il nome del file della carta da caricare nell'oggetto attraverso
      * un Controller specifico, incaricato di restare in ascolto del Server.
      *
      * @param viewSize Dimensione della CardView

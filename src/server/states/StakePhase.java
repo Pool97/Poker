@@ -1,9 +1,9 @@
 package server.states;
 
+import interfaces.Observable;
+import interfaces.Observer;
+import interfaces.PokerState;
 import server.StakeManager;
-import server.interfaces.Observable;
-import server.interfaces.Observer;
-import server.interfaces.PokerState;
 
 import java.util.ArrayList;
 

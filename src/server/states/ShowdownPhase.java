@@ -1,6 +1,6 @@
 package server.states;
 
-import server.interfaces.PokerState;
+import interfaces.PokerState;
 
 public class ShowdownPhase implements PokerState {
 }

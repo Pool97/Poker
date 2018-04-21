@@ -1,5 +1,5 @@
+import client.view.PlayerView;
 import utils.PlayerModelTest;
-import view.PlayerView;
 
 import javax.swing.*;
 import java.awt.*;

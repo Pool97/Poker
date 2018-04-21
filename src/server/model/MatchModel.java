@@ -16,9 +16,9 @@ public class MatchModel {
     private int smallBlind;
     private int bigBlind;
     private int finalBigBlind;
+    private int startingChipAmount;
     private ArrayList<PlayerModel> players;
     private DeckModel deckModel;
-    public final static int STARTING_CHIP_AMOUNT = 20000;
 
     /**
      * Costruttore vuoto della classe MatchModel.
@@ -90,10 +90,10 @@ public class MatchModel {
      * Permette di impostare l'importo iniziale di chips-per-player. Attualmente, per semplicità, l'importo è di 20000.
      */
 
-    //TODO: permettere agli utenti di scegliere l'importo iniziale di chips-per-player.
 
-    public void setStartingChipAmount(){
-        players.stream().forEach(playerModel -> playerModel.setTotalChips(STARTING_CHIP_AMOUNT));
+    public void setStartingChipAmount(int startingChipAmount){
+        this.startingChipAmount = startingChipAmount;
+        players.forEach(playerModel -> playerModel.setTotalChips(startingChipAmount));
     }
 
     /**
@@ -104,7 +104,7 @@ public class MatchModel {
      */
 
     public void setInitialBlinds(){
-        bigBlind = STARTING_CHIP_AMOUNT / 50;
+        bigBlind = startingChipAmount / 50;
         smallBlind = bigBlind / 2;
     }
 
@@ -114,6 +114,6 @@ public class MatchModel {
      */
 
     public void setFinalBigBlind(){
-        finalBigBlind = STARTING_CHIP_AMOUNT;
+        finalBigBlind = startingChipAmount;
     }
 }

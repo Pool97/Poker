@@ -1,17 +1,27 @@
 package client;
 
-import server.interfaces.Message;
-import server.socket.WelcomeCreatorMessage;
-import server.socket.WelcomePlayerMessage;
+import interfaces.Message;
+import utils.RequestSender;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
+
+/**
+ * Classe che permette di gestire l'infrastruttura di rete lato Client.
+ *
+ * @author Roberto Poletti
+ * @author Nipuna Perera
+ * @since 1.0
+ */
 
 public class ClientSocketManager {
     private Socket socket;
     private String serverName;
     private int serverPort;
+    private final static ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final static Logger logger = Logger.getLogger(ClientSocketManager.class.getName());
     private final static String CLIENT_INFO = "CLIENT -> ";
@@ -19,6 +29,13 @@ public class ClientSocketManager {
     private final static String CONNECTION_ESTABLISHED_INFO = " CONNESSIONE AVVENUTA VERSO IL SERVER ";
     private final static String PORT_INFO = " ALLA PORTA ";
     private final static String SERVICE_INTERRUPTED = " STO INTERROMPENDO IL SERVIZIO PER UN ERRORE I/O \n";
+
+    /**
+     * Costruttore della classe ClientSocketManager.
+     *
+     * @param serverName Nome del Server a cui connettersi
+     * @param serverPort Porta del Server a cui connettersi
+     */
 
     public ClientSocketManager(String serverName, int serverPort){
         this.serverName = serverName;
@@ -38,26 +55,13 @@ public class ClientSocketManager {
         }
     }
 
+    /**
+     * Permette di inviare un messaggio al Server su un altro Thread.
+     * @param message Messaggio da inviare
+     * @param <T> Tipo di messaggio da inviare (tutti devono implementare {@link Message}
+     */
+
     public <T extends Message> void sendMessage(T message){
-        new Thread(new RequestSender<>(socket, message)).start();
-    }
-
-    public static void main(String [] args){
-        WelcomeCreatorMessage creatorMessage = new WelcomeCreatorMessage("Pool97", 2, 20000, "creator.png");
-        WelcomePlayerMessage perryMessage = new WelcomePlayerMessage("Perry97", "perry.png");
-        WelcomePlayerMessage tunsiMessage = new WelcomePlayerMessage("Tunsi97", "tunsi.png");
-
-        ClientSocketManager creatorClient = new ClientSocketManager("localhost", 4040);
-        creatorClient.sendMessage(creatorMessage);
-
-        ClientSocketManager perryClient = new ClientSocketManager("localhost", 4040);
-        perryClient.sendMessage(perryMessage);
-
-        ClientSocketManager tunsiClient = new ClientSocketManager("localhost", 4040);
-        tunsiClient.sendMessage(tunsiMessage);
-        //new Thread(new RequestSender<>("localhost", 4040, creatorMessage)).start();
-        ///new Thread(new RequestSender<>("localhost", 4040, perryMessage)).start();
-        //new Thread(new RequestSender<>("localhost",4040, tunsiMessage)).start();
-
+        executor.submit(new RequestSender<>(socket, message, logger));
     }
 }
