@@ -16,18 +16,18 @@ import java.io.Serializable;
  * @since 1.0
  */
 
-public class WelcomePlayerMessage implements Message, Serializable {
+public class WelcomeMessage implements Message, Serializable {
     private String nickname;
     private String avatarFilename;
 
     /**
-     * Costruttore della classe WelcomePlayerMessage.
+     * Costruttore della classe WelcomeMessage.
      *
      * @param nickname Nickname del Player
      * @param avatarFilename Il nome dell'avatar scelto.
      */
 
-    public WelcomePlayerMessage(String nickname, String avatarFilename) {
+    public WelcomeMessage(String nickname, String avatarFilename) {
         this.nickname = nickname;
         this.avatarFilename = avatarFilename;
     }

@@ -1,4 +1,4 @@
-package server;
+package server.model;
 
 /**
  * Le possibili azioni previste per un giocatore nel Poker nell'arco di una puntata. Sarebbe logicamente errato legare una singola puntata al'interno turno

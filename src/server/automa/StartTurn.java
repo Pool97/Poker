@@ -1,12 +1,18 @@
-package server.states;
+package server.automa;
 
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.PokerState;
+import interfaces.StateSwitcher;
+import server.messages.StartMessage;
 import server.model.DeckModel;
 import server.model.MatchModel;
+import server.model.Room;
+import server.socket.ServerManager;
 
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Si supponga che il match di Poker sia rappresentato logicamente da un automa a stati finiti.
@@ -14,7 +20,7 @@ import java.util.ArrayList;
  *
  * Esso può iniziare per via di due transizioni:
  * - Transizione da MatchConfigurator: StartTurn rappresenta il primo turno della partita di Poker.
- * - Transizione da ShowdownPhase: StartTurn rappresenta un nuovo turno della partita di Poker, subito
+ * - Transizione da ShowdownState: StartTurn rappresenta un nuovo turno della partita di Poker, subito
  * dopo la conclusione del precedente, conclusosi con lo stato di Showdown.
  *
  * @author Roberto Poletti
@@ -25,6 +31,8 @@ import java.util.ArrayList;
 public class StartTurn implements PokerState, Observable {
     private MatchModel matchModel;
     private DeckModel deckModel;
+    private static int TURN_NUMBER;
+    private ServerManager connectionHandler;
     private ArrayList<Observer> observers;
 
 
@@ -35,16 +43,12 @@ public class StartTurn implements PokerState, Observable {
      * @param matchModel Modello del Match
      */
 
-    public StartTurn(MatchModel matchModel){
+    public StartTurn(MatchModel matchModel, ServerManager connectionHandler) {
         observers = new ArrayList<>();
         deckModel = new DeckModel();
-        deckModel.createAndShuffle();
         this.matchModel = matchModel;
-        this.matchModel.resetPot();
-        this.matchModel.increaseBlinds();
-        this.matchModel.movePlayersPosition();
-        //informa i players del cambiamento
-        this.notifyObservers();
+        this.connectionHandler = connectionHandler;
+
     }
 
     /**
@@ -75,5 +79,39 @@ public class StartTurn implements PokerState, Observable {
     @Override
     public void notifyObservers() {
         observers.stream().forEach(observer -> observer.update(this));
+    }
+
+    //TODO: da rifattorizzare
+    @Override
+    public void start() {
+        deckModel.createAndShuffle();
+        matchModel.resetPot();
+        if (TURN_NUMBER == 0) {
+            matchModel.setStartingChipAmount(connectionHandler.getRoom().getSize() * 10000);
+
+            connectionHandler.getRoom().getPlayers().stream().forEach(player -> player.setTotalChips(matchModel.getStartingChipAmount()));
+            matchModel.setInitialBlinds();
+            matchModel.setFinalBigBlind();
+        } else {
+            matchModel.increaseBlinds();
+        }
+        TURN_NUMBER++;
+        Room room = connectionHandler.getRoom();
+        for (Socket socket : room.getConnections()) {
+            CountDownLatch countdown = new CountDownLatch(1);
+            connectionHandler.sendMessage(socket, countdown, new StartMessage(matchModel.getBigBlind(), matchModel.getSmallBlind(), matchModel.getPot(),
+                    matchModel.getStartingChipAmount()));
+            try {
+                countdown.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        notifyObservers();
+    }
+
+    @Override
+    public void accept(StateSwitcher switcher) {
+        switcher.switchState(this);
     }
 }

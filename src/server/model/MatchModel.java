@@ -1,7 +1,5 @@
 package server.model;
 
-import java.util.ArrayList;
-
 /**
  * Il Model fondamentale del gioco.
  * Permette di tenere traccia di tutti i cambiamenti avvenuti nel Match, dal suo inizio alla sua fine.
@@ -17,7 +15,6 @@ public class MatchModel {
     private int bigBlind;
     private int finalBigBlind;
     private int startingChipAmount;
-    private ArrayList<PlayerModel> players;
     private DeckModel deckModel;
 
     /**
@@ -25,7 +22,6 @@ public class MatchModel {
      */
 
     public MatchModel() {
-        players = new ArrayList<>();
         pot = 0;
         smallBlind = 0;
         bigBlind = 0;
@@ -34,33 +30,13 @@ public class MatchModel {
     public int getPot(){
         return pot;
     }
+
     public int getSmallBlind() {
         return smallBlind;
     }
 
     public int getBigBlind() {
         return bigBlind;
-    }
-
-    public ArrayList<PlayerModel> getPlayers() {
-        return players;
-    }
-
-    /**
-     * Permette di traslare di una posizione tutti i Players del Match.
-     * Esempio: se alla fine del turno un Player era il D (= Dealer) nel prossimo turno diventerà SB
-     * ( = Small Blind) e così via per tutti i Players.
-     */
-
-    public void movePlayersPosition(){
-        for(int i = 0; i < players.size(); i++){
-            PlayerModel playerModel = players.get(i);
-            PlayerPosition actualPosition = playerModel.getTurnPosition();
-            if(i == PlayerPosition.CO.ordinal())
-                playerModel.setTurnPosition(PlayerPosition.D);
-            else
-                playerModel.setTurnPosition(PlayerPosition.values()[actualPosition.ordinal() + 1]);
-        }
     }
 
     /**
@@ -86,6 +62,10 @@ public class MatchModel {
         pot = 0;
     }
 
+    public int getStartingChipAmount() {
+        return startingChipAmount;
+    }
+
     /**
      * Permette di impostare l'importo iniziale di chips-per-player. Attualmente, per semplicità, l'importo è di 20000.
      */
@@ -93,7 +73,6 @@ public class MatchModel {
 
     public void setStartingChipAmount(int startingChipAmount){
         this.startingChipAmount = startingChipAmount;
-        players.forEach(playerModel -> playerModel.setTotalChips(startingChipAmount));
     }
 
     /**

@@ -1,17 +1,18 @@
-package server.states;
+package server.automa;
 
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.PokerState;
+import interfaces.StateSwitcher;
 import server.model.DeckModel;
 
 import java.util.ArrayList;
 
 
-public class FlopPhase implements PokerState, Observable {
+public class FlopState implements PokerState, Observable {
     private ArrayList<Observer> observers;
 
-    public FlopPhase(DeckModel deckModel){
+    public FlopState(DeckModel deckModel) {
         observers = new ArrayList<>();
 
         //ottieni le prime tre carte per la Community Cards (in realtà è da bruciare una carta per ogni carta della community)
@@ -37,5 +38,15 @@ public class FlopPhase implements PokerState, Observable {
     public void notifyObservers() {
         for(Observer observer : observers)
             observer.update(this);
+    }
+
+    @Override
+    public void accept(StateSwitcher switcher) {
+
+    }
+
+    @Override
+    public void start() {
+
     }
 }

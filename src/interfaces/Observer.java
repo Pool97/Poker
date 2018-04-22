@@ -1,5 +1,5 @@
 package interfaces;
 
 public interface Observer {
-    void update(Observable observable);
+    void update(PokerState state);
 }

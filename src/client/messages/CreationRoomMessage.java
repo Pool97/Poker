@@ -18,25 +18,19 @@ import java.io.Serializable;
 
 public class CreationRoomMessage implements Message, Serializable {
     private int maxPlayers;
-    private int totalChips;
 
     /**
      * Costruttore della classe CreationRoomMessage
      *
      * @param maxPlayers Numero massimo di giocatori scelti per il Match.
-     * @param totalChips Numero totale di chips iniziali per giocatore.
      */
 
-    public CreationRoomMessage(int maxPlayers, int totalChips) {
+    public CreationRoomMessage(int maxPlayers) {
         this.maxPlayers = maxPlayers;
-        this.totalChips = totalChips;
     }
 
     public int getMaxPlayers() {
         return maxPlayers;
     }
 
-    public int getTotalChips() {
-        return totalChips;
-    }
 }

@@ -1,7 +1,6 @@
 package server.model;
 
-import server.StakeAction;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +13,7 @@ import java.util.ArrayList;
  * @since 1.0
  */
 
-public class PlayerModel {
+public class PlayerModel implements Serializable {
     private String nickname;
     private PlayerPosition turnPosition;
     private StakeAction stakeAction;
@@ -64,5 +63,4 @@ public class PlayerModel {
     public boolean hasLost(){
         return totalChips == 0;
     }
-
 }

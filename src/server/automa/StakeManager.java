@@ -1,4 +1,4 @@
-package server;
+package server.automa;
 
 public class StakeManager {
 }

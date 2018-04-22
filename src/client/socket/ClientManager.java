@@ -1,10 +1,12 @@
-package client;
+package client.socket;
 
 import interfaces.Message;
+import utils.RequestHandler;
 import utils.RequestSender;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -17,13 +19,13 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 
-public class ClientSocketManager {
+public class ClientManager {
     private Socket socket;
     private String serverName;
     private int serverPort;
     private final static ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final static Logger logger = Logger.getLogger(ClientSocketManager.class.getName());
+    private final static Logger logger = Logger.getLogger(ClientManager.class.getName());
     private final static String CLIENT_INFO = "CLIENT -> ";
     private final static String CONNECTING_INFO = " STA CERCANDO DI STABILIRE UNA CONNESSIONE VERSO IL SERVER \n";
     private final static String CONNECTION_ESTABLISHED_INFO = " CONNESSIONE AVVENUTA VERSO IL SERVER ";
@@ -31,19 +33,23 @@ public class ClientSocketManager {
     private final static String SERVICE_INTERRUPTED = " STO INTERROMPENDO IL SERVIZIO PER UN ERRORE I/O \n";
 
     /**
-     * Costruttore della classe ClientSocketManager.
+     * Costruttore della classe ClientManager.
      *
      * @param serverName Nome del Server a cui connettersi
      * @param serverPort Porta del Server a cui connettersi
      */
 
-    public ClientSocketManager(String serverName, int serverPort){
+    public ClientManager(String serverName, int serverPort) {
         this.serverName = serverName;
         this.serverPort = serverPort;
-        attemptToConnect();
     }
 
-    private void attemptToConnect(){
+    /**
+     * Permette di effettuare un tentativo di connessione al Server, i cui dati sono stati specificati
+     * in fase di costruzione di questo oggetto.
+     */
+
+    public void attemptToConnect() {
         logger.info(CLIENT_INFO + CONNECTING_INFO);
         try {
             socket = new Socket(serverName, serverPort);
@@ -63,5 +69,22 @@ public class ClientSocketManager {
 
     public <T extends Message> void sendMessage(T message){
         executor.submit(new RequestSender<>(socket, message, logger));
+    }
+
+    /**
+     * Permette di rimanere in ascolto di un messaggio qualsiasi su un altro Thread.
+     *
+     * @param <T> Tipo di messaggio da inviare (tutti devono implementare {@link Message}
+     * @return Messaggio ricevuto
+     */
+
+    public <T extends Message> T listenForAMessage() {
+        T message = null;
+        try {
+            message = executor.submit(new RequestHandler<T>(socket, logger)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return message;
     }
 }
