@@ -1,8 +1,5 @@
-import client.messages.CreationRoomMessage;
-import client.messages.WelcomeMessage;
 import client.socket.ClientManager;
-import server.messages.PlayersMessage;
-import server.messages.StartMessage;
+import events.*;
 
 public class ClientSideTest {
 
@@ -15,34 +12,23 @@ public class ClientSideTest {
      * @param args
      */
     public static void main(String[] args) {
-        CreationRoomMessage creatorMessage = new CreationRoomMessage(1);
-        WelcomeMessage creator = new WelcomeMessage("Pool97", "creator.png");
-        //WelcomeMessage perryMessage = new WelcomeMessage("Perry97", "perry.png");
-        //WelcomeMessage tunsiMessage = new WelcomeMessage("Tunsi97", "tunsi.png");
-
+        Events creatorEvents = new Events();
+        creatorEvents.addEvent(new PlayerCreatedEvent("Pool97", "creator.png"));
+        creatorEvents.addEvent(new TotalPlayersEvent(1));
         ClientManager creatorClient = new ClientManager("localhost", 4040);
         creatorClient.attemptToConnect();
-        creatorClient.sendMessage(creatorMessage);
-        creatorClient.sendMessage(creator);
+        creatorClient.sendMessage(creatorEvents);
+        Events playersList = creatorClient.listenForAMessage();
 
-        //ClientManager perryClient = new ClientManager("localhost", 4040);
-        //perryClient.sendMessage(perryMessage);
+        Events startTurn = creatorClient.listenForAMessage();
 
-        //ClientManager tunsiClient = new ClientManager("localhost", 4040);
-        //tunsiClient.sendMessage(tunsiMessage);
+        while (!playersList.isEmpty()) {
+            PlayerAddedEvent playerEvent = (PlayerAddedEvent) playersList.getEvent();
+            System.out.println(playerEvent.getNickname() + " " + playerEvent.getPosition());
+        }
 
-
-        PlayersMessage messageRob = creatorClient.listenForAMessage();
-        //PlayersMessage messagePerry = perryClient.listenForAMessage();
-
-        StartMessage startRob = creatorClient.listenForAMessage();
-        //StartMessage startPerry = perryClient.listenForAMessage();
-        //PlayersMessage messageTunsi = tunsiClient.listenForAMessage();
-        System.out.println(messageRob.getPlayersInfo().size());
-        //System.out.println(messagePerry.getPlayersInfo().size());
-        System.out.println(startRob.getBigBlind());
-        //System.out.println(startPerry.getSmallBlind());
-        //System.out.println(messageTunsi.getPlayersInfo().size());
-        System.out.println("ciaone");
+        SmallBlindEvent smallBlindEvent = (SmallBlindEvent) startTurn.getEvent();
+        BigBlindEvent bigBlindEvent = (BigBlindEvent) startTurn.getEvent();
+        System.out.println(smallBlindEvent.getSmallBlind() + " " + bigBlindEvent.getBigBlind());
     }
 }

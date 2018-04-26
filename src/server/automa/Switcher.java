@@ -17,6 +17,7 @@ import server.socket.ServerManager;
 public class Switcher implements StateSwitcher {
     private MatchModel matchModel;
     private ServerManager connectionHandler;
+    private StateManager manager;
 
     /**
      * Costruttore vuoto della classe Switcher.
@@ -25,9 +26,10 @@ public class Switcher implements StateSwitcher {
      * @param connectionHandler Gestore della connessione.
      */
 
-    public Switcher(MatchModel matchModel, ServerManager connectionHandler) {
+    public Switcher(StateManager stateManager, MatchModel matchModel, ServerManager connectionHandler) {
         this.matchModel = matchModel;
         this.connectionHandler = connectionHandler;
+        this.manager = stateManager;
     }
 
     @Override
@@ -38,7 +40,9 @@ public class Switcher implements StateSwitcher {
 
     @Override
     public void switchState(StartTurn state) {
-        //TODO: da implementare
+        StakeState stakeState = new StakeState(matchModel, connectionHandler);
+        stakeState.attach(manager);
+        stakeState.start();
     }
 
     @Override

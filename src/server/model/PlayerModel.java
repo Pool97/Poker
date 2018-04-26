@@ -15,16 +15,16 @@ import java.util.ArrayList;
 
 public class PlayerModel implements Serializable {
     private String nickname;
-    private PlayerPosition turnPosition;
+    private Position position;
     private StakeAction stakeAction;
     private String avatarFilename;
     private int rank;
     private int totalChips;
     private ArrayList<StakeAction> turnActions;
 
-    public PlayerModel(String nickname, PlayerPosition turnPosition, StakeAction stakeAction, String avatarFilename, int rank, int totalChips) {
+    public PlayerModel(String nickname, Position position, StakeAction stakeAction, String avatarFilename, int rank, int totalChips) {
         this.nickname = nickname;
-        this.turnPosition = turnPosition;
+        this.position = position;
         this.stakeAction = stakeAction;
         this.avatarFilename = avatarFilename;
         this.rank = rank;
@@ -37,21 +37,33 @@ public class PlayerModel implements Serializable {
         this.avatarFilename = avatarFilename;
     }
 
-    public PlayerModel(String nickname, PlayerPosition turnPosition) {
+    public PlayerModel(String nickname, Position position) {
         this.nickname = nickname;
-        this.turnPosition = turnPosition;
+        this.position = position;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getAvatarFilename() {
+        return avatarFilename;
     }
 
     public void setTotalChips(int totalChips) {
         this.totalChips = totalChips;
     }
 
-    public PlayerPosition getTurnPosition() {
-        return turnPosition;
+    public int getTotalChips() {
+        return totalChips;
     }
 
-    public void setTurnPosition(PlayerPosition turnPosition) {
-        this.turnPosition = turnPosition;
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     /**

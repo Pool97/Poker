@@ -5,12 +5,12 @@ public class MatchModelTest {
     public void shouldMoveAllPlayers(){
         /*MatchModel matchModel = new MatchModel();
         //ArrayList<PlayerModel> testPlayers = matchModel.getPlayers();
-        PlayerModel player1 = new PlayerModel("Player1", PlayerPosition.D);
-        PlayerModel player2 = new PlayerModel("Player2", PlayerPosition.SB);
-        PlayerModel player3 = new PlayerModel("Player3", PlayerPosition.BB);
-        PlayerModel player4 = new PlayerModel("Player4", PlayerPosition.UTG);
-        PlayerModel player5 = new PlayerModel("Player5", PlayerPosition.HJ);
-        PlayerModel player6 = new PlayerModel("Player6", PlayerPosition.CO);
+        PlayerModel player1 = new PlayerModel("Player1", Position.D);
+        PlayerModel player2 = new PlayerModel("Player2", Position.SB);
+        PlayerModel player3 = new PlayerModel("Player3", Position.BB);
+        PlayerModel player4 = new PlayerModel("Player4", Position.UTG);
+        PlayerModel player5 = new PlayerModel("Player5", Position.HJ);
+        PlayerModel player6 = new PlayerModel("Player6", Position.CO);
         testPlayers.add(player1);
         testPlayers.add(player2);
         testPlayers.add(player3);
@@ -19,12 +19,12 @@ public class MatchModelTest {
         testPlayers.add(player6);
         //matchModel.movePlayersPosition();
 
-        assertTrue(player1.getTurnPosition() == PlayerPosition.SB);
-        assertTrue(player2.getTurnPosition() == PlayerPosition.BB);
-        assertTrue(player3.getTurnPosition() == PlayerPosition.UTG);
-        assertTrue(player4.getTurnPosition() == PlayerPosition.HJ);
-        assertTrue(player5.getTurnPosition() == PlayerPosition.CO);
-        assertTrue(player6.getTurnPosition() == PlayerPosition.D);*/
+        assertTrue(player1.getPosition() == Position.SB);
+        assertTrue(player2.getPosition() == Position.BB);
+        assertTrue(player3.getPosition() == Position.UTG);
+        assertTrue(player4.getPosition() == Position.HJ);
+        assertTrue(player5.getPosition() == Position.CO);
+        assertTrue(player6.getPosition() == Position.D);*/
 
     }
 

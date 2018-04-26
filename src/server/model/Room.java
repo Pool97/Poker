@@ -1,9 +1,10 @@
 package server.model;
 
-import client.messages.WelcomeMessage;
+import events.PlayerCreatedEvent;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -18,6 +19,7 @@ import java.util.HashMap;
 
 public class Room {
     private HashMap<PlayerModel, Socket> players;
+    private PositionManager positionManager;
     private int size;
 
     /**
@@ -26,17 +28,18 @@ public class Room {
 
     public Room() {
         players = new HashMap<>();
+        positionManager = new PositionManager();
     }
 
     /**
      * Permette di aggiungere un nuovo giocatore alla stanza.
      *
-     * @param playerMessage Il messaggio contenente le informazioni di base del Player.
+     * @param event Il messaggio contenente le informazioni di base del Player.
      * @param socket        Il collegamento con il Client.
      */
 
-    public void addPlayer(WelcomeMessage playerMessage, Socket socket) {
-        PlayerModel playerModel = new PlayerModel(playerMessage.getNickname(), playerMessage.getNickname());
+    public void addPlayer(PlayerCreatedEvent event, Socket socket) {
+        PlayerModel playerModel = new PlayerModel(event.getNickname(), event.getAvatar());
         players.put(playerModel, socket);
     }
 
@@ -59,6 +62,7 @@ public class Room {
 
     public void setSize(int size) {
         this.size = size;
+        positionManager.addPositions(size);
     }
 
     /**
@@ -80,7 +84,20 @@ public class Room {
      */
 
     public ArrayList<PlayerModel> getPlayers() {
-        return new ArrayList<>(players.keySet());
+        ArrayList<PlayerModel> playersOrdered = new ArrayList<>(players.keySet());
+        playersOrdered.sort(Comparator.comparing(PlayerModel::getPosition));
+        return playersOrdered;
+    }
+
+    /**
+     * Permette di restituire la connessione relativa al Player argomento del metodo.
+     *
+     * @param player Player
+     * @return Connessione del Player
+     */
+
+    public Socket getPlayerSocket(PlayerModel player) {
+        return players.get(player);
     }
 
     /**
@@ -100,12 +117,31 @@ public class Room {
      */
 
     public void movePlayersPosition() {
-        for (PlayerModel playerModel : players.keySet()) {
-            PlayerPosition actualPosition = playerModel.getTurnPosition();
-            if (actualPosition == PlayerPosition.CO)
-                playerModel.setTurnPosition(PlayerPosition.D);
-            else
-                playerModel.setTurnPosition(PlayerPosition.values()[actualPosition.ordinal() + 1]);
+        players.keySet()
+                .forEach(player -> player.setPosition(positionManager.nextPosition(player.getPosition())));
+    }
+
+    /**
+     * Permette di impostare la posizione iniziale di ogni giocatore. Il criterio è che le posizioni vengono
+     * assegnate in base all'ordine cronologico di connessione dei Player alla partita.
+     */
+
+    public void setInitialPositions() {
+        ArrayList<Position> availablePositions = positionManager.getAvailablePositions();
+        for (int i = 0; i < size; i++) {
+            getPlayers().get(i).setPosition(availablePositions.get(i));
         }
     }
+
+    /**
+     * Permette di restituire il Player relativo alla posizione specifica.
+     *
+     * @param position Posizione del Player
+     * @return Player
+     */
+
+    public PlayerModel getPlayerByPosition(Position position) {
+        return getPlayers().stream().filter(player -> player.getPosition() == position).findFirst().get();
+    }
+
 }

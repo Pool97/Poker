@@ -13,7 +13,6 @@ public class MatchModel {
     private int pot;
     private int smallBlind;
     private int bigBlind;
-    private int finalBigBlind;
     private int startingChipAmount;
     private DeckModel deckModel;
 
@@ -47,7 +46,11 @@ public class MatchModel {
      */
 
     public void increaseBlinds(){
-        if(bigBlind < finalBigBlind) {
+        if (bigBlind == 0) {
+            bigBlind = startingChipAmount / 50;
+            smallBlind = bigBlind / 2;
+        }
+        if (bigBlind < startingChipAmount) {
             bigBlind *= 2;
             smallBlind = bigBlind / 2;
         }
@@ -67,32 +70,21 @@ public class MatchModel {
     }
 
     /**
-     * Permette di impostare l'importo iniziale di chips-per-player. Attualmente, per semplicità, l'importo è di 20000.
+     * Permette di incrementare il pot di una quantità fornita in ingresso al metodo.
+     * @param quantity Valore da aggiungere al pot
      */
+    public void increasePot(int quantity) {
+        pot += quantity;
+    }
 
+    /**
+     * Permette di impostare l'importo iniziale di chips-per-player.
+     *
+     * @param startingChipAmount Importo iniziale di chips-per-player
+     */
 
     public void setStartingChipAmount(int startingChipAmount){
         this.startingChipAmount = startingChipAmount;
     }
 
-    /**
-     * Permette di impostare i valori iniziali relativi ai bui. Un approccio ragionevole è quello di impostare il Big Blind a un
-     * cinquantesimo dell'importo iniziale di chips-per-player, in modo da evitare l'eliminazione quasi immediata di alcuni players dovuta
-     * a un valore iniziale troppo elevato del BB.
-     * Lo Small Blind viene calcolato di conseguenza.
-     */
-
-    public void setInitialBlinds(){
-        bigBlind = startingChipAmount / 50;
-        smallBlind = bigBlind / 2;
-    }
-
-    /**
-     * Permette di impostare il limite massimo ai valori che può assumere il Big Blind.
-     * Il limite coincide con l'importo iniziale di chips-per-player.
-     */
-
-    public void setFinalBigBlind(){
-        finalBigBlind = startingChipAmount;
-    }
 }

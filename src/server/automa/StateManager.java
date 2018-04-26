@@ -44,8 +44,8 @@ public class StateManager implements Observer {
 
         try {
             roomCreationSignal.await();
-            switcher = new Switcher(matchModel, connectionHandler);
-            StartMatch startMatch = new StartMatch(connectionHandler);
+            switcher = new Switcher(this, matchModel, connectionHandler);
+            StartMatch startMatch = new StartMatch(matchModel, connectionHandler);
             startMatch.attach(this);
             startMatch.start();
         } catch (InterruptedException e) {

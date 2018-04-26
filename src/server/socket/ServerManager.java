@@ -1,6 +1,8 @@
 package server.socket;
 
-import client.messages.CreationRoomMessage;
+import events.Events;
+import events.PlayerCreatedEvent;
+import events.TotalPlayersEvent;
 import interfaces.Message;
 import server.model.Room;
 import utils.RequestHandler;
@@ -83,18 +85,21 @@ public class ServerManager implements Runnable {
             Socket socket = serverSocket.accept();
             logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + "\n");
 
+            Events newPlayer = listenForAMessage(socket);
+
             if (room.getNumberOfPlayers() == 0) {
-                CreationRoomMessage message = listenForAMessage(socket);
-                room.setSize(message.getMaxPlayers());
+                room.setSize(((TotalPlayersEvent) newPlayer.getEvent()).getTotalPlayers());
                 logger.info(SERVER_INFO + WAITING_FOR_INFO + (room.getSize() - 1) + PLAYERS);
             }
 
-            room.addPlayer(listenForAMessage(socket), socket);
-            logger.info(PLAYER_ADDED);
+            PlayerCreatedEvent event = (PlayerCreatedEvent) newPlayer.getEvent();
+            room.addPlayer(event, socket);
+            logger.info(PLAYER_ADDED + "Name: " + event.getNickname());
 
             if (room.getSize() == room.getNumberOfPlayers()) {
                 roomCreationSignal.countDown();
             }
+
         } catch (IOException e) {
             e.printStackTrace();
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);

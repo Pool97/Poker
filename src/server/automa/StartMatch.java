@@ -1,10 +1,12 @@
 package server.automa;
 
+import events.Events;
+import events.PlayerAddedEvent;
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.PokerState;
 import interfaces.StateSwitcher;
-import server.messages.PlayersMessage;
+import server.model.MatchModel;
 import server.model.Room;
 import server.socket.ServerManager;
 
@@ -13,8 +15,10 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * StartMatch è il primo stato dell'automa.
- * Il suo compito è quello di gestire la creazione della stanza per permettere ai Players di
- * sintonizzarsi e informarli che la partita sta per iniziare.
+ *
+ * In questo stato devono essere compiute le seguenti azioni:
+ * - Stabilire le posizioni iniziali dei giocatori ({@link server.model.Position});
+ * - Informare tutti i giocatori dei rispettivi avversari
  *
  * @author Roberto Poletti
  * @author Nipuna Perera
@@ -24,31 +28,35 @@ import java.util.concurrent.CountDownLatch;
 public class StartMatch implements PokerState, Observable {
     private ServerManager connectionHandler;
     private ArrayList<Observer> observers;
+    private MatchModel matchModel;
 
     /**
      * Costruttore della classe StartMatch.
-     *
+     * @param matchModel Modello del match
      * @param connectionHandler Gestore della connessione.
      */
 
-    public StartMatch(ServerManager connectionHandler) {
+    public StartMatch(MatchModel matchModel, ServerManager connectionHandler) {
         observers = new ArrayList<>();
         this.connectionHandler = connectionHandler;
+        this.matchModel = matchModel;
     }
 
     /**
-     * Vedi anche {@link PokerState#start()}
-     * <p>
-     * Vengono informati tutti i Players dei relativi avversari.
-     * StartMatch non avverte il gestore dell'automa finchè non si è assicurato che tutti i messaggi
-     * siano arrivati a destinazione.
+     * Vedi {@link PokerState#start()}
      */
 
     @Override
     public void start() {
         Room room = connectionHandler.getRoom();
+        room.setInitialPositions();
         CountDownLatch countdown = new CountDownLatch(1);
-        connectionHandler.sendMessage(room.getConnections(), countdown, new PlayersMessage(room.getPlayers()));
+        Events startEvents = new Events();
+        matchModel.setStartingChipAmount(connectionHandler.getRoom().getSize() * 10000);
+        room.getPlayers().forEach(player -> startEvents.addEvent(new PlayerAddedEvent(player.getNickname(), player.getAvatarFilename(), player.getPosition(),
+                player.getTotalChips())));
+        connectionHandler.sendMessage(room.getConnections(), countdown, startEvents);
+
         try {
             countdown.await();
         } catch (InterruptedException e) {

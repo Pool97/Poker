@@ -1,8 +1,9 @@
 package server.model;
 
+
 /**
  * Le possibili posizioni previste dal Poker.
- * Nel nostro caso i giocatori massimi (al momento) previsti sono sei, quindi non è possibile inserire posizioni di MIDDLE tra UTG e HJ, anche
+ * In questo caso i giocatori massimi (al momento) previsti sono sei, quindi non è possibile inserire posizioni di MIDDLE tra UTG e HJ, anche
  * se presenti nel regolamento ufficiale.
  *
  * D = Dealer: il mazziere virtuale e colui che detiene il Dealer Button.
@@ -16,6 +17,6 @@ package server.model;
  * @author Nipuna Perera
  */
 
-public enum PlayerPosition {
+public enum Position {
     D, SB, BB, UTG, HJ, CO
 }

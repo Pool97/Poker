@@ -8,6 +8,10 @@ package interfaces;
 public interface PokerState {
     void start();
 
+    /**
+     * @param switcher
+     */
+
     void accept(StateSwitcher switcher);
 
 }
