@@ -6,8 +6,8 @@ import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.PokerState;
 import interfaces.StateSwitcher;
-import server.model.MatchModel;
 import server.model.Room;
+import server.model.TurnModel;
 import server.socket.ServerManager;
 
 import java.util.ArrayList;
@@ -28,18 +28,18 @@ import java.util.concurrent.CountDownLatch;
 public class StartMatch implements PokerState, Observable {
     private ServerManager connectionHandler;
     private ArrayList<Observer> observers;
-    private MatchModel matchModel;
+    private TurnModel turnModel;
 
     /**
      * Costruttore della classe StartMatch.
-     * @param matchModel Modello del match
+     * @param turnModel Modello del match
      * @param connectionHandler Gestore della connessione.
      */
 
-    public StartMatch(MatchModel matchModel, ServerManager connectionHandler) {
+    public StartMatch(TurnModel turnModel, ServerManager connectionHandler) {
         observers = new ArrayList<>();
         this.connectionHandler = connectionHandler;
-        this.matchModel = matchModel;
+        this.turnModel = turnModel;
     }
 
     /**
@@ -52,7 +52,7 @@ public class StartMatch implements PokerState, Observable {
         room.setInitialPositions();
         CountDownLatch countdown = new CountDownLatch(1);
         Events startEvents = new Events();
-        matchModel.setStartingChipAmount(connectionHandler.getRoom().getSize() * 10000);
+        turnModel.setStartingChipAmount(connectionHandler.getRoom().getSize() * 10000);
         room.getPlayers().forEach(player -> startEvents.addEvent(new PlayerAddedEvent(player.getNickname(), player.getAvatarFilename(), player.getPosition(),
                 player.getTotalChips())));
         connectionHandler.sendMessage(room.getConnections(), countdown, startEvents);

@@ -1,30 +1,24 @@
 package server.automa;
 
-import events.Events;
-import events.PlayerUpdatedEvent;
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.PokerState;
 import interfaces.StateSwitcher;
-import server.model.MatchModel;
-import server.model.PlayerModel;
-import server.model.Position;
-import server.model.Room;
+import server.model.TurnModel;
 import server.socket.ServerManager;
 
 import java.util.ArrayList;
 
 public class StakeState implements PokerState, Observable {
     private StakeManager stakeManager;
-    private MatchModel matchModel;
-    private ServerManager connectionHandler;
+    static int PHASE = 0;
     private ArrayList<Observer> observers;
+    private ServerManager serverHandler;
 
-    public StakeState(MatchModel matchModel, ServerManager connectionHandler) {
+    public StakeState(TurnModel turnModel, ServerManager serverHandler) {
         observers = new ArrayList<>();
-        stakeManager = new StakeManager();
-        this.matchModel = matchModel;
-        this.connectionHandler = connectionHandler;
+        stakeManager = new StakeManager(turnModel, serverHandler);
+        this.serverHandler = serverHandler;
     }
 
     @Override
@@ -49,17 +43,8 @@ public class StakeState implements PokerState, Observable {
 
     @Override
     public void start() {
-        // Le prime due puntate del primo giro del turno
-        Events stakeState = new Events();
-        Room room = connectionHandler.getRoom();
-        PlayerModel smallBlind = room.getPlayerByPosition(Position.SB);
-        smallBlind.setTotalChips(smallBlind.getTotalChips() - matchModel.getSmallBlind());
-        stakeState.addEvent(new PlayerUpdatedEvent(smallBlind));
-        matchModel.increasePot(matchModel.getSmallBlind());
-        PlayerModel bigBlind = room.getPlayerByPosition(Position.BB);
-        bigBlind.setTotalChips(bigBlind.getTotalChips() - matchModel.getBigBlind());
-        matchModel.increasePot(matchModel.getSmallBlind());
-        stakeState.addEvent(new PlayerUpdatedEvent(bigBlind));
-        matchModel.increaseBlinds();
+        serverHandler.logger.info("È iniziato il giro di puntate numero " + (PHASE + 1) + "\n");
+        stakeManager.startStake();
+        notifyObservers();
     }
 }

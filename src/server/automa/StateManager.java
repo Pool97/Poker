@@ -2,7 +2,7 @@ package server.automa;
 
 import interfaces.Observer;
 import interfaces.PokerState;
-import server.model.MatchModel;
+import server.model.TurnModel;
 import server.socket.ServerManager;
 
 import java.util.concurrent.CountDownLatch;
@@ -23,13 +23,13 @@ import java.util.logging.Logger;
 
 public class StateManager implements Observer {
     private static Logger logger = Logger.getLogger(ServerManager.class.getName());
-    private MatchModel matchModel;
+    private TurnModel turnModel;
     private ServerManager connectionHandler;
     private Switcher switcher;
 
 
     public StateManager() {
-        matchModel = new MatchModel();
+        turnModel = new TurnModel();
     }
 
     /**
@@ -44,8 +44,8 @@ public class StateManager implements Observer {
 
         try {
             roomCreationSignal.await();
-            switcher = new Switcher(this, matchModel, connectionHandler);
-            StartMatch startMatch = new StartMatch(matchModel, connectionHandler);
+            switcher = new Switcher(this, turnModel, connectionHandler);
+            StartMatch startMatch = new StartMatch(turnModel, connectionHandler);
             startMatch.attach(this);
             startMatch.start();
         } catch (InterruptedException e) {

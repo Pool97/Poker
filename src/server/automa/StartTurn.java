@@ -1,15 +1,14 @@
 package server.automa;
 
-import events.BigBlindEvent;
+import events.BlindsUpdatedEvent;
 import events.Events;
-import events.SmallBlindEvent;
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.PokerState;
 import interfaces.StateSwitcher;
 import server.model.DeckModel;
-import server.model.MatchModel;
 import server.model.Room;
+import server.model.TurnModel;
 import server.socket.ServerManager;
 
 import java.util.ArrayList;
@@ -34,24 +33,24 @@ import java.util.concurrent.CountDownLatch;
  */
 
 public class StartTurn implements PokerState, Observable {
-    private MatchModel matchModel;
+    private TurnModel turnModel;
     private DeckModel deckModel;
-    private ServerManager connectionHandler;
+    private ServerManager serverHandler;
     private ArrayList<Observer> observers;
     private Events stateChanges;
 
     /**
      * Costruttore della classe StartTurn.
-     * @param matchModel Modello del match
-     * @param connectionHandler Gestore della connessione
+     * @param turnModel Modello del match
+     * @param serverHandler Gestore della connessione
      */
 
-    public StartTurn(MatchModel matchModel, ServerManager connectionHandler) {
+    public StartTurn(TurnModel turnModel, ServerManager serverHandler) {
         observers = new ArrayList<>();
         stateChanges = new Events();
         deckModel = new DeckModel();
-        this.matchModel = matchModel;
-        this.connectionHandler = connectionHandler;
+        this.turnModel = turnModel;
+        this.serverHandler = serverHandler;
 
     }
 
@@ -88,15 +87,17 @@ public class StartTurn implements PokerState, Observable {
 
     @Override
     public void start() {
+        serverHandler.logger.info("Start Turn è iniziato. \n");
         deckModel.createAndShuffle();
-        matchModel.resetPot();
-        matchModel.increaseBlinds();
-        Room room = connectionHandler.getRoom();
-        room.getPlayers().forEach(player -> player.setTotalChips(matchModel.getStartingChipAmount()));
-        stateChanges.addEvent(new BigBlindEvent(matchModel.getBigBlind()));
-        stateChanges.addEvent(new SmallBlindEvent(matchModel.getSmallBlind()));
-        connectionHandler.sendMessage(room.getConnections(), new CountDownLatch(1), stateChanges);
+        turnModel.resetPot();
+        turnModel.increaseBlinds();
+        Room room = serverHandler.getRoom();
+        room.getPlayers().forEach(player -> player.setTotalChips(turnModel.getStartingChipAmount()));
+        stateChanges.addEvent(new BlindsUpdatedEvent(turnModel.getSmallBlind(), turnModel.getBigBlind()));
+        serverHandler.logger.info("Fornisco ai players i parametri aggiornati per il nuovo turno... \n");
+        serverHandler.sendMessage(room.getConnections(), new CountDownLatch(1), stateChanges);
         notifyObservers();
+        serverHandler.logger.info("Start Turn è finito. \n");
     }
 
     /**

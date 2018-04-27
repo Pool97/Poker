@@ -4,6 +4,15 @@ import interfaces.Event;
 
 import java.io.Serializable;
 
+/**
+ * Evento generato dal Player nel momento in cui la configurazione del suo personaggio
+ * è conclusa.
+ *
+ * @author Roberto Poletti
+ * @author Nipuna Perera
+ * @since 1.0
+ */
+
 public class PlayerCreatedEvent implements Event, Serializable {
     private String nickname;
     private String avatar;

@@ -1,9 +1,9 @@
 import org.junit.Test;
 
-public class MatchModelTest {
+public class TurnModelTest {
     @Test
-    public void shouldMoveAllPlayers(){
-        /*MatchModel matchModel = new MatchModel();
+    public void shouldMoveAllPlayers() {
+        /*TurnModel matchModel = new TurnModel();
         //ArrayList<PlayerModel> testPlayers = matchModel.getPlayers();
         PlayerModel player1 = new PlayerModel("Player1", Position.D);
         PlayerModel player2 = new PlayerModel("Player2", Position.SB);
@@ -29,15 +29,15 @@ public class MatchModelTest {
     }
 
     @Test
-    public void shouldBigBlindIncrement(){
-        /*MatchModel matchModel = new MatchModel();
+    public void shouldBigBlindIncrement() {
+        /*TurnModel matchModel = new TurnModel();
         new StartTurn(matchModel);
         assertTrue(matchModel.getBigBlind() == 1000);*/
     }
 
     @Test
-    public void shouldSmallBlindIncrement(){
-        /*MatchModel matchModel = new MatchModel();
+    public void shouldSmallBlindIncrement() {
+        /*TurnModel matchModel = new TurnModel();
         new StartTurn(matchModel);
         assertTrue(matchModel.getSmallBlind() == 500);*/
     }

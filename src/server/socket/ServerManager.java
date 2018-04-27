@@ -1,8 +1,8 @@
 package server.socket;
 
+import events.CreatorConnectedEvent;
 import events.Events;
 import events.PlayerCreatedEvent;
-import events.TotalPlayersEvent;
 import interfaces.Message;
 import server.model.Room;
 import utils.RequestHandler;
@@ -41,7 +41,7 @@ public class ServerManager implements Runnable {
     private final static String SERVER_SHUTDOWN_INFO = "SHUTTING DOWN THE SERVER...\n";
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";
     private final ExecutorService poolExecutor = Executors.newCachedThreadPool();
-    private final Logger logger = Logger.getLogger(ServerManager.class.getName());
+    public final Logger logger = Logger.getLogger(ServerManager.class.getName());
     private ServerSocket serverSocket;
     private CountDownLatch roomCreationSignal;
     private Room room;
@@ -88,7 +88,7 @@ public class ServerManager implements Runnable {
             Events newPlayer = listenForAMessage(socket);
 
             if (room.getNumberOfPlayers() == 0) {
-                room.setSize(((TotalPlayersEvent) newPlayer.getEvent()).getTotalPlayers());
+                room.setSize(((CreatorConnectedEvent) newPlayer.getEvent()).getTotalPlayers());
                 logger.info(SERVER_INFO + WAITING_FOR_INFO + (room.getSize() - 1) + PLAYERS);
             }
 

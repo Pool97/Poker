@@ -25,4 +25,8 @@ public class Events implements Message, Serializable {
         return events.empty();
     }
 
+    public void removeAll() {
+        events.removeAllElements();
+    }
+
 }

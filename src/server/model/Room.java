@@ -128,8 +128,9 @@ public class Room {
 
     public void setInitialPositions() {
         ArrayList<Position> availablePositions = positionManager.getAvailablePositions();
+        ArrayList<PlayerModel> playersList = new ArrayList<>(players.keySet());
         for (int i = 0; i < size; i++) {
-            getPlayers().get(i).setPosition(availablePositions.get(i));
+            playersList.get(i).setPosition(availablePositions.get(i));
         }
     }
 
@@ -144,4 +145,7 @@ public class Room {
         return getPlayers().stream().filter(player -> player.getPosition() == position).findFirst().get();
     }
 
+    public PositionManager getAvailablePositions() {
+        return positionManager;
+    }
 }

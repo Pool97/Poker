@@ -1,6 +1,8 @@
 package server.model;
 
-public class StakeAction {
+import java.io.Serializable;
+
+public class StakeAction implements Serializable {
     private ActionType type;
     private int stakeChips;
 
@@ -11,8 +13,15 @@ public class StakeAction {
 
     public StakeAction(ActionType type) {
         this.type = type;
-        if(type == ActionType.CHECK || type == ActionType.FOLD)
-            stakeChips = 0;
+        stakeChips = 0;
+    }
+
+    public ActionType getType() {
+        return type;
+    }
+
+    public int getStakeChips() {
+        return stakeChips;
     }
 
     public void setStakeChips(int stakeChips) {

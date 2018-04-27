@@ -16,16 +16,14 @@ import java.util.ArrayList;
 public class PlayerModel implements Serializable {
     private String nickname;
     private Position position;
-    private StakeAction stakeAction;
     private String avatarFilename;
     private int rank;
     private int totalChips;
     private ArrayList<StakeAction> turnActions;
 
-    public PlayerModel(String nickname, Position position, StakeAction stakeAction, String avatarFilename, int rank, int totalChips) {
+    public PlayerModel(String nickname, Position position, String avatarFilename, int rank, int totalChips) {
         this.nickname = nickname;
         this.position = position;
-        this.stakeAction = stakeAction;
         this.avatarFilename = avatarFilename;
         this.rank = rank;
         this.totalChips = totalChips;
@@ -35,11 +33,13 @@ public class PlayerModel implements Serializable {
     public PlayerModel(String nickname, String avatarFilename){
         this.nickname = nickname;
         this.avatarFilename = avatarFilename;
+        turnActions = new ArrayList<>();
     }
 
     public PlayerModel(String nickname, Position position) {
         this.nickname = nickname;
         this.position = position;
+        turnActions = new ArrayList<>();
     }
 
     public String getNickname() {
@@ -66,6 +66,18 @@ public class PlayerModel implements Serializable {
         this.position = position;
     }
 
+    public void addToTurnActions(StakeAction action) {
+        turnActions.add(action);
+        totalChips -= action.getStakeChips();
+    }
+
+    public boolean hasFolded() {
+        for (StakeAction action : turnActions)
+            if (action.getType() == ActionType.FOLD)
+                return true;
+        return false;
+    }
+
     /**
      * Permette di stabilire se il giocatore è ancora in partita oppure se è stato sconfitto.
      * La condizione di sconfitta è data dall'azzeramento del suo chip stack alla fine di un turno.
@@ -74,5 +86,12 @@ public class PlayerModel implements Serializable {
 
     public boolean hasLost(){
         return totalChips == 0;
+    }
+
+    public int sumChipsBetted() {
+        int totalChipsBetted = 0;
+        for (StakeAction action : turnActions)
+            totalChipsBetted += action.getStakeChips();
+        return totalChipsBetted;
     }
 }

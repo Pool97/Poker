@@ -9,7 +9,7 @@ package server.model;
  * @since 1.0
  */
 
-public class MatchModel {
+public class TurnModel {
     private int pot;
     private int smallBlind;
     private int bigBlind;
@@ -17,16 +17,16 @@ public class MatchModel {
     private DeckModel deckModel;
 
     /**
-     * Costruttore vuoto della classe MatchModel.
+     * Costruttore vuoto della classe TurnModel.
      */
 
-    public MatchModel() {
+    public TurnModel() {
         pot = 0;
         smallBlind = 0;
         bigBlind = 0;
     }
 
-    public int getPot(){
+    public int getPot() {
         return pot;
     }
 
@@ -45,7 +45,7 @@ public class MatchModel {
      * non può assumere valori che sono al di sopra dell'importo iniziale di chips-per-player.
      */
 
-    public void increaseBlinds(){
+    public void increaseBlinds() {
         if (bigBlind == 0) {
             bigBlind = startingChipAmount / 50;
             smallBlind = bigBlind / 2;
@@ -61,7 +61,7 @@ public class MatchModel {
      * Solitamente questa azione avviene alla fine di ogni turno, quando il pot finale viene riscosso dal Player che si è aggiudicato il turno.
      */
 
-    public void resetPot(){
+    public void resetPot() {
         pot = 0;
     }
 
@@ -70,21 +70,22 @@ public class MatchModel {
     }
 
     /**
-     * Permette di incrementare il pot di una quantità fornita in ingresso al metodo.
-     * @param quantity Valore da aggiungere al pot
-     */
-    public void increasePot(int quantity) {
-        pot += quantity;
-    }
-
-    /**
      * Permette di impostare l'importo iniziale di chips-per-player.
      *
      * @param startingChipAmount Importo iniziale di chips-per-player
      */
 
-    public void setStartingChipAmount(int startingChipAmount){
+    public void setStartingChipAmount(int startingChipAmount) {
         this.startingChipAmount = startingChipAmount;
+    }
+
+    /**
+     * Permette di incrementare il pot di una quantità fornita in ingresso al metodo.
+     *
+     * @param quantity Valore da aggiungere al pot
+     */
+    public void increasePot(int quantity) {
+        pot += quantity;
     }
 
 }

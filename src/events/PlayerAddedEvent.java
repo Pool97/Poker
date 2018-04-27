@@ -3,6 +3,15 @@ package events;
 import interfaces.Event;
 import server.model.Position;
 
+/**
+ * Evento generato dal server per indicare la corretta aggiunta del Player alla lista dei giocatori
+ * della partita.
+ *
+ * @author Roberto Poletti
+ * @author Nipuna Perera
+ * @since 1.0
+ */
+
 public class PlayerAddedEvent implements Event {
     private String nickname;
     private String avatar;
