@@ -30,7 +30,7 @@ public class DeckModel {
 
     private static List<Pair<Integer, Integer>> createDeck(){
         List<Pair<Integer, Integer>> orderedDeck = new ArrayList<>();
-        for (int i = 0; i < 14; ++i)
+        for (int i = 0; i < 13; ++i)
             for (int j = 0; j < 4; ++j)
                 orderedDeck.add(new Pair<>(j, i));
         return orderedDeck;

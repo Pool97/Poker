@@ -31,14 +31,14 @@ public class TurnModelTest {
     @Test
     public void shouldBigBlindIncrement() {
         /*TurnModel matchModel = new TurnModel();
-        new StartTurn(matchModel);
+        new TurnStart(matchModel);
         assertTrue(matchModel.getBigBlind() == 1000);*/
     }
 
     @Test
     public void shouldSmallBlindIncrement() {
         /*TurnModel matchModel = new TurnModel();
-        new StartTurn(matchModel);
+        new TurnStart(matchModel);
         assertTrue(matchModel.getSmallBlind() == 500);*/
     }
 }

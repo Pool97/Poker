@@ -1,8 +1,12 @@
-import server.automa.StateManager;
+import server.automa.Match;
+
 
 public class ServerSideTest {
     public static void main(String [] args){
-        StateManager manager = new StateManager();
+        Match manager = new Match();
         manager.startServer();
+        while (true) {
+            manager.start();
+        }
     }
 }

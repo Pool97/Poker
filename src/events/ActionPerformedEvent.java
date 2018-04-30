@@ -1,7 +1,8 @@
 package events;
 
 import interfaces.Event;
-import server.model.StakeAction;
+import javafx.util.Pair;
+import server.model.ActionType;
 
 /**
  * È un evento generato dal Player ha preso la sua decisione durante il suo turno.
@@ -14,13 +15,13 @@ import server.model.StakeAction;
  */
 
 public class ActionPerformedEvent implements Event {
-    private StakeAction action;
+    private Pair<ActionType, Integer> action;
 
-    public ActionPerformedEvent(StakeAction action) {
+    public ActionPerformedEvent(Pair<ActionType, Integer> action) {
         this.action = action;
     }
 
-    public StakeAction getAction() {
+    public Pair<ActionType, Integer> getAction() {
         return action;
     }
 }

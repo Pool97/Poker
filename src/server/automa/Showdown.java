@@ -1,0 +1,21 @@
+package server.automa;
+
+import interfaces.PokerState;
+
+import java.util.concurrent.CountDownLatch;
+
+public class Showdown implements PokerState {
+    @Override
+    public void goNext() {
+        System.out.println("Showdown.");
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+}

@@ -157,7 +157,7 @@ import java.awt.image.*;
  * <p>
  * If the issue with optional {@link BufferedImageOp}s destroying GIF image
  * content is ever fixed in the platform, saving out resulting images as GIFs
- * should suddenly start working.
+ * should suddenly goNext working.
  * <p>
  * More can be read about the issue <a
  * href="http://gman.eichberger.de/2007/07/transparent-gifs-in-java.html"
@@ -337,167 +337,453 @@ public class Scalr {
 	}
 
 	/**
-	 * Used to define the different scaling hints that the algorithm can use.
-	 * 
-	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 1.1
+	 * Used to apply a {@link Rotation} and then <code>0</code> or more
+	 * {@link BufferedImageOp}s to a given image and return the result.
+	 * <p/>
+	 * <strong>TIP</strong>: This operation leaves the original <code>src</code>
+	 * image unmodified. If the caller is done with the <code>src</code> image
+	 * after getting the result of this operation, remember to call
+	 * {@link BufferedImage#flush()} on the <code>src</code> to free up native
+	 * resources and make it easier for the GC to collect the unused image.
+	 *
+	 * @param src      The image that will have the rotation applied to it.
+	 * @param rotation The rotation that will be applied to the image.
+	 * @param ops      Zero or more optional image operations (e.g. sharpen, blur,
+	 *                 etc.) that can be applied to the final result before returning
+	 *                 the image.
+	 * @return a new {@link BufferedImage} representing <code>src</code> rotated
+	 * by the given amount and any optional ops applied to it.
+	 * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
+	 * @throws IllegalArgumentException if <code>rotation</code> is <code>null</code>.
+	 * @throws ImagingOpException       if one of the given {@link BufferedImageOp}s fails to apply.
+	 *                                  These exceptions bubble up from the inside of most of the
+	 *                                  {@link BufferedImageOp} implementations and are explicitly
+	 *                                  defined on the imgscalr API to make it easier for callers to
+	 *                                  catch the exception (if they are passing along optional ops
+	 *                                  to be applied). imgscalr takes detailed steps to avoid the
+	 *                                  most common pitfalls that will cause {@link BufferedImageOp}s
+	 *                                  to fail, even when using straight forward JDK-image
+	 *                                  operations.
+	 * @see Rotation
 	 */
-	public static enum Method {
-		/**
-		 * Used to indicate that the scaling implementation should decide which
-		 * method to use in order to get the best looking scaled image in the
-		 * least amount of time.
-		 * <p/>
-		 * The scaling algorithm will use the
-		 * {@link Scalr#THRESHOLD_QUALITY_BALANCED} or
-		 * {@link Scalr#THRESHOLD_BALANCED_SPEED} thresholds as cut-offs to
-		 * decide between selecting the <code>QUALITY</code>,
-		 * <code>BALANCED</code> or <code>SPEED</code> scaling algorithms.
-		 * <p/>
-		 * By default the thresholds chosen will give nearly the best looking
-		 * result in the fastest amount of time. We intend this method to work
-		 * for 80% of people looking to scale an image quickly and get a good
-		 * looking result.
+	public static BufferedImage rotate(BufferedImage src, Rotation rotation,
+									   BufferedImageOp... ops) throws IllegalArgumentException,
+			ImagingOpException {
+		long t = -1;
+		if (DEBUG)
+			t = System.currentTimeMillis();
+
+		if (src == null)
+			throw new IllegalArgumentException("src cannot be null");
+		if (rotation == null)
+			throw new IllegalArgumentException("rotation cannot be null");
+
+		if (DEBUG)
+			log(0, "Rotating Image [%s]...", rotation);
+
+		/*
+		 * Setup the default width/height values from our image.
+		 *
+		 * In the case of a 90 or 270 (-90) degree rotation, these two values
+		 * flip-flop and we will correct those cases down below in the switch
+		 * statement.
 		 */
-		AUTOMATIC,
-		/**
-		 * Used to indicate that the scaling implementation should scale as fast
-		 * as possible and return a result. For smaller images (800px in size)
-		 * this can result in noticeable aliasing but it can be a few magnitudes
-		 * times faster than using the QUALITY method.
+		int newWidth = src.getWidth();
+		int newHeight = src.getHeight();
+
+		/*
+		 * We create a transform per operation request as (oddly enough) it ends
+		 * up being faster for the VM to create, use and destroy these instances
+		 * than it is to re-use a single AffineTransform per-thread via the
+		 * AffineTransform.setTo(...) methods which was my first choice (less
+		 * object creation); after benchmarking this explicit case and looking
+		 * at just how much code gets run inside of setTo() I opted for a new AT
+		 * for every rotation.
+		 *
+		 * Besides the performance win, trying to safely reuse AffineTransforms
+		 * via setTo(...) would have required ThreadLocal instances to avoid
+		 * race conditions where two or more resize threads are manipulating the
+		 * same transform before applying it.
+		 *
+		 * Misusing ThreadLocals are one of the #1 reasons for memory leaks in
+		 * server applications and since we have no nice way to hook into the
+		 * init/destroy Servlet cycle or any other initialization cycle for this
+		 * library to automatically call ThreadLocal.remove() to avoid the
+		 * memory leak, it would have made using this library *safely* on the
+		 * server side much harder.
+		 *
+		 * So we opt for creating individual transforms per rotation op and let
+		 * the VM clean them up in a GC. I only clarify all this reasoning here
+		 * for anyone else reading this code and being tempted to reuse the AT
+		 * instances of performance gains; there aren't any AND you get a lot of
+		 * pain along with it.
 		 */
-		SPEED,
-		/**
-		 * Used to indicate that the scaling implementation should use a scaling
-		 * operation balanced between SPEED and QUALITY. Sometimes SPEED looks
-		 * too low quality to be useful (e.g. text can become unreadable when
-		 * scaled using SPEED) but using QUALITY mode will increase the
-		 * processing time too much. This mode provides a "better than SPEED"
-		 * quality in a "less than QUALITY" amount of time.
+		AffineTransform tx = new AffineTransform();
+
+		switch (rotation) {
+			case CW_90:
+				/*
+				 * A 90 or -90 degree rotation will cause the height and width to
+				 * flip-flop from the original image to the rotated one.
+				 */
+				newWidth = src.getHeight();
+				newHeight = src.getWidth();
+
+				// Reminder: newWidth == result.getHeight() at this point
+				tx.translate(newWidth, 0);
+				tx.quadrantRotate(1);
+
+				break;
+
+			case CW_270:
+				/*
+				 * A 90 or -90 degree rotation will cause the height and width to
+				 * flip-flop from the original image to the rotated one.
+				 */
+				newWidth = src.getHeight();
+				newHeight = src.getWidth();
+
+				// Reminder: newHeight == result.getWidth() at this point
+				tx.translate(0, newHeight);
+				tx.quadrantRotate(3);
+				break;
+
+			case CW_180:
+				tx.translate(newWidth, newHeight);
+				tx.quadrantRotate(2);
+				break;
+
+			case FLIP_HORZ:
+				tx.translate(newWidth, 0);
+				tx.scale(-1.0, 1.0);
+				break;
+
+			case FLIP_VERT:
+				tx.translate(0, newHeight);
+				tx.scale(1.0, -1.0);
+				break;
+		}
+
+		// Create our target image we will render the rotated result to.
+		BufferedImage result = createOptimalImage(src, newWidth, newHeight);
+		Graphics2D g2d = result.createGraphics();
+
+		/*
+		 * Render the resultant image to our new rotatedImage buffer, applying
+		 * the AffineTransform that we calculated above during rendering so the
+		 * pixels from the old position are transposed to the new positions in
+		 * the resulting image correctly.
 		 */
-		BALANCED,
-		/**
-		 * Used to indicate that the scaling implementation should do everything
-		 * it can to create as nice of a result as possible. This approach is
-		 * most important for smaller pictures (800px or smaller) and less
-		 * important for larger pictures as the difference between this method
-		 * and the SPEED method become less and less noticeable as the
-		 * source-image size increases. Using the AUTOMATIC method will
-		 * automatically prefer the QUALITY method when scaling an image down
-		 * below 800px in size.
-		 */
-		QUALITY,
-		/**
-		 * Used to indicate that the scaling implementation should go above and
-		 * beyond the work done by {@link Method#QUALITY} to make the image look
-		 * exceptionally good at the cost of more processing time. This is
-		 * especially evident when generating thumbnails of images that look
-		 * jagged with some of the other {@link Method}s (even
-		 * {@link Method#QUALITY}).
-		 */
-		ULTRA_QUALITY;
+		g2d.drawImage(src, tx, null);
+		g2d.dispose();
+
+		if (DEBUG)
+			log(0, "Rotation Applied in %d ms, result [width=%d, height=%d]",
+					System.currentTimeMillis() - t, result.getWidth(),
+					result.getHeight());
+
+		// Apply any optional operations (if specified).
+		if (ops != null && ops.length > 0)
+			result = apply(result, ops);
+
+		return result;
 	}
 
 	/**
-	 * Used to define the different modes of resizing that the algorithm can
-	 * use.
-	 * 
-	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 3.1
+	 * Resize a given image (maintaining its original proportion) to the target
+	 * width and height (or fitting the image to the given WIDTH or HEIGHT
+	 * explicitly, depending on the {@link Mode} specified) using the given
+	 * scaling method and apply the given {@link BufferedImageOp}s (if any) to
+	 * the result before returning it.
+	 * <p/>
+	 * <strong>TIP</strong>: See the class description to understand how this
+	 * class handles recalculation of the <code>targetWidth</code> or
+	 * <code>targetHeight</code> depending on the image's orientation in order
+	 * to maintain the original proportion.
+	 * <p/>
+	 * <strong>TIP</strong>: This operation leaves the original <code>src</code>
+	 * image unmodified. If the caller is done with the <code>src</code> image
+	 * after getting the result of this operation, remember to call
+	 * {@link BufferedImage#flush()} on the <code>src</code> to free up native
+	 * resources and make it easier for the GC to collect the unused image.
+	 *
+	 * @param src           The image that will be scaled.
+	 * @param scalingMethod The method used for scaling the image; preferring speed to
+	 *                      quality or a balance of both.
+	 * @param resizeMode    Used to indicate how imgscalr should calculate the final
+	 *                      target size for the image, either fitting the image to the
+	 *                      given width ({@link Mode#FIT_TO_WIDTH}) or fitting the image
+	 *                      to the given height ({@link Mode#FIT_TO_HEIGHT}). If
+	 *                      {@link Mode#AUTOMATIC} is passed in, imgscalr will calculate
+	 *                      proportional dimensions for the scaled image based on its
+	 *                      orientation (landscape, square or portrait). Unless you have
+	 *                      very specific size requirements, most of the time you just
+	 *                      want to use {@link Mode#AUTOMATIC} to "do the right thing".
+	 * @param targetWidth   The target width that you wish the image to have.
+	 * @param targetHeight  The target height that you wish the image to have.
+	 * @param ops           <code>0</code> or more optional image operations (e.g.
+	 *                      sharpen, blur, etc.) that can be applied to the final result
+	 *                      before returning the image.
+	 * @return a new {@link BufferedImage} representing the scaled
+	 * <code>src</code> image.
+	 * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
+	 * @throws IllegalArgumentException if <code>scalingMethod</code> is <code>null</code>.
+	 * @throws IllegalArgumentException if <code>resizeMode</code> is <code>null</code>.
+	 * @throws IllegalArgumentException if <code>targetWidth</code> is &lt; 0 or if
+	 *                                  <code>targetHeight</code> is &lt; 0.
+	 * @throws ImagingOpException       if one of the given {@link BufferedImageOp}s fails to apply.
+	 *                                  These exceptions bubble up from the inside of most of the
+	 *                                  {@link BufferedImageOp} implementations and are explicitly
+	 *                                  defined on the imgscalr API to make it easier for callers to
+	 *                                  catch the exception (if they are passing along optional ops
+	 *                                  to be applied). imgscalr takes detailed steps to avoid the
+	 *                                  most common pitfalls that will cause {@link BufferedImageOp}s
+	 *                                  to fail, even when using straight forward JDK-image
+	 *                                  operations.
+	 * @see Method
+	 * @see Mode
 	 */
-	public static enum Mode {
-		/**
-		 * Used to indicate that the scaling implementation should calculate
-		 * dimensions for the resultant image by looking at the image's
-		 * orientation and generating proportional dimensions that best fit into
-		 * the target width and height given
-		 * 
-		 * See "Image Proportions" in the {@link Scalr} class description for
-		 * more detail.
+	public static BufferedImage resize(BufferedImage src, Method scalingMethod,
+									   Mode resizeMode, int targetWidth, int targetHeight,
+									   BufferedImageOp... ops) throws IllegalArgumentException,
+			ImagingOpException {
+		long t = -1;
+		if (DEBUG)
+			t = System.currentTimeMillis();
+
+		if (src == null)
+			throw new IllegalArgumentException("src cannot be null");
+		if (targetWidth < 0)
+			throw new IllegalArgumentException("targetWidth must be >= 0");
+		if (targetHeight < 0)
+			throw new IllegalArgumentException("targetHeight must be >= 0");
+		if (scalingMethod == null)
+			throw new IllegalArgumentException(
+					"scalingMethod cannot be null. A good default value is Method.AUTOMATIC.");
+		if (resizeMode == null)
+			throw new IllegalArgumentException(
+					"resizeMode cannot be null. A good default value is Mode.AUTOMATIC.");
+
+		BufferedImage result = null;
+
+		int currentWidth = src.getWidth();
+		int currentHeight = src.getHeight();
+
+		// <= 1 is a square or landscape-oriented image, > 1 is a portrait.
+		float ratio = ((float) currentHeight / (float) currentWidth);
+
+		if (DEBUG)
+			log(0,
+					"Resizing Image [size=%dx%d, resizeMode=%s, orientation=%s, ratio(H/W)=%f] to [targetSize=%dx%d]",
+					currentWidth, currentHeight, resizeMode,
+					(ratio <= 1 ? "Landscape/Square" : "Portrait"), ratio,
+					targetWidth, targetHeight);
+
+		/*
+		 * First determine if ANY size calculation needs to be done, in the case
+		 * of FIT_EXACT, ignore image proportions and orientation and just use
+		 * what the user sent in, otherwise the proportion of the picture must
+		 * be honored.
+		 *
+		 * The way that is done is to figure out if the image is in a
+		 * LANDSCAPE/SQUARE or PORTRAIT orientation and depending on its
+		 * orientation, use the primary dimension (width for LANDSCAPE/SQUARE
+		 * and height for PORTRAIT) to recalculate the alternative (height and
+		 * width respectively) value that adheres to the existing ratio.
+		 *
+		 * This helps make life easier for the caller as they don't need to
+		 * pre-compute proportional dimensions before calling the API, they can
+		 * just specify the dimensions they would like the image to roughly fit
+		 * within and it will do the right thing without mangling the result.
 		 */
-		AUTOMATIC,
-		/**
-		 * Used to fit the image to the exact dimensions given regardless of the
-		 * image's proportions. If the dimensions are not proportionally
-		 * correct, this will introduce vertical or horizontal stretching to the
-		 * image.
-		 * <p/>
-		 * It is recommended that you use one of the other <code>FIT_TO</code>
-		 * modes or {@link Mode#AUTOMATIC} if you want the image to look
-		 * correct, but if dimension-fitting is the #1 priority regardless of
-		 * how it makes the image look, that is what this mode is for.
-		 */
-		FIT_EXACT,
-		/**
-		 * Used to indicate that the scaling implementation should calculate
-		 * dimensions for the largest image that fit within the bounding box,
-		 * without cropping or distortion, retaining the original proportions.
-		 */
-		BEST_FIT_BOTH,
-		/**
-		 * Used to indicate that the scaling implementation should calculate
-		 * dimensions for the resultant image that best-fit within the given
-		 * width, regardless of the orientation of the image.
-		 */
-		FIT_TO_WIDTH,
-		/**
-		 * Used to indicate that the scaling implementation should calculate
-		 * dimensions for the resultant image that best-fit within the given
-		 * height, regardless of the orientation of the image.
-		 */
-		FIT_TO_HEIGHT;
+		if (resizeMode == Mode.FIT_EXACT) {
+			if (DEBUG)
+				log(1,
+						"Resize Mode FIT_EXACT used, no width/height checking or re-calculation will be done.");
+		} else if (resizeMode == Mode.BEST_FIT_BOTH) {
+			float requestedHeightScaling = ((float) targetHeight / (float) currentHeight);
+			float requestedWidthScaling = ((float) targetWidth / (float) currentWidth);
+			float actualScaling = Math.min(requestedHeightScaling, requestedWidthScaling);
+
+			targetHeight = Math.round((float) currentHeight * actualScaling);
+			targetWidth = Math.round((float) currentWidth * actualScaling);
+
+			if (targetHeight == currentHeight && targetWidth == currentWidth)
+				return src;
+
+			if (DEBUG)
+				log(1, "Auto-Corrected width and height based on scalingRatio %d.", actualScaling);
+		} else {
+			if ((ratio <= 1 && resizeMode == Mode.AUTOMATIC)
+					|| (resizeMode == Mode.FIT_TO_WIDTH)) {
+				// First make sure we need to do any work in the first place
+				if (targetWidth == src.getWidth())
+					return src;
+
+				// Save for detailed logging (this is cheap).
+				int originalTargetHeight = targetHeight;
+
+				/*
+				 * Landscape or Square Orientation: Ignore the given height and
+				 * re-calculate a proportionally correct value based on the
+				 * targetWidth.
+				 */
+				targetHeight = (int) Math.ceil((float) targetWidth * ratio);
+
+				if (DEBUG && originalTargetHeight != targetHeight)
+					log(1,
+							"Auto-Corrected targetHeight [from=%d to=%d] to honor image proportions.",
+							originalTargetHeight, targetHeight);
+			} else {
+				// First make sure we need to do any work in the first place
+				if (targetHeight == src.getHeight())
+					return src;
+
+				// Save for detailed logging (this is cheap).
+				int originalTargetWidth = targetWidth;
+
+				/*
+				 * Portrait Orientation: Ignore the given width and re-calculate
+				 * a proportionally correct value based on the targetHeight.
+				 */
+				targetWidth = Math.round((float) targetHeight / ratio);
+
+				if (DEBUG && originalTargetWidth != targetWidth)
+					log(1,
+							"Auto-Corrected targetWidth [from=%d to=%d] to honor image proportions.",
+							originalTargetWidth, targetWidth);
+			}
+		}
+
+		// If AUTOMATIC was specified, determine the real scaling method.
+		if (scalingMethod == Method.AUTOMATIC)
+			scalingMethod = determineScalingMethod(targetWidth, targetHeight,
+					ratio);
+
+		if (DEBUG)
+			log(1, "Using Scaling Method: %s", scalingMethod);
+
+		// Now we scale the image
+		if (scalingMethod == Method.SPEED) {
+			result = scaleImage(src, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+		} else if (scalingMethod == Method.BALANCED) {
+			result = scaleImage(src, targetWidth, targetHeight,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		} else if (scalingMethod == Method.QUALITY
+				|| scalingMethod == Method.ULTRA_QUALITY) {
+			/*
+			 * If we are scaling up (in either width or height - since we know
+			 * the image will stay proportional we just check if either are
+			 * being scaled up), directly using a single BICUBIC will give us
+			 * better results then using Chris Campbell's incremental scaling
+			 * operation (and take a lot less time).
+			 *
+			 * If we are scaling down, we must use the incremental scaling
+			 * algorithm for the best result.
+			 */
+			if (targetWidth > currentWidth || targetHeight > currentHeight) {
+				if (DEBUG)
+					log(1,
+							"QUALITY scale-up, a single BICUBIC scale operation will be used...");
+
+				/*
+				 * BILINEAR and BICUBIC look similar the smaller the scale jump
+				 * upwards is, if the scale is larger BICUBIC looks sharper and
+				 * less fuzzy. But most importantly we have to use BICUBIC to
+				 * match the contract of the QUALITY rendering scalingMethod.
+				 * This note is just here for anyone reading the code and
+				 * wondering how they can speed their own calls up.
+				 */
+				result = scaleImage(src, targetWidth, targetHeight,
+						RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			} else {
+				if (DEBUG)
+					log(1,
+							"QUALITY scale-down, incremental scaling will be used...");
+
+				/*
+				 * Originally we wanted to use BILINEAR interpolation here
+				 * because it takes 1/3rd the time that the BICUBIC
+				 * interpolation does, however, when scaling large images down
+				 * to most sizes bigger than a thumbnail we witnessed noticeable
+				 * "softening" in the resultant image with BILINEAR that would
+				 * be unexpectedly annoying to a user expecting a "QUALITY"
+				 * scale of their original image. Instead BICUBIC was chosen to
+				 * honor the contract of a QUALITY scale of the original image.
+				 */
+				result = scaleImageIncrementally(src, targetWidth,
+						targetHeight, scalingMethod,
+						RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			}
+		}
+
+		if (DEBUG)
+			log(0, "Resized Image in %d ms", System.currentTimeMillis() - t);
+
+		// Apply any optional operations (if specified).
+		if (ops != null && ops.length > 0)
+			result = apply(result, ops);
+
+		return result;
 	}
 
 	/**
-	 * Used to define the different types of rotations that can be applied to an
-	 * image during a resize operation.
-	 * 
-	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 3.2
+	 * Resize a given image (maintaining its original proportion) to the target
+	 * width and height (or fitting the image to the given WIDTH or HEIGHT
+	 * explicitly, depending on the {@link Mode} specified) and apply the given
+	 * {@link BufferedImageOp}s (if any) to the result before returning it.
+	 * <p/>
+	 * A scaling method of {@link Method#AUTOMATIC} is used.
+	 * <p/>
+	 * <strong>TIP</strong>: See the class description to understand how this
+	 * class handles recalculation of the <code>targetWidth</code> or
+	 * <code>targetHeight</code> depending on the image's orientation in order
+	 * to maintain the original proportion.
+	 * <p/>
+	 * <strong>TIP</strong>: This operation leaves the original <code>src</code>
+	 * image unmodified. If the caller is done with the <code>src</code> image
+	 * after getting the result of this operation, remember to call
+	 * {@link BufferedImage#flush()} on the <code>src</code> to free up native
+	 * resources and make it easier for the GC to collect the unused image.
+	 *
+	 * @param src          The image that will be scaled.
+	 * @param resizeMode   Used to indicate how imgscalr should calculate the final
+	 *                     target size for the image, either fitting the image to the
+	 *                     given width ({@link Mode#FIT_TO_WIDTH}) or fitting the image
+	 *                     to the given height ({@link Mode#FIT_TO_HEIGHT}). If
+	 *                     {@link Mode#AUTOMATIC} is passed in, imgscalr will calculate
+	 *                     proportional dimensions for the scaled image based on its
+	 *                     orientation (landscape, square or portrait). Unless you have
+	 *                     very specific size requirements, most of the time you just
+	 *                     want to use {@link Mode#AUTOMATIC} to "do the right thing".
+	 * @param targetWidth  The target width that you wish the image to have.
+	 * @param targetHeight The target height that you wish the image to have.
+	 * @param ops          <code>0</code> or more optional image operations (e.g.
+	 *                     sharpen, blur, etc.) that can be applied to the final result
+	 *                     before returning the image.
+	 * @return a new {@link BufferedImage} representing the scaled
+	 * <code>src</code> image.
+	 * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
+	 * @throws IllegalArgumentException if <code>resizeMode</code> is <code>null</code>.
+	 * @throws IllegalArgumentException if <code>targetWidth</code> is &lt; 0 or if
+	 *                                  <code>targetHeight</code> is &lt; 0.
+	 * @throws ImagingOpException       if one of the given {@link BufferedImageOp}s fails to apply.
+	 *                                  These exceptions bubble up from the inside of most of the
+	 *                                  {@link BufferedImageOp} implementations and are explicitly
+	 *                                  defined on the imgscalr API to make it easier for callers to
+	 *                                  catch the exception (if they are passing along optional ops
+	 *                                  to be applied). imgscalr takes detailed steps to avoid the
+	 *                                  most common pitfalls that will cause {@link BufferedImageOp}s
+	 *                                  to fail, even when using straight forward JDK-image
+	 *                                  operations.
+	 * @see Mode
 	 */
-	public static enum Rotation {
-		/**
-		 * 90-degree, clockwise rotation (to the right). This is equivalent to a
-		 * quarter-turn of the image to the right; moving the picture on to its
-		 * right side.
-		 */
-		CW_90,
-		/**
-		 * 180-degree, clockwise rotation (to the right). This is equivalent to
-		 * 1 half-turn of the image to the right; rotating the picture around
-		 * until it is upside down from the original position.
-		 */
-		CW_180,
-		/**
-		 * 270-degree, clockwise rotation (to the right). This is equivalent to
-		 * a quarter-turn of the image to the left; moving the picture on to its
-		 * left side.
-		 */
-		CW_270,
-		/**
-		 * Flip the image horizontally by reflecting it around the y axis.
-		 * <p/>
-		 * This is not a standard rotation around a center point, but instead
-		 * creates the mirrored reflection of the image horizontally.
-		 * <p/>
-		 * More specifically, the vertical orientation of the image stays the
-		 * same (the top stays on top, and the bottom on bottom), but the right
-		 * and left sides flip. This is different than a standard rotation where
-		 * the top and bottom would also have been flipped.
-		 */
-		FLIP_HORZ,
-		/**
-		 * Flip the image vertically by reflecting it around the x axis.
-		 * <p/>
-		 * This is not a standard rotation around a center point, but instead
-		 * creates the mirrored reflection of the image vertically.
-		 * <p/>
-		 * More specifically, the horizontal orientation of the image stays the
-		 * same (the left stays on the left and the right stays on the right),
-		 * but the top and bottom sides flip. This is different than a standard
-		 * rotation where the left and right would also have been flipped.
-		 */
-		FLIP_VERT;
+	public static BufferedImage resize(BufferedImage src, Mode resizeMode,
+									   int targetWidth, int targetHeight, BufferedImageOp... ops)
+			throws IllegalArgumentException, ImagingOpException {
+		return resize(src, Method.AUTOMATIC, resizeMode, targetWidth,
+				targetHeight, ops);
 	}
 
 	/**
@@ -1408,498 +1694,177 @@ public class Scalr {
 	 *             most common pitfalls that will cause {@link BufferedImageOp}s
 	 *             to fail, even when using straight forward JDK-image
 	 *             operations.
-	 * 
+	 *
 	 * @see Method
 	 */
 	public static BufferedImage resize(BufferedImage src, Method scalingMethod,
-			int targetWidth, int targetHeight, BufferedImageOp... ops) {
+									   int targetWidth, int targetHeight, BufferedImageOp... ops) {
 		return resize(src, scalingMethod, Mode.AUTOMATIC, targetWidth,
 				targetHeight, ops);
 	}
 
 	/**
-	 * Resize a given image (maintaining its original proportion) to the target
-	 * width and height (or fitting the image to the given WIDTH or HEIGHT
-	 * explicitly, depending on the {@link Mode} specified) and apply the given
-	 * {@link BufferedImageOp}s (if any) to the result before returning it.
-	 * <p/>
-	 * A scaling method of {@link Method#AUTOMATIC} is used.
-	 * <p/>
-	 * <strong>TIP</strong>: See the class description to understand how this
-	 * class handles recalculation of the <code>targetWidth</code> or
-	 * <code>targetHeight</code> depending on the image's orientation in order
-	 * to maintain the original proportion.
-	 * <p/>
-	 * <strong>TIP</strong>: This operation leaves the original <code>src</code>
-	 * image unmodified. If the caller is done with the <code>src</code> image
-	 * after getting the result of this operation, remember to call
-	 * {@link BufferedImage#flush()} on the <code>src</code> to free up native
-	 * resources and make it easier for the GC to collect the unused image.
-	 * 
-	 * @param src
-	 *            The image that will be scaled.
-	 * @param resizeMode
-	 *            Used to indicate how imgscalr should calculate the final
-	 *            target size for the image, either fitting the image to the
-	 *            given width ({@link Mode#FIT_TO_WIDTH}) or fitting the image
-	 *            to the given height ({@link Mode#FIT_TO_HEIGHT}). If
-	 *            {@link Mode#AUTOMATIC} is passed in, imgscalr will calculate
-	 *            proportional dimensions for the scaled image based on its
-	 *            orientation (landscape, square or portrait). Unless you have
-	 *            very specific size requirements, most of the time you just
-	 *            want to use {@link Mode#AUTOMATIC} to "do the right thing".
-	 * @param targetWidth
-	 *            The target width that you wish the image to have.
-	 * @param targetHeight
-	 *            The target height that you wish the image to have.
-	 * @param ops
-	 *            <code>0</code> or more optional image operations (e.g.
-	 *            sharpen, blur, etc.) that can be applied to the final result
-	 *            before returning the image.
-	 * 
-	 * @return a new {@link BufferedImage} representing the scaled
-	 *         <code>src</code> image.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if <code>src</code> is <code>null</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>resizeMode</code> is <code>null</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>targetWidth</code> is &lt; 0 or if
-	 *             <code>targetHeight</code> is &lt; 0.
-	 * @throws ImagingOpException
-	 *             if one of the given {@link BufferedImageOp}s fails to apply.
-	 *             These exceptions bubble up from the inside of most of the
-	 *             {@link BufferedImageOp} implementations and are explicitly
-	 *             defined on the imgscalr API to make it easier for callers to
-	 *             catch the exception (if they are passing along optional ops
-	 *             to be applied). imgscalr takes detailed steps to avoid the
-	 *             most common pitfalls that will cause {@link BufferedImageOp}s
-	 *             to fail, even when using straight forward JDK-image
-	 *             operations.
-	 * 
-	 * @see Mode
+	 * Used to define the different scaling hints that the algorithm can use.
+	 *
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 1.1
 	 */
-	public static BufferedImage resize(BufferedImage src, Mode resizeMode,
-			int targetWidth, int targetHeight, BufferedImageOp... ops)
-			throws IllegalArgumentException, ImagingOpException {
-		return resize(src, Method.AUTOMATIC, resizeMode, targetWidth,
-				targetHeight, ops);
+	public enum Method {
+		/**
+		 * Used to indicate that the scaling implementation should decide which
+		 * method to use in order to get the best looking scaled image in the
+		 * least amount of time.
+		 * <p/>
+		 * The scaling algorithm will use the
+		 * {@link Scalr#THRESHOLD_QUALITY_BALANCED} or
+		 * {@link Scalr#THRESHOLD_BALANCED_SPEED} thresholds as cut-offs to
+		 * decide between selecting the <code>QUALITY</code>,
+		 * <code>BALANCED</code> or <code>SPEED</code> scaling algorithms.
+		 * <p/>
+		 * By default the thresholds chosen will give nearly the best looking
+		 * result in the fastest amount of time. We intend this method to work
+		 * for 80% of people looking to scale an image quickly and get a good
+		 * looking result.
+		 */
+		AUTOMATIC,
+		/**
+		 * Used to indicate that the scaling implementation should scale as fast
+		 * as possible and return a result. For smaller images (800px in size)
+		 * this can result in noticeable aliasing but it can be a few magnitudes
+		 * times faster than using the QUALITY method.
+		 */
+		SPEED,
+		/**
+		 * Used to indicate that the scaling implementation should use a scaling
+		 * operation balanced between SPEED and QUALITY. Sometimes SPEED looks
+		 * too low quality to be useful (e.g. text can become unreadable when
+		 * scaled using SPEED) but using QUALITY mode will increase the
+		 * processing time too much. This mode provides a "better than SPEED"
+		 * quality in a "less than QUALITY" amount of time.
+		 */
+		BALANCED,
+		/**
+		 * Used to indicate that the scaling implementation should do everything
+		 * it can to create as nice of a result as possible. This approach is
+		 * most important for smaller pictures (800px or smaller) and less
+		 * important for larger pictures as the difference between this method
+		 * and the SPEED method become less and less noticeable as the
+		 * source-image size increases. Using the AUTOMATIC method will
+		 * automatically prefer the QUALITY method when scaling an image down
+		 * below 800px in size.
+		 */
+		QUALITY,
+		/**
+		 * Used to indicate that the scaling implementation should go above and
+		 * beyond the work done by {@link Method#QUALITY} to make the image look
+		 * exceptionally good at the cost of more processing time. This is
+		 * especially evident when generating thumbnails of images that look
+		 * jagged with some of the other {@link Method}s (even
+		 * {@link Method#QUALITY}).
+		 */
+		ULTRA_QUALITY
 	}
 
 	/**
-	 * Resize a given image (maintaining its original proportion) to the target
-	 * width and height (or fitting the image to the given WIDTH or HEIGHT
-	 * explicitly, depending on the {@link Mode} specified) using the given
-	 * scaling method and apply the given {@link BufferedImageOp}s (if any) to
-	 * the result before returning it.
-	 * <p/>
-	 * <strong>TIP</strong>: See the class description to understand how this
-	 * class handles recalculation of the <code>targetWidth</code> or
-	 * <code>targetHeight</code> depending on the image's orientation in order
-	 * to maintain the original proportion.
-	 * <p/>
-	 * <strong>TIP</strong>: This operation leaves the original <code>src</code>
-	 * image unmodified. If the caller is done with the <code>src</code> image
-	 * after getting the result of this operation, remember to call
-	 * {@link BufferedImage#flush()} on the <code>src</code> to free up native
-	 * resources and make it easier for the GC to collect the unused image.
-	 * 
-	 * @param src
-	 *            The image that will be scaled.
-	 * @param scalingMethod
-	 *            The method used for scaling the image; preferring speed to
-	 *            quality or a balance of both.
-	 * @param resizeMode
-	 *            Used to indicate how imgscalr should calculate the final
-	 *            target size for the image, either fitting the image to the
-	 *            given width ({@link Mode#FIT_TO_WIDTH}) or fitting the image
-	 *            to the given height ({@link Mode#FIT_TO_HEIGHT}). If
-	 *            {@link Mode#AUTOMATIC} is passed in, imgscalr will calculate
-	 *            proportional dimensions for the scaled image based on its
-	 *            orientation (landscape, square or portrait). Unless you have
-	 *            very specific size requirements, most of the time you just
-	 *            want to use {@link Mode#AUTOMATIC} to "do the right thing".
-	 * @param targetWidth
-	 *            The target width that you wish the image to have.
-	 * @param targetHeight
-	 *            The target height that you wish the image to have.
-	 * @param ops
-	 *            <code>0</code> or more optional image operations (e.g.
-	 *            sharpen, blur, etc.) that can be applied to the final result
-	 *            before returning the image.
-	 * 
-	 * @return a new {@link BufferedImage} representing the scaled
-	 *         <code>src</code> image.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if <code>src</code> is <code>null</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>scalingMethod</code> is <code>null</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>resizeMode</code> is <code>null</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>targetWidth</code> is &lt; 0 or if
-	 *             <code>targetHeight</code> is &lt; 0.
-	 * @throws ImagingOpException
-	 *             if one of the given {@link BufferedImageOp}s fails to apply.
-	 *             These exceptions bubble up from the inside of most of the
-	 *             {@link BufferedImageOp} implementations and are explicitly
-	 *             defined on the imgscalr API to make it easier for callers to
-	 *             catch the exception (if they are passing along optional ops
-	 *             to be applied). imgscalr takes detailed steps to avoid the
-	 *             most common pitfalls that will cause {@link BufferedImageOp}s
-	 *             to fail, even when using straight forward JDK-image
-	 *             operations.
-	 * 
-	 * @see Method
-	 * @see Mode
+	 * Used to define the different modes of resizing that the algorithm can
+	 * use.
+	 *
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 3.1
 	 */
-	public static BufferedImage resize(BufferedImage src, Method scalingMethod,
-			Mode resizeMode, int targetWidth, int targetHeight,
-			BufferedImageOp... ops) throws IllegalArgumentException,
-			ImagingOpException {
-    long t = -1;
-    if (DEBUG)
-      t = System.currentTimeMillis();
-
-		if (src == null)
-			throw new IllegalArgumentException("src cannot be null");
-		if (targetWidth < 0)
-			throw new IllegalArgumentException("targetWidth must be >= 0");
-		if (targetHeight < 0)
-			throw new IllegalArgumentException("targetHeight must be >= 0");
-		if (scalingMethod == null)
-			throw new IllegalArgumentException(
-					"scalingMethod cannot be null. A good default value is Method.AUTOMATIC.");
-		if (resizeMode == null)
-			throw new IllegalArgumentException(
-					"resizeMode cannot be null. A good default value is Mode.AUTOMATIC.");
-
-		BufferedImage result = null;
-
-		int currentWidth = src.getWidth();
-		int currentHeight = src.getHeight();
-
-		// <= 1 is a square or landscape-oriented image, > 1 is a portrait.
-		float ratio = ((float) currentHeight / (float) currentWidth);
-
-		if (DEBUG)
-			log(0,
-					"Resizing Image [size=%dx%d, resizeMode=%s, orientation=%s, ratio(H/W)=%f] to [targetSize=%dx%d]",
-					currentWidth, currentHeight, resizeMode,
-					(ratio <= 1 ? "Landscape/Square" : "Portrait"), ratio,
-					targetWidth, targetHeight);
-
-		/*
-		 * First determine if ANY size calculation needs to be done, in the case
-		 * of FIT_EXACT, ignore image proportions and orientation and just use
-		 * what the user sent in, otherwise the proportion of the picture must
-		 * be honored.
-		 * 
-		 * The way that is done is to figure out if the image is in a
-		 * LANDSCAPE/SQUARE or PORTRAIT orientation and depending on its
-		 * orientation, use the primary dimension (width for LANDSCAPE/SQUARE
-		 * and height for PORTRAIT) to recalculate the alternative (height and
-		 * width respectively) value that adheres to the existing ratio.
-		 * 
-		 * This helps make life easier for the caller as they don't need to
-		 * pre-compute proportional dimensions before calling the API, they can
-		 * just specify the dimensions they would like the image to roughly fit
-		 * within and it will do the right thing without mangling the result.
+	public enum Mode {
+		/**
+		 * Used to indicate that the scaling implementation should calculate
+		 * dimensions for the resultant image by looking at the image's
+		 * orientation and generating proportional dimensions that best fit into
+		 * the target width and height given
+		 * <p>
+		 * See "Image Proportions" in the {@link Scalr} class description for
+		 * more detail.
 		 */
-		if (resizeMode == Mode.FIT_EXACT) {
-			if (DEBUG)
-				log(1,
-						"Resize Mode FIT_EXACT used, no width/height checking or re-calculation will be done.");
-		} else if (resizeMode == Mode.BEST_FIT_BOTH) {
-			float requestedHeightScaling = ((float) targetHeight / (float) currentHeight);
-			float requestedWidthScaling = ((float) targetWidth / (float) currentWidth);
-			float actualScaling = Math.min(requestedHeightScaling, requestedWidthScaling);
-
-			targetHeight = Math.round((float) currentHeight * actualScaling);
-			targetWidth = Math.round((float) currentWidth * actualScaling);
-
-			if (targetHeight == currentHeight && targetWidth == currentWidth)
-				return src;
-
-			if (DEBUG)
-				log(1, "Auto-Corrected width and height based on scalingRatio %d.", actualScaling);
-		} else {
-			if ((ratio <= 1 && resizeMode == Mode.AUTOMATIC)
-					|| (resizeMode == Mode.FIT_TO_WIDTH)) {
-				// First make sure we need to do any work in the first place
-				if (targetWidth == src.getWidth())
-					return src;
-
-				// Save for detailed logging (this is cheap).
-				int originalTargetHeight = targetHeight;
-
-				/*
-				 * Landscape or Square Orientation: Ignore the given height and
-				 * re-calculate a proportionally correct value based on the
-				 * targetWidth.
-				 */
-				targetHeight = (int)Math.ceil((float) targetWidth * ratio);
-
-				if (DEBUG && originalTargetHeight != targetHeight)
-					log(1,
-							"Auto-Corrected targetHeight [from=%d to=%d] to honor image proportions.",
-							originalTargetHeight, targetHeight);
-			} else {
-				// First make sure we need to do any work in the first place
-				if (targetHeight == src.getHeight())
-					return src;
-
-				// Save for detailed logging (this is cheap).
-				int originalTargetWidth = targetWidth;
-
-				/*
-				 * Portrait Orientation: Ignore the given width and re-calculate
-				 * a proportionally correct value based on the targetHeight.
-				 */
-				targetWidth = Math.round((float) targetHeight / ratio);
-
-				if (DEBUG && originalTargetWidth != targetWidth)
-					log(1,
-							"Auto-Corrected targetWidth [from=%d to=%d] to honor image proportions.",
-							originalTargetWidth, targetWidth);
-			}
-		}
-
-		// If AUTOMATIC was specified, determine the real scaling method.
-		if (scalingMethod == Method.AUTOMATIC)
-			scalingMethod = determineScalingMethod(targetWidth, targetHeight,
-					ratio);
-
-		if (DEBUG)
-			log(1, "Using Scaling Method: %s", scalingMethod);
-
-		// Now we scale the image
-		if (scalingMethod == Method.SPEED) {
-			result = scaleImage(src, targetWidth, targetHeight,
-					RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-		} else if (scalingMethod == Method.BALANCED) {
-			result = scaleImage(src, targetWidth, targetHeight,
-					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		} else if (scalingMethod == Method.QUALITY
-				|| scalingMethod == Method.ULTRA_QUALITY) {
-			/*
-			 * If we are scaling up (in either width or height - since we know
-			 * the image will stay proportional we just check if either are
-			 * being scaled up), directly using a single BICUBIC will give us
-			 * better results then using Chris Campbell's incremental scaling
-			 * operation (and take a lot less time).
-			 * 
-			 * If we are scaling down, we must use the incremental scaling
-			 * algorithm for the best result.
-			 */
-			if (targetWidth > currentWidth || targetHeight > currentHeight) {
-				if (DEBUG)
-					log(1,
-							"QUALITY scale-up, a single BICUBIC scale operation will be used...");
-
-				/*
-				 * BILINEAR and BICUBIC look similar the smaller the scale jump
-				 * upwards is, if the scale is larger BICUBIC looks sharper and
-				 * less fuzzy. But most importantly we have to use BICUBIC to
-				 * match the contract of the QUALITY rendering scalingMethod.
-				 * This note is just here for anyone reading the code and
-				 * wondering how they can speed their own calls up.
-				 */
-				result = scaleImage(src, targetWidth, targetHeight,
-						RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-			} else {
-				if (DEBUG)
-					log(1,
-							"QUALITY scale-down, incremental scaling will be used...");
-
-				/*
-				 * Originally we wanted to use BILINEAR interpolation here
-				 * because it takes 1/3rd the time that the BICUBIC
-				 * interpolation does, however, when scaling large images down
-				 * to most sizes bigger than a thumbnail we witnessed noticeable
-				 * "softening" in the resultant image with BILINEAR that would
-				 * be unexpectedly annoying to a user expecting a "QUALITY"
-				 * scale of their original image. Instead BICUBIC was chosen to
-				 * honor the contract of a QUALITY scale of the original image.
-				 */
-				result = scaleImageIncrementally(src, targetWidth,
-						targetHeight, scalingMethod,
-						RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-			}
-		}
-
-		if (DEBUG)
-			log(0, "Resized Image in %d ms", System.currentTimeMillis() - t);
-
-		// Apply any optional operations (if specified).
-		if (ops != null && ops.length > 0)
-			result = apply(result, ops);
-
-		return result;
+		AUTOMATIC,
+		/**
+		 * Used to fit the image to the exact dimensions given regardless of the
+		 * image's proportions. If the dimensions are not proportionally
+		 * correct, this will introduce vertical or horizontal stretching to the
+		 * image.
+		 * <p/>
+		 * It is recommended that you use one of the other <code>FIT_TO</code>
+		 * modes or {@link Mode#AUTOMATIC} if you want the image to look
+		 * correct, but if dimension-fitting is the #1 priority regardless of
+		 * how it makes the image look, that is what this mode is for.
+		 */
+		FIT_EXACT,
+		/**
+		 * Used to indicate that the scaling implementation should calculate
+		 * dimensions for the largest image that fit within the bounding box,
+		 * without cropping or distortion, retaining the original proportions.
+		 */
+		BEST_FIT_BOTH,
+		/**
+		 * Used to indicate that the scaling implementation should calculate
+		 * dimensions for the resultant image that best-fit within the given
+		 * width, regardless of the orientation of the image.
+		 */
+		FIT_TO_WIDTH,
+		/**
+		 * Used to indicate that the scaling implementation should calculate
+		 * dimensions for the resultant image that best-fit within the given
+		 * height, regardless of the orientation of the image.
+		 */
+		FIT_TO_HEIGHT
 	}
 
 	/**
-	 * Used to apply a {@link Rotation} and then <code>0</code> or more
-	 * {@link BufferedImageOp}s to a given image and return the result.
-	 * <p/>
-	 * <strong>TIP</strong>: This operation leaves the original <code>src</code>
-	 * image unmodified. If the caller is done with the <code>src</code> image
-	 * after getting the result of this operation, remember to call
-	 * {@link BufferedImage#flush()} on the <code>src</code> to free up native
-	 * resources and make it easier for the GC to collect the unused image.
-	 * 
-	 * @param src
-	 *            The image that will have the rotation applied to it.
-	 * @param rotation
-	 *            The rotation that will be applied to the image.
-	 * @param ops
-	 *            Zero or more optional image operations (e.g. sharpen, blur,
-	 *            etc.) that can be applied to the final result before returning
-	 *            the image.
-	 * 
-	 * @return a new {@link BufferedImage} representing <code>src</code> rotated
-	 *         by the given amount and any optional ops applied to it.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if <code>src</code> is <code>null</code>.
-	 * @throws IllegalArgumentException
-	 *             if <code>rotation</code> is <code>null</code>.
-	 * @throws ImagingOpException
-	 *             if one of the given {@link BufferedImageOp}s fails to apply.
-	 *             These exceptions bubble up from the inside of most of the
-	 *             {@link BufferedImageOp} implementations and are explicitly
-	 *             defined on the imgscalr API to make it easier for callers to
-	 *             catch the exception (if they are passing along optional ops
-	 *             to be applied). imgscalr takes detailed steps to avoid the
-	 *             most common pitfalls that will cause {@link BufferedImageOp}s
-	 *             to fail, even when using straight forward JDK-image
-	 *             operations.
-	 * 
-	 * @see Rotation
+	 * Used to define the different types of rotations that can be applied to an
+	 * image during a resize operation.
+	 *
+	 * @author Riyad Kalla (software@thebuzzmedia.com)
+	 * @since 3.2
 	 */
-	public static BufferedImage rotate(BufferedImage src, Rotation rotation,
-			BufferedImageOp... ops) throws IllegalArgumentException,
-			ImagingOpException {
-    long t = -1;
-    if (DEBUG)
-      t = System.currentTimeMillis();
-
-		if (src == null)
-			throw new IllegalArgumentException("src cannot be null");
-		if (rotation == null)
-			throw new IllegalArgumentException("rotation cannot be null");
-
-		if (DEBUG)
-			log(0, "Rotating Image [%s]...", rotation);
-
-		/*
-		 * Setup the default width/height values from our image.
-		 * 
-		 * In the case of a 90 or 270 (-90) degree rotation, these two values
-		 * flip-flop and we will correct those cases down below in the switch
-		 * statement.
+	public enum Rotation {
+		/**
+		 * 90-degree, clockwise rotation (to the right). This is equivalent to a
+		 * quarter-turn of the image to the right; moving the picture on to its
+		 * right side.
 		 */
-		int newWidth = src.getWidth();
-		int newHeight = src.getHeight();
-
-		/*
-		 * We create a transform per operation request as (oddly enough) it ends
-		 * up being faster for the VM to create, use and destroy these instances
-		 * than it is to re-use a single AffineTransform per-thread via the
-		 * AffineTransform.setTo(...) methods which was my first choice (less
-		 * object creation); after benchmarking this explicit case and looking
-		 * at just how much code gets run inside of setTo() I opted for a new AT
-		 * for every rotation.
-		 * 
-		 * Besides the performance win, trying to safely reuse AffineTransforms
-		 * via setTo(...) would have required ThreadLocal instances to avoid
-		 * race conditions where two or more resize threads are manipulating the
-		 * same transform before applying it.
-		 * 
-		 * Misusing ThreadLocals are one of the #1 reasons for memory leaks in
-		 * server applications and since we have no nice way to hook into the
-		 * init/destroy Servlet cycle or any other initialization cycle for this
-		 * library to automatically call ThreadLocal.remove() to avoid the
-		 * memory leak, it would have made using this library *safely* on the
-		 * server side much harder.
-		 * 
-		 * So we opt for creating individual transforms per rotation op and let
-		 * the VM clean them up in a GC. I only clarify all this reasoning here
-		 * for anyone else reading this code and being tempted to reuse the AT
-		 * instances of performance gains; there aren't any AND you get a lot of
-		 * pain along with it.
+		CW_90,
+		/**
+		 * 180-degree, clockwise rotation (to the right). This is equivalent to
+		 * 1 half-turn of the image to the right; rotating the picture around
+		 * until it is upside down from the original position.
 		 */
-		AffineTransform tx = new AffineTransform();
-
-		switch (rotation) {
-		case CW_90:
-			/*
-			 * A 90 or -90 degree rotation will cause the height and width to
-			 * flip-flop from the original image to the rotated one.
-			 */
-			newWidth = src.getHeight();
-			newHeight = src.getWidth();
-
-			// Reminder: newWidth == result.getHeight() at this point
-			tx.translate(newWidth, 0);
-			tx.quadrantRotate(1);
-
-			break;
-
-		case CW_270:
-			/*
-			 * A 90 or -90 degree rotation will cause the height and width to
-			 * flip-flop from the original image to the rotated one.
-			 */
-			newWidth = src.getHeight();
-			newHeight = src.getWidth();
-
-			// Reminder: newHeight == result.getWidth() at this point
-			tx.translate(0, newHeight);
-			tx.quadrantRotate(3);
-			break;
-
-		case CW_180:
-			tx.translate(newWidth, newHeight);
-			tx.quadrantRotate(2);
-			break;
-
-		case FLIP_HORZ:
-			tx.translate(newWidth, 0);
-			tx.scale(-1.0, 1.0);
-			break;
-
-		case FLIP_VERT:
-			tx.translate(0, newHeight);
-			tx.scale(1.0, -1.0);
-			break;
-		}
-
-		// Create our target image we will render the rotated result to.
-		BufferedImage result = createOptimalImage(src, newWidth, newHeight);
-		Graphics2D g2d = (Graphics2D) result.createGraphics();
-
-		/*
-		 * Render the resultant image to our new rotatedImage buffer, applying
-		 * the AffineTransform that we calculated above during rendering so the
-		 * pixels from the old position are transposed to the new positions in
-		 * the resulting image correctly.
+		CW_180,
+		/**
+		 * 270-degree, clockwise rotation (to the right). This is equivalent to
+		 * a quarter-turn of the image to the left; moving the picture on to its
+		 * left side.
 		 */
-		g2d.drawImage(src, tx, null);
-		g2d.dispose();
-
-		if (DEBUG)
-			log(0, "Rotation Applied in %d ms, result [width=%d, height=%d]",
-					System.currentTimeMillis() - t, result.getWidth(),
-					result.getHeight());
-
-		// Apply any optional operations (if specified).
-		if (ops != null && ops.length > 0)
-			result = apply(result, ops);
-
-		return result;
+		CW_270,
+		/**
+		 * Flip the image horizontally by reflecting it around the y axis.
+		 * <p/>
+		 * This is not a standard rotation around a center point, but instead
+		 * creates the mirrored reflection of the image horizontally.
+		 * <p/>
+		 * More specifically, the vertical orientation of the image stays the
+		 * same (the top stays on top, and the bottom on bottom), but the right
+		 * and left sides flip. This is different than a standard rotation where
+		 * the top and bottom would also have been flipped.
+		 */
+		FLIP_HORZ,
+		/**
+		 * Flip the image vertically by reflecting it around the x axis.
+		 * <p/>
+		 * This is not a standard rotation around a center point, but instead
+		 * creates the mirrored reflection of the image vertically.
+		 * <p/>
+		 * More specifically, the horizontal orientation of the image stays the
+		 * same (the left stays on the left and the right stays on the right),
+		 * but the top and bottom sides flip. This is different than a standard
+		 * rotation where the left and right would also have been flipped.
+		 */
+		FLIP_VERT
 	}
 
 	/**

@@ -40,10 +40,6 @@ public class PositionManager {
         return availablePositions.get((availablePositions.indexOf(oldPosition) + 1) % availablePositions.size());
     }
 
-    public void setInitialPositions(ArrayList<PlayerModel> players) {
-
-    }
-
     public ArrayList<Position> getAvailablePositions() {
         return availablePositions;
     }

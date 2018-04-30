@@ -1,7 +1,5 @@
 import client.socket.ClientManager;
 import events.*;
-import server.model.ActionType;
-import server.model.StakeAction;
 
 public class ClientSideTest {
     public static void main(String[] args) {
@@ -12,6 +10,9 @@ public class ClientSideTest {
         client.sendMessage(clientEvents);
         Events playersList = client.listenForAMessage();
 
+        /*
+            ==================START TURN ====================
+         */
         Events startTurn = client.listenForAMessage();
 
         while (!playersList.isEmpty()) {
@@ -27,21 +28,27 @@ public class ClientSideTest {
         PlayerUpdatedEvent creatorUpdate = (PlayerUpdatedEvent) stakeEvents.getEvent();
 
         System.out.println("New pot: " + potUpdatedEvent.getPot());
-        System.out.println("Creator update chips: " + creatorUpdate.getPlayer().getTotalChips());
+        System.out.println(creatorUpdate.getPlayer().getNickname() + " update chips: " + creatorUpdate.getPlayer().getTotalChips());
 
         Events stakeEvents1 = client.listenForAMessage();
         PotUpdatedEvent potUpdatedEvent1 = (PotUpdatedEvent) stakeEvents1.getEvent();
         PlayerUpdatedEvent clientUpdate = (PlayerUpdatedEvent) stakeEvents1.getEvent();
 
         System.out.println("New pot: " + potUpdatedEvent1.getPot());
-        System.out.println("Creator update chips: " + clientUpdate.getPlayer().getTotalChips());
+        System.out.println(clientUpdate.getPlayer().getNickname() + " update chips: " + clientUpdate.getPlayer().getTotalChips());
 
+        /*
+               =============== END START TURN ================
+         */
 
         Events stakeCreator = client.listenForAMessage();
-        PositionChangedEvent positionEvent = (PositionChangedEvent) stakeCreator.getEvent();
+        ActionOptionsEvent optionsAvailable = (ActionOptionsEvent) stakeCreator.getEvent();
+        /*for(StakeAction action : optionsAvailable.getOptions()){
+            System.out.println(action.getType() + " " + action.getStakeChips());
+        }*/
 
         Events clientAction = new Events();
-        clientAction.addEvent(new ActionPerformedEvent(new StakeAction(ActionType.CHECK)));
+        //clientAction.addEvent(new ActionPerformedEvent(new StakeAction(ActionType.CALL, 400)));
         client.sendMessage(clientAction);
 
         Events responseToCreator = client.listenForAMessage();
@@ -52,7 +59,7 @@ public class ClientSideTest {
         System.out.println("Creator update chips: " + creatorUpdate1.getPlayer().getTotalChips());
 
         Events stakeClient = client.listenForAMessage();
-        PositionChangedEvent positionEvent1 = (PositionChangedEvent) stakeClient.getEvent();
+
 
         Events responseToClient = client.listenForAMessage();
         PotUpdatedEvent potUpdatedEvent3 = (PotUpdatedEvent) responseToClient.getEvent();

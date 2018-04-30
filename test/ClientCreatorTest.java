@@ -1,7 +1,5 @@
 import client.socket.ClientManager;
 import events.*;
-import server.model.ActionType;
-import server.model.StakeAction;
 
 public class ClientCreatorTest {
 
@@ -24,13 +22,20 @@ public class ClientCreatorTest {
 
         Events startTurn = creatorClient.listenForAMessage();
 
+        System.out.println("I giocatori attuali della partita sono: ");
         while (!playersList.isEmpty()) {
             PlayerAddedEvent playerEvent = (PlayerAddedEvent) playersList.getEvent();
             System.out.println(playerEvent.getNickname() + " " + playerEvent.getPosition());
         }
 
+
         BlindsUpdatedEvent blindsUpdatedEvent = (BlindsUpdatedEvent) startTurn.getEvent();
-        System.out.println(blindsUpdatedEvent.getSmallBlind() + " " + blindsUpdatedEvent.getBigBlind());
+        System.out.println("I Blind adesso sono: " + "SB = " + blindsUpdatedEvent.getSmallBlind() + " BB = " + blindsUpdatedEvent.getBigBlind());
+
+
+        /*
+         * Update del creator player (viene riscosso lo Small Blind
+         */
 
         Events stakeEvents = creatorClient.listenForAMessage();
         PotUpdatedEvent potUpdatedEvent = (PotUpdatedEvent) stakeEvents.getEvent();
@@ -39,6 +44,10 @@ public class ClientCreatorTest {
         System.out.println("New pot: " + potUpdatedEvent.getPot());
         System.out.println("Creator update chips: " + creatorUpdate.getPlayer().getTotalChips());
 
+        /*
+         * Update del client player (viene riscosso il BigBlinf
+         */
+
         Events stakeEvents1 = creatorClient.listenForAMessage();
         PotUpdatedEvent potUpdatedEvent1 = (PotUpdatedEvent) stakeEvents1.getEvent();
         PlayerUpdatedEvent clientUpdate = (PlayerUpdatedEvent) stakeEvents1.getEvent();
@@ -46,10 +55,12 @@ public class ClientCreatorTest {
         System.out.println("New pot: " + potUpdatedEvent1.getPot());
         System.out.println("Client update chips: " + clientUpdate.getPlayer().getTotalChips());
 
+
         Events stakeCreator = creatorClient.listenForAMessage();
-        PositionChangedEvent positionEvent = (PositionChangedEvent) stakeCreator.getEvent();
+        //ActionOptionsEvent optionsEvent = (ActionOptionsEvent) stakeCreator.getEvent();
+
         Events creatorAction = new Events();
-        creatorAction.addEvent(new ActionPerformedEvent(new StakeAction(ActionType.CALL, 200)));
+        //creatorAction.addEvent(new ActionPerformedEvent(new StakeAction(ActionType.CALL, 10000)));
         creatorClient.sendMessage(creatorAction);
 
         Events responseToCreator = creatorClient.listenForAMessage();
@@ -60,7 +71,6 @@ public class ClientCreatorTest {
         System.out.println("Creator update chips: " + creatorUpdate1.getPlayer().getTotalChips());
 
         Events stakeClient = creatorClient.listenForAMessage();
-        PositionChangedEvent positionEvent1 = (PositionChangedEvent) stakeClient.getEvent();
 
         Events responseToClient = creatorClient.listenForAMessage();
         PotUpdatedEvent potUpdatedEvent3 = (PotUpdatedEvent) responseToClient.getEvent();

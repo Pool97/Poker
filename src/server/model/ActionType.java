@@ -12,5 +12,5 @@ package server.model;
  */
 
 public enum ActionType {
-    SB, BB, CALL, RAISE, BET, FOLD, CHECK
+    SB, BB, CALL, RAISE, FOLD, CHECK, ALL_IN
 }
