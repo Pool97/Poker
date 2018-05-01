@@ -3,7 +3,6 @@ package server.automa;
 import events.BlindsUpdatedEvent;
 import events.Events;
 import interfaces.PokerState;
-import server.model.DeckModel;
 import server.model.MatchModel;
 import server.model.Room;
 import server.socket.ServerManager;
@@ -29,8 +28,6 @@ import java.util.concurrent.CountDownLatch;
  */
 
 public class TurnStart implements PokerState {
-    private DeckModel deckModel;
-    private Events stateChanges;
     private Match match;
 
     /**
@@ -38,8 +35,6 @@ public class TurnStart implements PokerState {
      */
 
     public TurnStart(Match match) {
-        stateChanges = new Events();
-        deckModel = new DeckModel();
         this.match = match;
     }
 
@@ -49,18 +44,17 @@ public class TurnStart implements PokerState {
 
     @Override
     public void goNext() {
-        ServerManager serverManager = match.getServerManager();
         MatchModel matchModel = match.getMatchModel();
-        serverManager.logger.info("Start Turn è iniziato. \n");
-        deckModel.createAndShuffle();
+        ServerManager.logger.info("Start Turn è iniziato. \n");
+        match.getTurnModel().createDeck();
         match.getTurnModel().resetPot();
         matchModel.increaseBlinds();
-        Room room = serverManager.getRoom();
-        room.getPlayers().forEach(player -> player.setTotalChips(matchModel.getStartChips()));
-        stateChanges.addEvent(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind()));
-        serverManager.logger.info("Fornisco ai players i parametri aggiornati per il nuovo turno... \n");
-        serverManager.sendMessage(room.getConnections(), new CountDownLatch(1), stateChanges);
+        Room room = match.getRoom();
+        room.setPlayersChips(matchModel.getStartChips());
+        ServerManager.logger.info("Fornisco ai players i parametri aggiornati per il nuovo turno... \n");
+        room.sendBroadcast(new CountDownLatch(1),
+                new Events(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
         match.setState(new Blinds(match));
-        serverManager.logger.info("Start Turn è finito. \n");
+        ServerManager.logger.info("Start Turn è finito. \n");
     }
 }

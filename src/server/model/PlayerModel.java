@@ -1,6 +1,9 @@
 package server.model;
 
+import javafx.util.Pair;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Model di un generico Player di Poker.
@@ -18,20 +21,24 @@ public class PlayerModel implements Serializable {
     private String avatarFilename;
     private int rank;
     private int totalChips;
+    private ArrayList<Pair<ActionType, Integer>> actions;
 
     public PlayerModel(String nickname, int totalChips) {
         this.nickname = nickname;
         this.totalChips = totalChips;
+        actions = new ArrayList<>();
     }
 
     public PlayerModel(String nickname, String avatarFilename){
         this.nickname = nickname;
         this.avatarFilename = avatarFilename;
+        actions = new ArrayList<>();
     }
 
     public PlayerModel(String nickname, Position position) {
         this.nickname = nickname;
         this.position = position;
+        actions = new ArrayList<>();
     }
 
     public String getNickname() {
@@ -58,6 +65,28 @@ public class PlayerModel implements Serializable {
         this.position = position;
     }
 
+    public boolean isAllIn() {
+        return actions
+                .stream()
+                .anyMatch(action -> action.getKey() == ActionType.ALL_IN);
+    }
+
+    public boolean hasFolded() {
+        return actions.stream()
+                .anyMatch(action -> action.getKey() == ActionType.FOLD);
+    }
+
+    public int getTurnBet() {
+        return actions.stream().mapToInt(Pair::getValue).sum();
+    }
+
+    public void addAction(Pair<ActionType, Integer> action) {
+        if (totalChips == action.getValue())
+            action = new Pair<>(ActionType.ALL_IN, action.getValue());
+
+        totalChips -= action.getValue();
+        actions.add(action);
+    }
 
     /**
      * Permette di stabilire se il giocatore è ancora in partita oppure se è stato sconfitto.
@@ -68,6 +97,4 @@ public class PlayerModel implements Serializable {
     public boolean hasLost(){
         return totalChips == 0;
     }
-
-
 }

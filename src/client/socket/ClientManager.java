@@ -5,6 +5,7 @@ import utils.RequestHandler;
 import utils.RequestSender;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -59,6 +60,15 @@ public class ClientManager {
             logger.info(CLIENT_INFO  + SERVICE_INTERRUPTED);
             Thread.currentThread().interrupt();
         }
+    }
+
+    public InputStream getInputStream() {
+        try {
+            return socket.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

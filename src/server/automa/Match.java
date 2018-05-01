@@ -2,6 +2,7 @@ package server.automa;
 
 import interfaces.PokerState;
 import server.model.MatchModel;
+import server.model.Room;
 import server.model.TurnModel;
 import server.socket.ServerManager;
 
@@ -23,13 +24,14 @@ import java.util.concurrent.CountDownLatch;
 public class Match {
     private MatchModel matchModel;
     private TurnModel turnModel;
-    private ServerManager serverManager;
+    private Room room;
     private PokerState currentState;
 
 
     public Match() {
         matchModel = new MatchModel();
         turnModel = new TurnModel();
+        room = new Room();
     }
 
 
@@ -58,7 +60,7 @@ public class Match {
 
     public void startServer() {
         CountDownLatch roomCreationSignal = new CountDownLatch(1);
-        serverManager = new ServerManager(roomCreationSignal);
+        ServerManager serverManager = new ServerManager(room, roomCreationSignal);
         new Thread(serverManager).start();
         try {
             roomCreationSignal.await();
@@ -68,16 +70,15 @@ public class Match {
         }
     }
 
-
-    public ServerManager getServerManager() {
-        return serverManager;
-    }
-
     public TurnModel getTurnModel() {
         return turnModel;
     }
 
     public MatchModel getMatchModel() {
         return matchModel;
+    }
+
+    public Room getRoom() {
+        return room;
     }
 }

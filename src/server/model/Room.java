@@ -1,11 +1,19 @@
 package server.model;
 
 import events.PlayerCreatedEvent;
+import interfaces.Message;
+import server.socket.ServerManager;
+import utils.RequestHandler;
+import utils.RequestSender;
 
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Classe che permette di modellizzare il funzionamento di una stanza da gioco.
@@ -19,7 +27,7 @@ import java.util.HashMap;
 
 public class Room {
     private HashMap<PlayerModel, Socket> players;
-    private PositionManager positionManager;
+    private final ExecutorService poolExecutor = Executors.newCachedThreadPool();
     private int size;
 
     /**
@@ -28,7 +36,6 @@ public class Room {
 
     public Room() {
         players = new HashMap<>();
-        positionManager = new PositionManager();
     }
 
     /**
@@ -62,7 +69,6 @@ public class Room {
 
     public void setSize(int size) {
         this.size = size;
-        positionManager.addPositions(size);
     }
 
     /**
@@ -83,10 +89,14 @@ public class Room {
      * @return Model di tutti i Players.
      */
 
-    public ArrayList<PlayerModel> getPlayers() {
+    public ArrayList<PlayerModel> getOrderedPlayers() {
         ArrayList<PlayerModel> playersOrdered = new ArrayList<>(players.keySet());
         playersOrdered.sort(Comparator.comparing(PlayerModel::getPosition));
         return playersOrdered;
+    }
+
+    public ArrayList<PlayerModel> getPlayers() {
+        return new ArrayList<>(players.keySet());
     }
 
     /**
@@ -96,7 +106,7 @@ public class Room {
      * @return Connessione del Player
      */
 
-    public Socket getPlayerSocket(PlayerModel player) {
+    public Socket getSocket(PlayerModel player) {
         return players.get(player);
     }
 
@@ -106,7 +116,7 @@ public class Room {
      * @return Connessioni di tutti i Players.
      */
 
-    public ArrayList<Socket> getConnections() {
+    public ArrayList<Socket> getSockets() {
         return new ArrayList<>(players.values());
     }
 
@@ -116,22 +126,9 @@ public class Room {
      * ( = Small Blind) e così via per tutti i Players.
      */
 
-    public void movePlayersPosition() {
+    public void movePlayersPosition(PositionManager positionManager) {
         players.keySet()
                 .forEach(player -> player.setPosition(positionManager.nextPosition(player.getPosition())));
-    }
-
-    /**
-     * Permette di impostare la posizione iniziale di ogni giocatore. Il criterio è che le posizioni vengono
-     * assegnate in base all'ordine cronologico di connessione dei Player alla partita.
-     */
-
-    public void setInitialPositions() {
-        ArrayList<Position> availablePositions = positionManager.getAvailablePositions();
-        ArrayList<PlayerModel> playersList = new ArrayList<>(players.keySet());
-        for (int i = 0; i < size; i++) {
-            playersList.get(i).setPosition(availablePositions.get(i));
-        }
     }
 
     /**
@@ -141,11 +138,87 @@ public class Room {
      * @return Player
      */
 
-    public PlayerModel getPlayerByPosition(Position position) {
-        return getPlayers().stream().filter(player -> player.getPosition() == position).findFirst().get();
+    public PlayerModel getPlayer(Position position) {
+        return getOrderedPlayers().stream().filter(player -> player.getPosition() == position).findFirst().get();
     }
 
-    public PositionManager getAvailablePositions() {
-        return positionManager;
+    public void setPlayersChips(int chips) {
+        players.keySet().forEach(player -> player.setTotalChips(chips));
+    }
+
+    /**
+     * Permette di rimanere in ascolto su un altro Thread di un qualsiasi messaggio informativo inviato da un qualsiasi Client.
+     *
+     * @param socket Socket relativo al Player che si vuole ascoltare.
+     * @param <T>    Il messaggio da ascoltare dovrà essere un qualsiasi tipo di messaggio conforme all'interfaccia Message.
+     * @return Il messaggio inviato dal Client.
+     */
+
+    public <T extends Message> T listenForAMessage(Socket socket) {
+        T message = null;
+        try {
+            message = poolExecutor.submit(new RequestHandler<T>(socket, ServerManager.logger)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return message;
+    }
+
+    /**
+     * Permette di inviare un messaggio a un Client specifico su un altro Thread.
+     *
+     * @param socket  Connessione con il Client.
+     * @param message Messaggio da inviare
+     * @param <T>     Tipo di messaggio da inviare (tutti devono implementare {@link Message})
+     */
+
+    public <T extends Message> void sendMessage(Socket socket, T message) {
+        poolExecutor.submit(new RequestSender<>(socket, message, ServerManager.logger));
+    }
+
+    /**
+     * Versione di {@link Room#sendMessage(Socket, Message)} temporizzata.
+     * Questa si differenzia dalla sopraccitata per il fatto che il Thread chiamante viene bloccato
+     * in attesa che il messaggio sia andato a buon fine.
+     * <p>
+     * //@param socket  Connessione con il Client.
+     *
+     * @param waiter  Temporizzatore
+     * @param message Messaggio da inviare
+     * @param <T>     Tipo di messaggio da inviare (tutti devono implementare {@link Message}
+     */
+
+    public <T extends Message> void sendMessage(PlayerModel player, CountDownLatch waiter, T message) {
+        try {
+            poolExecutor.submit(new RequestSender<>(getSocket(player), message, ServerManager.logger)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        waiter.countDown();
+    }
+
+    /**
+     * Permette di propagare un messaggio in Multicast ai Clients. (se l'ArrayList contiene tutti i Socket
+     * dei giocatori diventa banalmente un messaggio Broadcast).
+     * Per mantenere efficienza si utilizza un ExecutorService cached in modo da poter inviare i messaggi
+     * su più Thread. L'ordine in cui l'invia non è di importanza.
+     * È temporizzato, quindi viene attesa la fine della consegna di tutti i messaggi prima di sbloccare
+     * il Thread chiamante.
+     * <p>
+     * //@param sockets Le connessioni dei Clients a cui si vuole inviare un messaggio
+     *
+     * @param waiter  Temporizzatore
+     * @param message Messaggio da propagare
+     * @param <T>     Tipo di messaggio da inviare (tutti devono implementare {@link Message}
+     */
+    public <T extends Message> void sendBroadcast(CountDownLatch waiter, T message) {
+        for (Socket socket : players.values()) {
+            try {
+                poolExecutor.submit(new RequestSender<>(socket, message, ServerManager.logger)).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        waiter.countDown();
     }
 }

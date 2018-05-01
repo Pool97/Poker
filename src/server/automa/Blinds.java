@@ -6,7 +6,6 @@ import events.PotUpdatedEvent;
 import interfaces.PokerState;
 import javafx.util.Pair;
 import server.model.*;
-import server.socket.ServerManager;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -20,26 +19,26 @@ public class Blinds implements PokerState {
     @Override
     public void goNext() {
         Events events = new Events();
-        ServerManager serverManager = match.getServerManager();
         MatchModel matchModel = match.getMatchModel();
         TurnModel turnModel = match.getTurnModel();
-        Room room = serverManager.getRoom();
+        Room room = match.getRoom();
 
-        PlayerModel smallBlind = room.getPlayerByPosition(Position.SB);
-        turnModel.addAction(smallBlind, new Pair<>(ActionType.SB, matchModel.getSmallBlind()));
+        PlayerModel smallBlind = room.getPlayer(Position.SB);
+        smallBlind.addAction(new Pair<>(ActionType.SB, matchModel.getSmallBlind()));
         events.addEvent(new PlayerUpdatedEvent(smallBlind));
         turnModel.increasePot(matchModel.getSmallBlind());
         events.addEvent(new PotUpdatedEvent(turnModel.getPot()));
-        serverManager.sendMessage(room.getConnections(), new CountDownLatch(1), events);
+        room.sendBroadcast(new CountDownLatch(1), events);
         events.removeAll();
 
-        PlayerModel player = room.getPlayerByPosition(Position.BB);
-        turnModel.addAction(player, new Pair<>(ActionType.BB, matchModel.getBigBlind()));
+        PlayerModel player = room.getPlayer(Position.BB);
+        player.addAction(new Pair<>(ActionType.BB, matchModel.getBigBlind()));
         events.addEvent(new PlayerUpdatedEvent(player));
         turnModel.increasePot(matchModel.getBigBlind());
         events.addEvent(new PotUpdatedEvent(turnModel.getPot()));
-        serverManager.sendMessage(room.getConnections(), new CountDownLatch(1), events);
-
+        room.sendBroadcast(new CountDownLatch(1), events);
+        Action action = new Action(match);
+        action.setTransitionStrategy(() -> match.setState(new Flop(match)));
         match.setState(new Action(match));
     }
 }

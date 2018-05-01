@@ -40,8 +40,8 @@ public class PositionManager {
         return availablePositions.get((availablePositions.indexOf(oldPosition) + 1) % availablePositions.size());
     }
 
-    public ArrayList<Position> getAvailablePositions() {
-        return availablePositions;
+    public Position getPosition(int index) {
+        return availablePositions.get(index);
     }
 
     public String toString() {

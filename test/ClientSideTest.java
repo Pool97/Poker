@@ -1,5 +1,7 @@
 import client.socket.ClientManager;
 import events.*;
+import javafx.util.Pair;
+import server.model.ActionType;
 
 public class ClientSideTest {
     public static void main(String[] args) {
@@ -43,12 +45,12 @@ public class ClientSideTest {
 
         Events stakeCreator = client.listenForAMessage();
         ActionOptionsEvent optionsAvailable = (ActionOptionsEvent) stakeCreator.getEvent();
-        /*for(StakeAction action : optionsAvailable.getOptions()){
-            System.out.println(action.getType() + " " + action.getStakeChips());
-        }*/
+        for (Pair<ActionType, Integer> action : optionsAvailable.getOptions()) {
+            System.out.println(action.getKey() + " " + action.getValue());
+        }
 
         Events clientAction = new Events();
-        //clientAction.addEvent(new ActionPerformedEvent(new StakeAction(ActionType.CALL, 400)));
+        clientAction.addEvent(new ActionPerformedEvent(new Pair<>(ActionType.CALL, 400)));
         client.sendMessage(clientAction);
 
         Events responseToCreator = client.listenForAMessage();

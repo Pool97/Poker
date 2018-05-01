@@ -135,7 +135,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link ExecutorService#shutdown()} or {@link ExecutorService#shutdownNow()}
  * to have the threads terminated; you may also want to look at the
  * {@link ExecutorService#awaitTermination(long, TimeUnit)} method if you'd like
- * to more closely monitor the shutting down process (and finalization of
+ * to more closely monitor the shutting down EventProcess (and finalization of
  * pending scale operations).
  * <h3>Reusing Shutdown AsyncScalr</h3>
  * If you have previously called <code>shutdown</code> on the underlying service
@@ -175,7 +175,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AsyncScalr {
 	/**
 	 * System property name used to set the number of threads the default
-	 * underlying {@link ExecutorService} will use to process async image
+     * underlying {@link ExecutorService} will use to EventProcess async image
 	 * operations.
 	 * <p/>
 	 * Value is "<code>imgscalr.async.threadCount</code>".
@@ -209,22 +209,22 @@ public class AsyncScalr {
 
 	/**
 	 * Used to get access to the internal {@link ExecutorService} used by this
-	 * class to process scale operations.
+     * class to EventProcess scale operations.
 	 * <p/>
 	 * <strong>NOTE</strong>: You will need to explicitly shutdown any service
 	 * currently set on this class before the host JVM exits.
 	 * <p/>
 	 * You can call {@link ExecutorService#shutdown()} to wait for all scaling
 	 * operations to complete first or call
-	 * {@link ExecutorService#shutdownNow()} to kill any in-process operations
+     * {@link ExecutorService#shutdownNow()} to kill any in-EventProcess operations
 	 * and purge all pending operations before exiting.
 	 * <p/>
 	 * Additionally you can use
 	 * {@link ExecutorService#awaitTermination(long, TimeUnit)} after issuing a
 	 * shutdown command to try and wait until the service has finished all
 	 * tasks.
-	 * 
-	 * @return the current {@link ExecutorService} used by this class to process
+     *
+     * @return the current {@link ExecutorService} used by this class to EventProcess
 	 *         scale operations.
 	 */
 	public static ExecutorService getService() {
@@ -240,7 +240,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.apply(src, ops);
 			}
 		});
@@ -255,7 +255,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.crop(src, width, height, ops);
 			}
 		});
@@ -271,7 +271,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.crop(src, x, y, width, height, ops);
 			}
 		});
@@ -286,7 +286,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.pad(src, padding, ops);
 			}
 		});
@@ -301,7 +301,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.pad(src, padding, color, ops);
 			}
 		});
@@ -316,7 +316,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, targetSize, ops);
 			}
 		});
@@ -332,7 +332,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, scalingMethod, targetSize, ops);
 			}
 		});
@@ -348,7 +348,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, resizeMode, targetSize, ops);
 			}
 		});
@@ -364,7 +364,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, scalingMethod, resizeMode, targetSize,
 						ops);
 			}
@@ -381,7 +381,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, targetWidth, targetHeight, ops);
 			}
 		});
@@ -396,7 +396,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, scalingMethod, targetWidth,
 						targetHeight, ops);
 			}
@@ -413,7 +413,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, resizeMode, targetWidth, targetHeight,
 						ops);
 			}
@@ -432,7 +432,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.resize(src, scalingMethod, resizeMode,
 						targetWidth, targetHeight, ops);
 			}
@@ -448,7 +448,7 @@ public class AsyncScalr {
 		checkService();
 
 		return service.submit(new Callable<BufferedImage>() {
-			public BufferedImage call() throws Exception {
+            public BufferedImage call() {
 				return Scalr.rotate(src, rotation, ops);
 			}
 		});
@@ -560,7 +560,7 @@ public class AsyncScalr {
 	 * </ol>
 	 * This class is provided as a convenience for subclasses to use if they
 	 * want this (common) customization to the {@link Thread}s used internally
-	 * by {@link AsyncScalr} to process images, but don't want to have to write
+     * by {@link AsyncScalr} to EventProcess images, but don't want to have to write
 	 * the implementation.
 	 * 
 	 * @author Riyad Kalla (software@thebuzzmedia.com)

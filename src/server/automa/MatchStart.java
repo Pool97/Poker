@@ -3,8 +3,10 @@ package server.automa;
 import events.Events;
 import events.PlayerAddedEvent;
 import interfaces.PokerState;
+import server.model.PlayerModel;
 import server.model.Room;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -36,22 +38,38 @@ public class MatchStart implements PokerState {
 
     @Override
     public void goNext() {
-        Room room = match.getServerManager().getRoom();
-        room.setInitialPositions();
+        Room room = match.getRoom();
+        match.getMatchModel().setPositions(room.getSize());
+
+        setInitialPositions();
         CountDownLatch countdown = new CountDownLatch(1);
-        Events startEvents = new Events();
         match.getMatchModel().setStartChips(room.getSize() * 10000);
         match.getMatchModel().setInitialBlinds();
-        room.getPlayers()
+
+        Events startEvents = new Events();
+        room.getOrderedPlayers()
                 .forEach(player -> startEvents.addEvent(new PlayerAddedEvent(player.getNickname(), player.getAvatarFilename(), player.getPosition(),
                         player.getTotalChips())));
-        match.getServerManager().sendMessage(room.getConnections(), countdown, startEvents);
+
+        room.sendBroadcast(countdown, startEvents);
+
         try {
             countdown.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            match.setState(new TurnStart(match));
         }
+
+        match.setState(new TurnStart(match));
+    }
+
+    /**
+     * Permette di impostare la posizione iniziale di ogni giocatore. Il criterio è che le posizioni vengono
+     * assegnate in base all'ordine cronologico di connessione dei Player alla partita.
+     */
+
+    public void setInitialPositions() {
+        ArrayList<PlayerModel> playersList = new ArrayList<>(match.getRoom().getPlayers());
+        for (int i = 0; i < match.getRoom().getSize(); i++)
+            playersList.get(i).setPosition(match.getMatchModel().getPosition(i));
     }
 }

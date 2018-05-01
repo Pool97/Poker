@@ -20,14 +20,6 @@ import java.util.stream.Collectors;
 public class DeckModel {
     private Stack<Pair<CardSuit, CardRank>> deck;
 
-    /**
-     * Costruttore vuoto di DeckModel.
-     */
-
-    public DeckModel(){
-        deck = new Stack<>();
-    }
-
     private static List<Pair<Integer, Integer>> createDeck(){
         List<Pair<Integer, Integer>> orderedDeck = new ArrayList<>();
         for (int i = 0; i < 13; ++i)
@@ -41,6 +33,7 @@ public class DeckModel {
      */
 
     public void createAndShuffle(){
+        deck = new Stack<>();
         List<Pair<Integer, Integer>> deckShuffled = createDeck();
         Collections.shuffle(deckShuffled);
         deck = deckShuffled.stream()

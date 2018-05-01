@@ -2,9 +2,6 @@ package server.model;
 
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * Il Model fondamentale del gioco.
  * Permette di tenere traccia di tutti i cambiamenti avvenuti nel Match, dal suo inizio alla sua fine.
@@ -16,8 +13,8 @@ import java.util.HashMap;
 
 public class TurnModel {
     private int pot;
-    private HashMap<PlayerModel, ArrayList<Pair<ActionType, Integer>>> turnActions;
     private DeckModel deckModel;
+    private CommunityModel communityModel;
 
     /**
      * Costruttore vuoto della classe TurnModel.
@@ -25,7 +22,9 @@ public class TurnModel {
 
     public TurnModel() {
         pot = 0;
-        turnActions = new HashMap<>();
+        deckModel = new DeckModel();
+        deckModel.createAndShuffle();
+        communityModel = new CommunityModel();
 
     }
 
@@ -49,32 +48,19 @@ public class TurnModel {
      */
     public int increasePot(int quantity) {
         pot += quantity;
-        return pot;
+        return pot += quantity;
     }
 
 
-    public void addAction(PlayerModel player, Pair<ActionType, Integer> action) {
-        turnActions.putIfAbsent(player, new ArrayList<>());
-
-        if (player.getTotalChips() == action.getValue())
-            action = new Pair<>(ActionType.ALL_IN, action.getValue());
-
-        player.setTotalChips(player.getTotalChips() - action.getValue());
-        turnActions.get(player).add(action);
+    public void createDeck() {
+        deckModel.createAndShuffle();
     }
 
-    public boolean hasPlayerFolded(PlayerModel player) {
-        return turnActions.get(player).stream()
-                .anyMatch(action -> action.getKey() == ActionType.FOLD);
+    public Pair<CardSuit, CardRank> getNextCard() {
+        return deckModel.nextCard();
     }
 
-    public boolean hasPlayerAllIn(PlayerModel player) {
-        return turnActions.get(player)
-                .stream()
-                .anyMatch(action -> action.getKey() == ActionType.ALL_IN);
-    }
-
-    public int getTurnBet(PlayerModel player) {
-        return turnActions.get(player).stream().mapToInt(Pair::getValue).sum();
+    public void addCommunityCards(Pair<CardSuit, CardRank>... cards) {
+        communityModel.addCards(cards);
     }
 }

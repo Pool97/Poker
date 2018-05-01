@@ -2,6 +2,7 @@ package server.automa;
 
 import events.*;
 import interfaces.PokerState;
+import interfaces.TransitionStrategy;
 import javafx.util.Pair;
 import server.model.*;
 import server.socket.ServerManager;
@@ -11,95 +12,83 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class Action implements PokerState {
+    private TransitionStrategy strategy;
+    private Match match;
+
     private final static String START_ACTIONS = "È iniziato il giro di puntate non obbligatorie";
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore! \n";
     private final static String EQUITY_REACHED = "La puntata è stata pareggiata! \n";
-    private static int PHASE = 0;
-    private TurnModel turnModel;
-    private Match match;
-    private Events actionEvents;
 
     public Action(Match match) {
         this.match = match;
-        turnModel = match.getTurnModel();
-        actionEvents = new Events();
     }
-
 
     @Override
     public void goNext() {
-        ServerManager serverManager = match.getServerManager();
-        serverManager.logger.info(START_ACTIONS + (PHASE + 1) + "\n");
-        Room room = serverManager.getRoom();
-
-        PositionManager manager = room.getAvailablePositions();
-        Position nextPosition = manager.nextPosition(Position.BB);
+        ServerManager.logger.info(START_ACTIONS + "\n");
+        Room room = match.getRoom();
+        Position nextPosition = match.getMatchModel().getNextPosition(Position.BB);
 
         while (!((nextPosition == Position.SB) && (onePlayerRemained() || (isEquityReached())))) {
-            PlayerModel player = room.getPlayerByPosition(nextPosition);
-            if (!turnModel.hasPlayerFolded(player) && !turnModel.hasPlayerAllIn(player)) {
+            PlayerModel player = room.getPlayer(nextPosition);
+            if (!player.hasFolded() && !player.isAllIn()) {
                 doAction(player);
             }
-            nextPosition = manager.nextPosition(nextPosition);
+            nextPosition = match.getMatchModel().getNextPosition(nextPosition);
         }
 
         if (onePlayerRemained()) {
-            serverManager.logger.info(ONE_PLAYER_ONLY);
+            ServerManager.logger.info(ONE_PLAYER_ONLY);
             match.setState(new TurnEnd());
         } else if (isEquityReached()) {
-            serverManager.logger.info(EQUITY_REACHED);
-            if (PHASE == 3) {
-                match.setState(new Showdown());
-                PHASE++;
-            } else if (PHASE == 4) {
-                match.setState(new TurnEnd());
-                PHASE = 0;
-            } else {
-                match.setState(new Flop());
-                PHASE++;
-            }
+            ServerManager.logger.info(EQUITY_REACHED);
+            strategy.makeTransition();
         }
     }
 
-    public boolean isEquityReached() {
-        Room room = match.getServerManager().getRoom();
+    private boolean isEquityReached() {
+        Room room = match.getRoom();
 
-        ArrayList<PlayerModel> playerNotFolded = room.getPlayers()
+        ArrayList<PlayerModel> playerNotFolded = room.getOrderedPlayers()
                 .stream()
-                .filter(player -> !turnModel.hasPlayerFolded(player))
+                .filter(player -> !player.hasFolded())
                 .collect(Collectors.toCollection(ArrayList::new));
 
         int betMaxAllIn = playerNotFolded.stream()
-                .filter(player -> turnModel.hasPlayerAllIn(player))
-                .mapToInt(player -> turnModel.getTurnBet(player))
+                .filter(PlayerModel::isAllIn)
+                .mapToInt(PlayerModel::getTurnBet)
                 .max()
                 .orElse(0);
 
         ArrayList<PlayerModel> playerNotAllIn = playerNotFolded
                 .stream()
-                .filter(player -> !turnModel.hasPlayerAllIn(player))
+                .filter(player -> !player.isAllIn())
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (playerNotAllIn
                 .stream()
-                .anyMatch(player -> turnModel.getTurnBet(player) < betMaxAllIn))
+                .anyMatch(player -> player.getTurnBet() < betMaxAllIn))
             return false;
 
         long distinctBets = playerNotAllIn
                 .stream()
-                .mapToInt(player -> turnModel.getTurnBet(player))
+                .mapToInt(PlayerModel::getTurnBet)
                 .distinct()
                 .count();
 
         return distinctBets <= 1;
     }
 
-    public boolean onePlayerRemained() {
-        long notFold = match.getServerManager().getRoom().getPlayers()
+    private boolean onePlayerRemained() {
+        long notFold = match.getRoom().getOrderedPlayers()
                 .stream()
-                .filter(player -> !turnModel.hasPlayerFolded(player))
+                .filter(player -> !player.hasFolded())
                 .count();
         return notFold == 1;
+    }
+
+    public void setTransitionStrategy(TransitionStrategy strategy) {
+        this.strategy = strategy;
     }
 
     /**
@@ -109,17 +98,17 @@ public class Action implements PokerState {
      * @return
      */
 
-    public void doAction(PlayerModel player) {
-        ServerManager manager = match.getServerManager();
-        Room room = manager.getRoom();
+    private void doAction(PlayerModel player) {
+        Room room = match.getRoom();
+        TurnModel turnModel = match.getTurnModel();
 
-        int maxValue = room.getPlayers()
+        int maxValue = room.getOrderedPlayers()
                 .stream()
-                .mapToInt(roomPlayer -> turnModel.getTurnBet(roomPlayer))
+                .mapToInt(PlayerModel::getTurnBet)
                 .max()
                 .orElse(0);
 
-        int callValue = maxValue - turnModel.getTurnBet(player);
+        int callValue = maxValue - player.getTurnBet();
 
         ActionOptionsEvent optionsEvent = new ActionOptionsEvent();
         optionsEvent.addOption(new Pair<>(ActionType.FOLD, 0));
@@ -132,20 +121,14 @@ public class Action implements PokerState {
         if (player.getTotalChips() > callValue)
             optionsEvent.addOption(new Pair<>(ActionType.RAISE, player.getTotalChips()));
 
-        actionEvents.addEvent(optionsEvent);
-        manager.sendMessage(room.getPlayerSocket(player), new CountDownLatch(1), actionEvents); //invia tutte le opzioni che ha il player ha a disposizione
-        actionEvents.removeAll();
+        room.sendBroadcast(new CountDownLatch(1), new Events(optionsEvent)); //invia tutte le opzioni che ha il player ha a disposizione
 
-        actionEvents = manager.listenForAMessage(room.getPlayerSocket(player));
-        setActionEvents(player);
-        manager.sendMessage(room.getConnections(), new CountDownLatch(1), actionEvents); //invia a tutti la puntata effettuata dal player
-        actionEvents.removeAll();
-    }
+        Events actionPerformed = room.listenForAMessage(room.getSocket(player));
+        ActionPerformedEvent playerAction = (ActionPerformedEvent) actionPerformed.getEvent();
+        player.addAction(playerAction.getAction());
+        turnModel.increasePot(playerAction.getAction().getValue());
 
-    private void setActionEvents(PlayerModel player) {
-        ActionPerformedEvent playerAction = (ActionPerformedEvent) actionEvents.getEvent();
-        turnModel.addAction(player, playerAction.getAction());
-        actionEvents.addEvent(new PlayerUpdatedEvent(player));
-        actionEvents.addEvent(new PotUpdatedEvent(turnModel.increasePot(playerAction.getAction().getValue())));
+        room.sendBroadcast(new CountDownLatch(1),
+                new Events(new PlayerUpdatedEvent(player), new PotUpdatedEvent(turnModel.getPot()))); //invia a tutti la puntata effettuata dal player
     }
 }

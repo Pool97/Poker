@@ -4,16 +4,19 @@ public class MatchModel {
     private int smallBlind;
     private int bigBlind;
     private int startChips;
+    private PositionManager positionManager;
 
     public MatchModel(int smallBlind, int bigBlind, int startChips) {
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
         this.startChips = startChips;
+        positionManager = new PositionManager();
     }
 
     public MatchModel() {
         smallBlind = 0;
         bigBlind = 0;
+        positionManager = new PositionManager();
     }
 
     /**
@@ -49,5 +52,17 @@ public class MatchModel {
 
     public void setStartChips(int startChips) {
         this.startChips = startChips;
+    }
+
+    public Position getNextPosition(Position oldPosition) {
+        return positionManager.nextPosition(oldPosition);
+    }
+
+    public Position getPosition(int index) {
+        return positionManager.getPosition(index);
+    }
+
+    public void setPositions(int size) {
+        positionManager.addPositions(size);
     }
 }

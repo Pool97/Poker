@@ -1,5 +1,7 @@
 import client.socket.ClientManager;
 import events.*;
+import javafx.util.Pair;
+import server.model.ActionType;
 
 public class ClientCreatorTest {
 
@@ -56,11 +58,11 @@ public class ClientCreatorTest {
         System.out.println("Client update chips: " + clientUpdate.getPlayer().getTotalChips());
 
 
-        Events stakeCreator = creatorClient.listenForAMessage();
+        //Events stakeCreator = creatorClient.listenForAMessage();
         //ActionOptionsEvent optionsEvent = (ActionOptionsEvent) stakeCreator.getEvent();
 
         Events creatorAction = new Events();
-        //creatorAction.addEvent(new ActionPerformedEvent(new StakeAction(ActionType.CALL, 10000)));
+        creatorAction.addEvent(new ActionPerformedEvent(new Pair<>(ActionType.CALL, 10000)));
         creatorClient.sendMessage(creatorAction);
 
         Events responseToCreator = creatorClient.listenForAMessage();

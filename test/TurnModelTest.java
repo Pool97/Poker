@@ -4,7 +4,7 @@ public class TurnModelTest {
     @Test
     public void shouldMoveAllPlayers() {
         /*TurnModel matchModel = new TurnModel();
-        //ArrayList<PlayerModel> testPlayers = matchModel.getPlayers();
+        //ArrayList<PlayerModel> testPlayers = matchModel.getOrderedPlayers();
         PlayerModel player1 = new PlayerModel("Player1", Position.D);
         PlayerModel player2 = new PlayerModel("Player2", Position.SB);
         PlayerModel player3 = new PlayerModel("Player3", Position.BB);
