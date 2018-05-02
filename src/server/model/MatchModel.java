@@ -1,5 +1,7 @@
 package server.model;
 
+import java.util.ArrayList;
+
 public class MatchModel {
     private int smallBlind;
     private int bigBlind;
@@ -60,6 +62,10 @@ public class MatchModel {
 
     public Position getPosition(int index) {
         return positionManager.getPosition(index);
+    }
+
+    public ArrayList<Position> getPositions() {
+        return positionManager.getPositions();
     }
 
     public void setPositions(int size) {

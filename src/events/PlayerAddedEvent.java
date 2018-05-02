@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 import server.model.Position;
 
 /**
@@ -39,5 +40,10 @@ public class PlayerAddedEvent implements Event {
 
     public Position getPosition() {
         return position;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
+        processor.process(this);
     }
 }

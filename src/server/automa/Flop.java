@@ -8,8 +8,6 @@ import server.model.CardRank;
 import server.model.CardSuit;
 import server.model.TurnModel;
 
-import java.util.concurrent.CountDownLatch;
-
 
 public class Flop implements PokerState {
     private Match match;
@@ -34,7 +32,7 @@ public class Flop implements PokerState {
         turnModel.addCommunityCards(firstCard, secondCard, thirdCard);
 
         match.getRoom()
-                .sendBroadcast(new CountDownLatch(1), new Events(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
+                .sendBroadcast(new Events(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
         Action action = new Action(match);
         action.setTransitionStrategy(() -> match.setState(new Streets(match)));
         match.setState(new Action(match));

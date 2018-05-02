@@ -1,15 +1,9 @@
 package client.socket;
 
-import interfaces.Message;
-import utils.RequestHandler;
-import utils.RequestSender;
-
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -24,7 +18,8 @@ public class ClientManager {
     private Socket socket;
     private String serverName;
     private int serverPort;
-    private final static ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
 
     private final static Logger logger = Logger.getLogger(ClientManager.class.getName());
     private final static String CLIENT_INFO = "CLIENT -> ";
@@ -54,6 +49,9 @@ public class ClientManager {
         logger.info(CLIENT_INFO + CONNECTING_INFO);
         try {
             socket = new Socket(serverName, serverPort);
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.flush();
+            inputStream = new ObjectInputStream(socket.getInputStream());
             logger.info(CLIENT_INFO + CONNECTION_ESTABLISHED_INFO + serverName + PORT_INFO +  serverPort + "\n");
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,39 +60,11 @@ public class ClientManager {
         }
     }
 
-    public InputStream getInputStream() {
-        try {
-            return socket.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public ObjectInputStream getInputStream() {
+        return inputStream;
     }
 
-    /**
-     * Permette di inviare un messaggio al Server su un altro Thread.
-     * @param message Messaggio da inviare
-     * @param <T> Tipo di messaggio da inviare (tutti devono implementare {@link Message}
-     */
-
-    public <T extends Message> void sendMessage(T message){
-        executor.submit(new RequestSender<>(socket, message, logger));
-    }
-
-    /**
-     * Permette di rimanere in ascolto di un messaggio qualsiasi su un altro Thread.
-     *
-     * @param <T> Tipo di messaggio da inviare (tutti devono implementare {@link Message}
-     * @return Messaggio ricevuto
-     */
-
-    public <T extends Message> T listenForAMessage() {
-        T message = null;
-        try {
-            message = executor.submit(new RequestHandler<T>(socket, logger)).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return message;
+    public ObjectOutputStream getOutputStream() {
+        return outputStream;
     }
 }

@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 
 /**
  * Evento generato dal Server ogni qualvolta vengono aggiornati i valori dei bui all'interno del Model.
@@ -25,5 +26,10 @@ public class BlindsUpdatedEvent implements Event {
 
     public int getBigBlind() {
         return bigBlind;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
+        processor.process(this);
     }
 }

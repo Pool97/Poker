@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 import javafx.util.Pair;
 import server.model.ActionType;
 
@@ -23,5 +24,9 @@ public class ActionPerformedEvent implements Event {
 
     public Pair<ActionType, Integer> getAction() {
         return action;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
     }
 }

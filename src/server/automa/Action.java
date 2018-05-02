@@ -8,7 +8,6 @@ import server.model.*;
 import server.socket.ServerManager;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class Action implements PokerState {
@@ -49,7 +48,7 @@ public class Action implements PokerState {
     private boolean isEquityReached() {
         Room room = match.getRoom();
 
-        ArrayList<PlayerModel> playerNotFolded = room.getOrderedPlayers()
+        ArrayList<PlayerModel> playerNotFolded = room.getPlayers()
                 .stream()
                 .filter(player -> !player.hasFolded())
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -80,7 +79,7 @@ public class Action implements PokerState {
     }
 
     private boolean onePlayerRemained() {
-        long notFold = match.getRoom().getOrderedPlayers()
+        long notFold = match.getRoom().getPlayers()
                 .stream()
                 .filter(player -> !player.hasFolded())
                 .count();
@@ -102,7 +101,7 @@ public class Action implements PokerState {
         Room room = match.getRoom();
         TurnModel turnModel = match.getTurnModel();
 
-        int maxValue = room.getOrderedPlayers()
+        int maxValue = room.getPlayers()
                 .stream()
                 .mapToInt(PlayerModel::getTurnBet)
                 .max()
@@ -118,17 +117,16 @@ public class Action implements PokerState {
         else
             optionsEvent.addOption(new Pair<>(ActionType.CHECK, 0));
 
-        if (player.getTotalChips() > callValue)
-            optionsEvent.addOption(new Pair<>(ActionType.RAISE, player.getTotalChips()));
+        if (player.getChips() > callValue)
+            optionsEvent.addOption(new Pair<>(ActionType.RAISE, player.getChips()));
 
-        room.sendBroadcast(new CountDownLatch(1), new Events(optionsEvent)); //invia tutte le opzioni che ha il player ha a disposizione
+        room.sendMessage(player, new Events(optionsEvent)); //invia tutte le opzioni che ha il player ha a disposizione
 
-        Events actionPerformed = room.listenForAMessage(room.getSocket(player));
+        Events actionPerformed = room.readMessage(player);
         ActionPerformedEvent playerAction = (ActionPerformedEvent) actionPerformed.getEvent();
         player.addAction(playerAction.getAction());
         turnModel.increasePot(playerAction.getAction().getValue());
 
-        room.sendBroadcast(new CountDownLatch(1),
-                new Events(new PlayerUpdatedEvent(player), new PotUpdatedEvent(turnModel.getPot()))); //invia a tutti la puntata effettuata dal player
+        room.sendBroadcast(new Events(new PlayerUpdatedEvent(player), new PotUpdatedEvent(turnModel.getPot()))); //invia a tutti la puntata effettuata dal player
     }
 }

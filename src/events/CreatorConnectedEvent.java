@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 
 /**
  * Evento generato dal Player creatore della stanza.
@@ -20,5 +21,10 @@ public class CreatorConnectedEvent implements Event {
 
     public int getTotalPlayers() {
         return totalPlayers;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
+
     }
 }

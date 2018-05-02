@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 
 import java.io.Serializable;
 
@@ -28,5 +29,9 @@ public class PlayerCreatedEvent implements Event, Serializable {
 
     public String getAvatar() {
         return avatar;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
     }
 }

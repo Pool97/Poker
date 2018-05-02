@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 import javafx.util.Pair;
 import server.model.ActionType;
 
@@ -20,5 +21,11 @@ public class ActionOptionsEvent implements Serializable, Event {
 
     public ArrayList<Pair<ActionType, Integer>> getOptions() {
         return optionsAvailable;
+    }
+
+
+    @Override
+    public void accept(EventProcess processor) {
+        processor.process(this);
     }
 }

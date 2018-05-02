@@ -7,8 +7,6 @@ import interfaces.PokerState;
 import javafx.util.Pair;
 import server.model.*;
 
-import java.util.concurrent.CountDownLatch;
-
 public class Blinds implements PokerState {
     private Match match;
 
@@ -18,25 +16,20 @@ public class Blinds implements PokerState {
 
     @Override
     public void goNext() {
-        Events events = new Events();
         MatchModel matchModel = match.getMatchModel();
         TurnModel turnModel = match.getTurnModel();
         Room room = match.getRoom();
 
         PlayerModel smallBlind = room.getPlayer(Position.SB);
         smallBlind.addAction(new Pair<>(ActionType.SB, matchModel.getSmallBlind()));
-        events.addEvent(new PlayerUpdatedEvent(smallBlind));
         turnModel.increasePot(matchModel.getSmallBlind());
-        events.addEvent(new PotUpdatedEvent(turnModel.getPot()));
-        room.sendBroadcast(new CountDownLatch(1), events);
-        events.removeAll();
+        room.sendBroadcast(new Events(new PlayerUpdatedEvent(smallBlind), new PotUpdatedEvent(turnModel.getPot())));
 
         PlayerModel player = room.getPlayer(Position.BB);
         player.addAction(new Pair<>(ActionType.BB, matchModel.getBigBlind()));
-        events.addEvent(new PlayerUpdatedEvent(player));
         turnModel.increasePot(matchModel.getBigBlind());
-        events.addEvent(new PotUpdatedEvent(turnModel.getPot()));
-        room.sendBroadcast(new CountDownLatch(1), events);
+        room.sendBroadcast(new Events(new PlayerUpdatedEvent(player), new PotUpdatedEvent(turnModel.getPot())));
+
         Action action = new Action(match);
         action.setTransitionStrategy(() -> match.setState(new Flop(match)));
         match.setState(new Action(match));

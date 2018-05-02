@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 
 /**
  * Evento generato dal Server ogni qualvolta viene aggiornato il valore del Pot.
@@ -19,5 +20,10 @@ public class PotUpdatedEvent implements Event {
 
     public int getPot() {
         return pot;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
+        processor.process(this);
     }
 }

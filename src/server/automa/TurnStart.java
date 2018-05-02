@@ -7,8 +7,6 @@ import server.model.MatchModel;
 import server.model.Room;
 import server.socket.ServerManager;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * TurnStart è il secondo stato dell'automa.
  * Esso può iniziare per via di due transizioni:
@@ -52,8 +50,7 @@ public class TurnStart implements PokerState {
         Room room = match.getRoom();
         room.setPlayersChips(matchModel.getStartChips());
         ServerManager.logger.info("Fornisco ai players i parametri aggiornati per il nuovo turno... \n");
-        room.sendBroadcast(new CountDownLatch(1),
-                new Events(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
+        room.sendBroadcast(new Events(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
         match.setState(new Blinds(match));
         ServerManager.logger.info("Start Turn è finito. \n");
     }

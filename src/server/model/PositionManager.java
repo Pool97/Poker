@@ -44,6 +44,10 @@ public class PositionManager {
         return availablePositions.get(index);
     }
 
+    public ArrayList<Position> getPositions() {
+        return availablePositions;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Position position : availablePositions)

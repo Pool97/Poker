@@ -3,6 +3,7 @@ package server.socket;
 import events.CreatorConnectedEvent;
 import events.Events;
 import events.PlayerCreatedEvent;
+import server.model.PlayerModel;
 import server.model.Room;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class ServerManager implements Runnable {
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";
 
     public final static Logger logger = Logger.getLogger(ServerManager.class.getName());
+    private int totalPlayers;
     private ServerSocket serverSocket;
     private CountDownLatch roomCreationSignal;
     private Room room;
@@ -77,19 +79,21 @@ public class ServerManager implements Runnable {
         try {
             Socket socket = serverSocket.accept();
             logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + "\n");
+            Player player = new Player(socket);
+            Events newPlayer = room.readMessage(player);
 
-            Events newPlayer = room.listenForAMessage(socket);
-
-            if (room.getNumberOfPlayers() == 0) {
-                room.setSize(((CreatorConnectedEvent) newPlayer.getEvent()).getTotalPlayers());
+            if (room.getSize() == 0) {
+                totalPlayers = ((CreatorConnectedEvent) newPlayer.getEvent()).getTotalPlayers();
                 logger.info(SERVER_INFO + WAITING_FOR_INFO + (room.getSize() - 1) + PLAYERS);
             }
 
             PlayerCreatedEvent event = (PlayerCreatedEvent) newPlayer.getEvent();
-            room.addPlayer(event, socket);
+            PlayerModel playerModel = new PlayerModel(event.getNickname(), event.getAvatar());
+            player.setPlayerModel(playerModel);
+            room.addPlayer(player);
             logger.info(PLAYER_ADDED + "Name: " + event.getNickname());
 
-            if (room.getSize() == room.getNumberOfPlayers()) {
+            if (room.getSize() == totalPlayers) {
                 roomCreationSignal.countDown();
             }
 

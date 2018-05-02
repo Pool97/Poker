@@ -1,6 +1,7 @@
 package events;
 
 import interfaces.Event;
+import interfaces.EventProcess;
 import server.model.PlayerModel;
 
 /**
@@ -21,5 +22,10 @@ public class PlayerUpdatedEvent implements Event {
 
     public PlayerModel getPlayer() {
         return player;
+    }
+
+    @Override
+    public void accept(EventProcess processor) {
+        processor.process(this);
     }
 }

@@ -3,11 +3,10 @@ package server.automa;
 import events.Events;
 import events.PlayerAddedEvent;
 import interfaces.PokerState;
-import server.model.PlayerModel;
 import server.model.Room;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 /**
  * MatchStart è il primo stato dell'automa.
@@ -40,36 +39,18 @@ public class MatchStart implements PokerState {
     public void goNext() {
         Room room = match.getRoom();
         match.getMatchModel().setPositions(room.getSize());
-
-        setInitialPositions();
-        CountDownLatch countdown = new CountDownLatch(1);
         match.getMatchModel().setStartChips(room.getSize() * 10000);
         match.getMatchModel().setInitialBlinds();
 
-        Events startEvents = new Events();
-        room.getOrderedPlayers()
-                .forEach(player -> startEvents.addEvent(new PlayerAddedEvent(player.getNickname(), player.getAvatarFilename(), player.getPosition(),
-                        player.getTotalChips())));
+        room.setPositions(match.getMatchModel().getPositions());
+        room.sort();
 
-        room.sendBroadcast(countdown, startEvents);
+        ArrayList<PlayerAddedEvent> events = room.getPlayers()
+                .stream()
+                .map(player -> new PlayerAddedEvent(player.getNickname(), player.getAvatar(), player.getPosition(), player.getChips()))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        try {
-            countdown.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        room.sendBroadcast(new Events(events));
         match.setState(new TurnStart(match));
-    }
-
-    /**
-     * Permette di impostare la posizione iniziale di ogni giocatore. Il criterio è che le posizioni vengono
-     * assegnate in base all'ordine cronologico di connessione dei Player alla partita.
-     */
-
-    public void setInitialPositions() {
-        ArrayList<PlayerModel> playersList = new ArrayList<>(match.getRoom().getPlayers());
-        for (int i = 0; i < match.getRoom().getSize(); i++)
-            playersList.get(i).setPosition(match.getMatchModel().getPosition(i));
     }
 }

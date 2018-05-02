@@ -12,4 +12,5 @@ public interface EventProcess {
     void process(PlayerUpdatedEvent event);
 
     void process(PotUpdatedEvent event);
+
 }
