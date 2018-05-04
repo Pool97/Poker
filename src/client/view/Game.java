@@ -1,32 +1,48 @@
 package client.view;
 
+import client.socket.ClientManager;
+import client.socket.SocketReader;
+import events.*;
+import interfaces.EventProcess;
+import interfaces.Message;
 import utils.GBC;
-import utils.PlayerModelTest;
 import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class Game extends JFrame{
+    private ClientManager clientManager;
+    private SocketReader<? extends Message> reader;
     private JPanel boardPanel;
     private JPanel topPlayersPanel;
     private JPanel middleContainer;
-    private ArrayList<PlayerView> playerViews;
+    private List<PlayerView> playerViews;
     private CommunityField communityField;
 
     public final static String FIELD_IMAGE = "board.png";
     public final static String CARD_BACK = "backBluePP.png";
 
-    public Game(ArrayList<PlayerView> playerViews, CommunityField communityField){
-        this.playerViews = playerViews;
-        this.communityField = communityField;
+    public Game(ClientManager manager) {
+        setLookAndFeel();
+        this.clientManager = manager;
+        this.reader = new SocketReader<>(clientManager.getInputStream());
+        reader.setEventProcess(new EventProcessor());
+
+        this.playerViews = Arrays.asList(new PlayerView(new Dimension(400, 200)), new PlayerView(new Dimension(400, 200)),
+                new PlayerView(new Dimension(400, 200)), new PlayerView(new Dimension(400, 200)),
+                new PlayerView(new Dimension(400, 200)), new PlayerView(new Dimension(400, 200)));
+        this.communityField = new CommunityField(new Dimension(130, 180));
+
         middleContainer= new JPanel();
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize);
+        setVisible(true);
 
         initBoardPanel();
         initTopPlayersPanel();
@@ -45,6 +61,7 @@ public class Game extends JFrame{
         boardPanel.add(middleContainer, thirdConstr);
 
         boardPanel.add(new JButton("Interfaccia utente"), new GBC(0,3, 1, 30));
+
     }
 
     private void initBoardPanel(){
@@ -79,8 +96,6 @@ public class Game extends JFrame{
         middleContainer.setLayout(new BoxLayout(middleContainer, BoxLayout.X_AXIS));
         middleContainer.setBackground(Utils.TRANSPARENT);
         middleContainer.add(Box.createHorizontalGlue());
-        System.out.println(playerViews.get(3).getNickname().getText());
-        System.out.println(playerViews.get(4).getNickname().getText());
         playerViews.get(3).setAlignmentX(Component.LEFT_ALIGNMENT);
         middleContainer.add(playerViews.get(3));
         middleContainer.add(Box.createHorizontalGlue());
@@ -92,47 +107,59 @@ public class Game extends JFrame{
         playerViews.get(4).setAlignmentX(Component.RIGHT_ALIGNMENT);
         middleContainer.add(playerViews.get(4));
         middleContainer.add(Box.createHorizontalGlue());
-
     }
 
+    private void setLookAndFeel() {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void main(String [] args){
+    class EventProcessor implements EventProcess {
 
-        //Creazione di Players di test
-        Dimension playersSize = new Dimension(400, 200);
-        PlayerView test = new PlayerView(playersSize, new PlayerModelTest("HARRY POTTER", "1000000$",
-                "D", "FOLD", "1","backOrangePP.png", "backOrangePP.png", "avatar.png"));
-        PlayerView test1 = new PlayerView(playersSize, new PlayerModelTest("HERMIONE", "60000$", "SB", "CALL", "2",
-                "backOrangePP.png", "backOrangePP.png", "avatar2.png"));
+        public EventProcessor() {
 
-        PlayerView test2 = new PlayerView(playersSize, new PlayerModelTest("TIZIO", "40000$", "BB", "CHECK",
-                "3", "backOrangePP.png", "backOrangePP.png", "zappa_avatar.png"));
+        }
 
-        PlayerView test3 = new PlayerView(playersSize, new PlayerModelTest("CAIO", "60000$", "SB", "CALL",
-                "2","backOrangePP.png", "backOrangePP.png", "avatar3.png"));
-        PlayerView test4 = new PlayerView(playersSize, new PlayerModelTest("SEMPRONIO", "60000$", "SB", "CALL",
-                "2","backOrangePP.png", "backOrangePP.png", "avatar4.png"));
+        @Override
+        public void process(ActionOptionsEvent event) {
+            System.out.println("ActionOptionsEvent!");
+        }
 
-        ArrayList<PlayerView> playerViewsTest = new ArrayList<>();
-        playerViewsTest.add(test);
-        playerViewsTest.add(test1);
-        playerViewsTest.add(test2);
-        playerViewsTest.add(test3);
-        playerViewsTest.add(test4);
+        @Override
+        public void process(BlindsUpdatedEvent event) {
+            System.out.println("BlindsUpdatedEvent!");
+        }
 
-        Dimension cardsSize = new Dimension(130, 180);
-        CommunityField testField = new CommunityField(cardsSize);
-        testField.addNextCard(new CardView(cardsSize, "2CuoriR.png", "backBluePP.png"));
-        testField.addNextCard(new CardView(cardsSize, "7PiccheN.png", "backBluePP.png"));
-        testField.addNextCard(new CardView(cardsSize, "AQuadriR.png", "backBluePP.png"));
-        testField.addNextCard(new CardView(cardsSize, "KCuoriR.png", "backBluePP.png"));
-        testField.addNextCard(new CardView(cardsSize, "8FioriN.png", "backBluePP.png"));
+        @Override
+        public void process(PlayerAddedEvent event) {
+            PlayerView playerView = playerViews.stream()
+                    .filter(view -> view.getNickname().getText().isEmpty()).findFirst().get();
+            playerView.setAvatar(event.getAvatar());
+            playerView.setNickname(event.getNickname().toUpperCase());
+            playerView.setTotalChips(event.getInitialChips());
+        }
 
-        EventQueue.invokeLater(() -> {
-            Game game = new Game(playerViewsTest, testField);
-            game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            game.setVisible(true);
-        });
+        @Override
+        public void process(PlayerUpdatedEvent event) {
+            System.out.println("PlayerUpdatedEvent!");
+        }
 
+        @Override
+        public void process(PotUpdatedEvent event) {
+            System.out.println("PotUpdatedEvent!");
+        }
+
+        @Override
+        public void process(RoomCreatedEvent event) {
+
+        }
     }
 }

@@ -11,20 +11,22 @@ public class SocketWriter<T extends Message> extends SwingWorker<Void, Void> {
     private ObjectOutputStream outputStream;
     private T message;
 
+    private final static String WRITE_ERROR = "Errore nell'invio del messaggio al Server";
+
     public SocketWriter(ObjectOutputStream outputStream, T message) {
         this.outputStream = outputStream;
         this.message = message;
-        System.out.println("Scritto il messaggio!");
     }
 
     @Override
     protected Void doInBackground() {
         try {
-            System.out.println("Scritto il messaggio!");
             outputStream.writeObject(message);
 
         } catch (IOException e) {
+            ClientManager.logger.finer(WRITE_ERROR);
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return null;
     }

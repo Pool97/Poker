@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class Room {
     private ArrayList<Player> players;
+    private PositionManager positionManager;
     private final ExecutorService poolExecutor = Executors.newCachedThreadPool();
 
     /**
@@ -28,6 +29,7 @@ public class Room {
 
     public Room() {
         players = new ArrayList<>();
+        positionManager = new PositionManager();
     }
 
     /**
@@ -64,7 +66,7 @@ public class Room {
     }
 
     /**
-     * Permette di traslare di una posizione tutti i Players del Match.
+     * Permette di traslare di una posizione tutti i Players del MatchHandler.
      * Esempio: se alla fine del turno un Player era il D (= Dealer) nel prossimo turno diventerà SB
      * ( = Small Blind) e così via per tutti i Players.
      */
@@ -98,12 +100,19 @@ public class Room {
 
     /**
      * Permette di impostare a tutti i players le posizioni da Poker specificate dall'ArrayList.
-     * @param positions Posizioni da impostare ai Players
      */
 
-    public void setPositions(ArrayList<Position> positions) {
+    public void setPlayersPositions() {
         for (int i = 0; i < getSize(); i++)
-            players.get(i).getPlayerModel().setPosition(positions.get(i));
+            players.get(i).getPlayerModel().setPosition(positionManager.getPositions().get(i));
+    }
+
+    public void setAvailablePositions(int size) {
+        positionManager.addPositions(size);
+    }
+
+    public Position getNextPosition(Position oldPosition) {
+        return positionManager.nextPosition(oldPosition);
     }
 
     /**

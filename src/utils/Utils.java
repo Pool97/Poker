@@ -34,7 +34,7 @@ public class Utils {
     }
 
     public static Font getCustomFont(int fontStyle, float fontSize){
-        File font_file = new File(System.getProperty("user.dir").concat("/rotis.ttf"));
+        File font_file = new File(System.getProperty("user.dir").concat("/poker_kings.ttf"));
         Font derivedFont = null;
         try {
             Font font = Font.createFont(Font.TRUETYPE_FONT, font_file);

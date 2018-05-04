@@ -1,6 +1,7 @@
 package server.socket;
 
 import interfaces.Message;
+import server.automa.MatchHandler;
 import server.model.PlayerModel;
 
 import java.io.IOException;
@@ -24,6 +25,10 @@ public class Player {
     private PlayerModel playerModel;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
+
+    private final static String STREAM_ERROR = "Errore avvenuto nello stream... ";
+    private final static String STREAM_CREATION_ERROR = "Errore nella creazione degli stream... ";
+    private final static String TASK_ERROR = "Errore avvenuto nellla task...";
 
     /**
      * Costruttore della classe Player
@@ -73,6 +78,7 @@ public class Player {
             outStream.flush();
             inStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
+            MatchHandler.logger.info(STREAM_CREATION_ERROR);
             e.printStackTrace();
             Thread.currentThread().interrupt();
         }
@@ -90,7 +96,9 @@ public class Player {
         try {
             executorService.submit(new RequestSender<>(message)).get();
         } catch (InterruptedException | ExecutionException e) {
+            MatchHandler.logger.info(TASK_ERROR);
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -107,7 +115,9 @@ public class Player {
         try {
             message = executorService.submit(new RequestHandler<T>()).get();
         } catch (InterruptedException | ExecutionException e) {
+            MatchHandler.logger.info(TASK_ERROR);
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return message;
     }
@@ -133,7 +143,9 @@ public class Player {
             try {
                 outStream.writeObject(message);
             } catch (IOException e) {
+                MatchHandler.logger.info(STREAM_ERROR);
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -150,12 +162,14 @@ public class Player {
 
     class RequestHandler<T extends Message> implements Callable<T> {
 
+        @SuppressWarnings("unchecked")
         @Override
         public T call() {
             T messageObject = null;
             try {
                 messageObject = (T) inStream.readObject();
             } catch (IOException | ClassNotFoundException e) {
+                MatchHandler.logger.info(STREAM_ERROR);
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
             }

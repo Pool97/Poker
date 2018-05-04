@@ -28,6 +28,7 @@ public class PlayerView extends JPanel{
     private JLabel totalChips;
     private JLabel actualPosition;
     private JLabel ranking;
+    private JLabel avatar;
     private Dimension viewSize;
     private CardsPanel cardsPanel;
 
@@ -38,6 +39,20 @@ public class PlayerView extends JPanel{
     private final static int MINIMUM_WIDTH = 350;
     private final static int MINIMUM_HEIGHT = 150;
     public final static String BLANK = "";
+
+    public PlayerView(Dimension viewSize) {
+        this.viewSize = viewSize;
+        nickname = new JLabel("");
+        totalChips = new JLabel();
+        actualPosition = new JLabel();
+        action = new JLabel();
+        ranking = new JLabel();
+        cardsPanel = new CardsPanel(new Dimension((viewSize.width) / 5, viewSize.height / 2), 2);
+        initView();
+        initAvatarPanel("zappa_avatar.png");
+        add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
+        initPlayerPanel();
+    }
 
     /**
      * Costruttore della PlayerView. L'idea è ottenere tutte le informazioni da mostrare all'utente attraverso un Controller
@@ -87,7 +102,7 @@ public class PlayerView extends JPanel{
      */
 
     private void initAvatarPanel(String avatarFilename){
-        JLabel avatar = new JLabel(BLANK, JLabel.CENTER);
+        avatar = new JLabel(BLANK, JLabel.CENTER);
         BufferedImage avatarScaled = Utils.loadImage(avatarFilename, new Dimension((viewSize.width / 3), viewSize.height / 2));
         avatar.setIcon(new ImageIcon(avatarScaled));
         avatar.setMaximumSize(new Dimension((viewSize.width / 3), viewSize.height / 2));
@@ -180,5 +195,19 @@ public class PlayerView extends JPanel{
 
     public JLabel getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname.setText(nickname);
+    }
+
+    public void setTotalChips(int chips) {
+        this.totalChips.setText(Integer.toString(chips));
+    }
+
+    public void setAvatar(String filename) {
+        //
+        BufferedImage avatarScaled = Utils.loadImage(filename, new Dimension((viewSize.width / 3), viewSize.height / 2));
+        avatar.setIcon(new ImageIcon(avatarScaled));
     }
 }

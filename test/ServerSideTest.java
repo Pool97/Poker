@@ -1,9 +1,9 @@
-import server.automa.Match;
+import server.automa.MatchHandler;
 
 
 public class ServerSideTest {
     public static void main(String [] args){
-        Match manager = new Match();
+        MatchHandler manager = new MatchHandler();
         manager.startServer();
         while (true) {
             manager.start();

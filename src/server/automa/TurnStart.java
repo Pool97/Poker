@@ -5,12 +5,11 @@ import events.Events;
 import interfaces.PokerState;
 import server.model.MatchModel;
 import server.model.Room;
-import server.socket.ServerManager;
 
 /**
  * TurnStart è il secondo stato dell'automa.
  * Esso può iniziare per via di due transizioni:
- * - Transizione da MatchStart: TurnStart rappresenta il primo turno della partita di Poker.
+ * - Transizione da StartGame: TurnStart rappresenta il primo turno della partita di Poker.
  * - Transizione da Showdown: TurnStart rappresenta un nuovo turno della partita di Poker, subito
  * dopo la conclusione del precedente, conclusosi con lo stato di Showdown.
  * <p>
@@ -26,32 +25,36 @@ import server.socket.ServerManager;
  */
 
 public class TurnStart implements PokerState {
-    private Match match;
+    private final static String STATE_STARTED = "Lo stato di TurnStart è avviato. \n";
+    private final static String CONF_TURN = "Configurazione dei parametri del turno in corso... \n";
+    private final static String CONF_ENDED = "Fornisco ai players i parametri aggiornati per il nuovo turno... \n";
+    private MatchHandler match;
 
     /**
      * Costruttore della classe TurnStart.
      */
 
-    public TurnStart(Match match) {
+    public TurnStart(MatchHandler match) {
         this.match = match;
     }
 
     /**
-     * Vedi {@link PokerState#goNext()}
+     * {@link PokerState#goNext()}
      */
 
     @Override
     public void goNext() {
+        MatchHandler.logger.info(STATE_STARTED);
+        MatchHandler.logger.info(CONF_TURN);
         MatchModel matchModel = match.getMatchModel();
-        ServerManager.logger.info("Start Turn è iniziato. \n");
+        Room room = match.getRoom();
+
         match.getTurnModel().createDeck();
         match.getTurnModel().resetPot();
         matchModel.increaseBlinds();
-        Room room = match.getRoom();
-        room.setPlayersChips(matchModel.getStartChips());
-        ServerManager.logger.info("Fornisco ai players i parametri aggiornati per il nuovo turno... \n");
+
+        MatchHandler.logger.info(CONF_ENDED);
         room.sendBroadcast(new Events(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
         match.setState(new Blinds(match));
-        ServerManager.logger.info("Start Turn è finito. \n");
     }
 }

@@ -17,9 +17,11 @@ public class Events implements Message, Serializable {
 
     public Events(Event event) {
         events = new Stack<>();
+        events.add(event);
     }
 
     public Events(Event... events) {
+        this.events = new Stack<>();
         this.events.addAll(Arrays.asList(events));
     }
 

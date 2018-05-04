@@ -7,28 +7,56 @@ import interfaces.PokerState;
 import javafx.util.Pair;
 import server.model.*;
 
-public class Blinds implements PokerState {
-    private Match match;
+/**
+ * Questo è lo stato dell'automa che si occupa di riscuotere le puntate obbligatorie del turno, ossia lo Small Blind e
+ * il Big Blind.
+ * Informa successivamente a tutti i Players delle modifiche apportate alle chips dei Player in SB e BB e delle
+ * modifiche apportate al valore del pot.
+ *
+ * @author Roberto Poletti
+ * @author Nipuna Perera
+ * @since 1.0
+ */
 
-    public Blinds(Match match) {
+public class Blinds implements PokerState {
+    private final static String STATE_STARTED = "Lo stato di Blinds è avviato \n";
+    private final static String SMALL_BLIND = "Riscuoto la puntata obbligatoria di Small Blind... \n";
+    private final static String BIG_BLIND = "Riscuoto la puntata obligatoria di Big Blind \n";
+    private MatchHandler match;
+
+    /**
+     * Costruttore della classe Blinds.
+     *
+     * @param match Il gestore dell'automa.
+     */
+
+    public Blinds(MatchHandler match) {
         this.match = match;
     }
 
+    /**
+     * {@link PokerState}
+     */
+
     @Override
     public void goNext() {
+        MatchHandler.logger.info(STATE_STARTED);
         MatchModel matchModel = match.getMatchModel();
         TurnModel turnModel = match.getTurnModel();
         Room room = match.getRoom();
+        PlayerModel playerModel;
 
-        PlayerModel smallBlind = room.getPlayer(Position.SB);
-        smallBlind.addAction(new Pair<>(ActionType.SB, matchModel.getSmallBlind()));
-        turnModel.increasePot(matchModel.getSmallBlind());
-        room.sendBroadcast(new Events(new PlayerUpdatedEvent(smallBlind), new PotUpdatedEvent(turnModel.getPot())));
+        MatchHandler.logger.info(SMALL_BLIND);
+        playerModel = room.getPlayer(Position.SB);
+        playerModel.addAction(new Pair<>(ActionType.SB, matchModel.getSmallBlind()));
+        int potIncreased = turnModel.increasePot(matchModel.getSmallBlind());
+        room.sendBroadcast(new Events(new PlayerUpdatedEvent(playerModel), new PotUpdatedEvent(potIncreased)));
 
-        PlayerModel player = room.getPlayer(Position.BB);
-        player.addAction(new Pair<>(ActionType.BB, matchModel.getBigBlind()));
-        turnModel.increasePot(matchModel.getBigBlind());
-        room.sendBroadcast(new Events(new PlayerUpdatedEvent(player), new PotUpdatedEvent(turnModel.getPot())));
+        MatchHandler.logger.info(BIG_BLIND);
+        playerModel = room.getPlayer(Position.BB);
+        playerModel.addAction(new Pair<>(ActionType.BB, matchModel.getBigBlind()));
+        potIncreased = turnModel.increasePot(matchModel.getBigBlind());
+        room.sendBroadcast(new Events(new PlayerUpdatedEvent(playerModel), new PotUpdatedEvent(potIncreased)));
 
         Action action = new Action(match);
         action.setTransitionStrategy(() -> match.setState(new Flop(match)));

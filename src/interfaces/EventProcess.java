@@ -13,4 +13,6 @@ public interface EventProcess {
 
     void process(PotUpdatedEvent event);
 
+    void process(RoomCreatedEvent event);
+
 }

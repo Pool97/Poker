@@ -9,9 +9,9 @@ import server.model.CardSuit;
 import server.model.TurnModel;
 
 public class Streets implements PokerState {
-    private Match match;
+    private MatchHandler match;
 
-    public Streets(Match match) {
+    public Streets(MatchHandler match) {
         this.match = match;
     }
 

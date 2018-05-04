@@ -1,6 +1,7 @@
 package client.socket;
 
 import events.Events;
+import interfaces.EventProcess;
 import interfaces.Message;
 
 import javax.swing.*;
@@ -10,30 +11,35 @@ import java.util.List;
 
 public class SocketReader<T extends Message> extends SwingWorker<Void, T> {
     private ObjectInputStream inputStream;
-    private EventProcessor processor;
+    private final static String WAITING = "In attesa di un messaggio dal Server...";
+    private EventProcess processor;
 
     public SocketReader(ObjectInputStream inputStream) {
         this.inputStream = inputStream;
-        processor = new EventProcessor();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Void doInBackground() throws IOException, ClassNotFoundException {
-        T messageObject = null;
-        System.out.println("Entrato");
+        T messageObject;
         do {
-            System.out.println("Sto aspettando");
+            ClientManager.logger.info(WAITING);
             messageObject = (T) inputStream.readObject();
+            System.out.println(messageObject.getClass());
             if (messageObject instanceof Events) {
                 Events events = (Events) messageObject;
                 events.getEvents().forEach(event -> event.accept(processor));
+                publish(messageObject);
             }
-            publish(messageObject);
         } while (true);
     }
 
     @Override
     protected void process(List<T> chunks) {
-        super.process(chunks);
+
+    }
+
+    public void setEventProcess(EventProcess processor) {
+        this.processor = processor;
     }
 }

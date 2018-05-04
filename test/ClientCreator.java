@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class ClientController {
+public class ClientCreator {
     public static void main(String[] args) {
         Dimension playersSize = new Dimension(400, 200);
 
@@ -21,7 +21,7 @@ public class ClientController {
         CommunityField testField = new CommunityField(cardsSize);
 
         EventQueue.invokeLater(() -> {
-            //Game game = new Game(playerViewsTest, testField, false, new PlayerCreatedEvent("Perry97", "creator.png"));
+            //Game game = new Game(playerViewsTest, testField, true, new PlayerCreatedEvent("Pool97", "creator.png"));
             //game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             //game.setVisible(true);
         });

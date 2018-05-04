@@ -4,7 +4,7 @@ import javafx.util.Pair;
 
 /**
  * Il Model fondamentale del gioco.
- * Permette di tenere traccia di tutti i cambiamenti avvenuti nel Match, dal suo inizio alla sua fine.
+ * Permette di tenere traccia di tutti i cambiamenti avvenuti nel MatchHandler, dal suo inizio alla sua fine.
  *
  * @author Roberto Poletti
  * @author Nipuna Perera
