@@ -37,16 +37,4 @@ public class GBC extends GridBagConstraints {
         this.gridx = gridx;
         this.gridy = gridy;
     }
-
-    public void setFill(int fill){
-        this.fill = fill;
-    }
-
-    public void setAnchor(int anchor){
-        this.anchor = anchor;
-    }
-
-    public void setInsets(Insets insets){
-        this.insets = insets;
-    }
 }

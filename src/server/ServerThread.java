@@ -1,8 +1,11 @@
+package server;
+
 import server.automa.MatchHandler;
 
+public class ServerThread implements Runnable {
 
-public class ServerSideTest {
-    public static void main(String [] args){
+    @Override
+    public void run() {
         MatchHandler manager = new MatchHandler();
         manager.startServer();
         while (true) {

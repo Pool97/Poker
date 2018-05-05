@@ -49,7 +49,7 @@ public class PlayerView extends JPanel{
         ranking = new JLabel();
         cardsPanel = new CardsPanel(new Dimension((viewSize.width) / 5, viewSize.height / 2), 2);
         initView();
-        initAvatarPanel("zappa_avatar.png");
+        initAvatarPanel("avatars/zappa_avatar.png");
         add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
         initPlayerPanel();
     }
@@ -77,7 +77,7 @@ public class PlayerView extends JPanel{
         cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getSecondCardFilename(), "backBluePP.png"));
 
         initView();
-        initAvatarPanel(playerModel.getAvatarFilename());
+        //initAvatarPanel(playerModel.getAvatarFilename());
         add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
         initPlayerPanel();
     }

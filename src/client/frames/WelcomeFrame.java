@@ -24,6 +24,7 @@ public class WelcomeFrame extends JFrame {
     private final static String ROOM_CONNECT_OPTION = "Connettiti";
     private final static String ABOUT_US_OPTION = "About us";
     private final static String ROOM_CREATION_INFO = "La stanza verrà hostata sulla porta 4040. Invia questi dati agli altri utenti.";
+
     private final static String MESSAGE_DIALOG_ROOM = "Creazione della stanza";
 
     /**
@@ -71,7 +72,7 @@ public class WelcomeFrame extends JFrame {
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
             if (userResponse == JOptionPane.OK_OPTION) {
                 dispose();
-                new AvatarFrame();
+                new AvatarFrame(0);
             }
         });
 
@@ -79,7 +80,10 @@ public class WelcomeFrame extends JFrame {
         setCustomButton(connectButton, ROOM_CONNECT_OPTION, Color.BLUE);
         container.add(connectButton);
         container.add(Box.createHorizontalGlue());
-
+        connectButton.addActionListener(event -> {
+            dispose();
+            new AvatarFrame(1);
+        });
         JButton infoButton = new JButton();
         setCustomButton(infoButton, ABOUT_US_OPTION, Color.CYAN);
         container.add(infoButton);

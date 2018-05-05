@@ -1,5 +1,6 @@
 package client.view;
 
+import client.AvatarCategory;
 import utils.Utils;
 
 import javax.swing.*;
@@ -11,6 +12,7 @@ public class AvatarView extends JPanel {
     private final static int TOP_LEFT_CORNER = 2;
     private BufferedImage avatarFront;
     private Dimension viewSize;
+    private String path;
     private String name;
 
     /**
@@ -21,12 +23,12 @@ public class AvatarView extends JPanel {
      * @param cardFrontFilename Nome del file della parte frontale della Card.
      */
 
-    public AvatarView(Dimension viewSize, String cardFrontFilename) {
+    public AvatarView(Dimension viewSize, AvatarCategory category, String cardFrontFilename) {
         this.viewSize = viewSize;
-        name = cardFrontFilename;
-        this.avatarFront = Utils.loadImage(cardFrontFilename, viewSize);
+        path = "avatars/" + category.name() + "/" + cardFrontFilename;
+        name = cardFrontFilename.replace(".png", "");
+        this.avatarFront = Utils.loadImage(path, viewSize);
         setSize(viewSize);
-        //setOpaque(false);
         setBackground(Utils.TRANSPARENT);
     }
 
@@ -56,5 +58,9 @@ public class AvatarView extends JPanel {
 
     public String getName() {
         return name;
+    }
+
+    public String getPath() {
+        return path;
     }
 }

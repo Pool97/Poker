@@ -1,6 +1,9 @@
 package client.frames;
 
+import client.AvatarCategory;
 import client.view.AvatarView;
+import utils.GBC;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,109 +13,140 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Objects;
 
+import static javax.swing.JOptionPane.showInputDialog;
 import static utils.Utils.*;
 
 public class AvatarFrame extends JFrame {
-    private final static String NICKNAME_INFO = "Inserire il nickname";
-    private final static String FRAME_TITLE = "Scegli l'Avatar";
-    private static Dimension avatarsSize = new Dimension(100, 100);
+    private final static String NICKNAME_INFO = "Inserisci il nickname per iniziare a giocare";
+    private final static String CONNECT_TO_A_ROOM = "Inserisci l'IP della stanza a cui vuoi connetterti";
+    private final static String FRAME_TITLE = "Scelta dell'Avatar";
+    private final static String AVATARS_FOLDER = "/avatars/";
+    private static Dimension avatarsSize = new Dimension(125, 125);
+    private static String[] EXTENSIONS = new String[]{"gif", "png", "bmp"};
+    private JLabel avatarDescriptor;
+    private JPanel avatarsContainer;
+    private int currentRow;
+    private int playerMode;
 
 
-    public AvatarFrame() {
-
+    public AvatarFrame(int playerMode) {
+        this.playerMode = playerMode;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(FRAME_TITLE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
         setResizable(false);
-        avatarNorth();
-        avatarCenter();
-
+        createGUI();
     }
 
-    private void avatarNorth() {
-        JPanel panelAv = new JPanel();
-        panelAv.setLayout(new GridBagLayout());
+    private void createGUI() {
+        JScrollPane jScrollPane = new JScrollPane();
+        jScrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        avatarsContainer = new JPanel();
+        avatarsContainer.setLayout(new GridBagLayout());
+        avatarsContainer.setBackground(new Color(0, 131, 143));
 
-        GridBagConstraints cC = new GridBagConstraints();
+        addCategory(AvatarCategory.cinema);
+        addCategory(AvatarCategory.celebrity);
+        addCategory(AvatarCategory.generic);
 
-        cC.insets = new Insets(2, 2, 2, 2); // insets for all components
-        cC.ipadx = 5; // increases components width by 10 pixels
-        cC.ipady = 5; // increases components height by 10 pixels
 
-        cC.gridx = 3;
-        cC.gridy = 0;
+        JPanel descrContainer = new JPanel();
+        avatarDescriptor = new JLabel();
+        avatarDescriptor.setHorizontalAlignment(SwingConstants.CENTER);
+        avatarDescriptor.setPreferredSize(new Dimension(200, 40));
+        avatarDescriptor.setFont(Utils.getCustomFont(Font.BOLD, 20));
 
-        add(panelAv, BorderLayout.NORTH);
+        descrContainer.add(avatarDescriptor);
+        descrContainer.setBackground(Color.BLUE);
+        add(descrContainer, BorderLayout.SOUTH);
+        jScrollPane.setViewportView(avatarsContainer);
+        add(jScrollPane, BorderLayout.CENTER);
     }
 
-    private void avatarCenter() {
-        JPanel panelAv = new JPanel();
-        panelAv.setLayout(new GridBagLayout());
+    public void addCategory(AvatarCategory category) {
+        GBC gbc = new GBC(0, currentRow);
 
-        GridBagConstraints cC = new GridBagConstraints();
+        gbc.ipadx = 5;
+        gbc.ipady = 10;
+        gbc.gridwidth = 5;
+        gbc.anchor = GBC.CENTER;
 
-        cC.insets = new Insets(2, 2, 2, 2); // insets for all components
-        cC.ipadx = 5; // increases components width by 10 pixels
-        cC.ipady = 5; // increases components height by 10 pixels
-
-        int x = 1, y = 1;
-        String[] EXTENSIONS = new String[]{"gif", "png", "bmp"};
-        FilenameFilter filter = (dir, name) -> {
-            for (String ext : EXTENSIONS)
-                if (name.startsWith("av") && name.endsWith("." + ext))
-                    return true;
-            return false;
-        };
-
-        File avatarDirectory = new File(System.getProperty(WORKING_DIR) + RES);
-
-        for (File f : Objects.requireNonNull(avatarDirectory.listFiles(filter))) {
-            cC.gridx = x; // column 0
-            cC.gridy = y; // row 0
-            AvatarView avatarV = new AvatarView(avatarsSize, f.getName());
-            avatarV.addMouseListener(new MyMouseListener(avatarV));
-            panelAv.add(avatarV, cC);
-            if (x % 5 == 0) {
-                x = 0;
-                y++;
-            }
-            x++;
-        }
-
-        add(panelAv, BorderLayout.CENTER);
+        JLabel categoryLabel = new JLabel(category.name(), SwingConstants.CENTER);
+        categoryLabel.setFont(Utils.getCustomFont(Font.PLAIN, 30));
+        avatarsContainer.add(categoryLabel, gbc);
+        addByCategory(category);
+        currentRow++;
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 500);
+        return new Dimension(720, 500);
+    }
+
+    private void addByCategory(AvatarCategory category) {
+        File avatarDirectory = new File(System.getProperty(WORKING_DIR) + RES + AVATARS_FOLDER + category.name() + "/");
+        int currentColumn = 0;
+        currentRow++;
+
+        FilenameFilter filter = (dir, name) -> {
+            for (String ext : EXTENSIONS)
+                if (name.endsWith("." + ext))
+                    return true;
+            return false;
+        };
+
+        for (File f : Objects.requireNonNull(avatarDirectory.listFiles(filter))) {
+            GBC gbc = new GBC(currentColumn, currentRow);
+            gbc.ipadx = 5;
+            gbc.ipady = 10;
+            gbc.gridwidth = 1;
+            gbc.anchor = GBC.EAST;
+            currentColumn++;
+
+            AvatarView avatarV = new AvatarView(avatarsSize, category, f.getName());
+            avatarV.setOpaque(false);
+            avatarV.addMouseListener(new MyMouseListener(avatarV));
+            avatarsContainer.add(avatarV, gbc);
+
+            if (currentColumn % 5 == 0) {
+                currentColumn = 0;
+                currentRow++;
+            }
+        }
     }
 
     class MyMouseListener extends MouseAdapter {
-        private AvatarView av;
+        private AvatarView avatar;
 
-        public MyMouseListener(AvatarView av) {
-            this.av = av;
+        public MyMouseListener(AvatarView avatar) {
+            this.avatar = avatar;
         }
 
         public void mouseClicked(MouseEvent event) {
-            String nickname = JOptionPane.showInputDialog(null, NICKNAME_INFO);
-            if (nickname != null) {
-                new GameFrame(nickname, av.getName());
-                dispose();
+            String nickname = showInputDialog(null, NICKNAME_INFO);
+            if (nickname != null && playerMode == 0) {
+                if (System.getProperty("os.name").equals("Windows") || System.getProperty("os.name").equals("Mac OS X")) {
+                    String userResponse = JOptionPane.showInputDialog(this, "Inserisci il numero di giocatori:");
+                    dispose();
+                    new CreatorGameFrame(nickname, avatar.getPath(), Integer.parseInt(userResponse));
+                } else {
+                    new LinuxFrame();
+                }
             }
         }
 
         public void mouseEntered(MouseEvent event) {
-            av.setOpaque(true);
-            av.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2, true));
+            avatarDescriptor.setText(avatar.getName());
+            avatar.setOpaque(true);
+            avatar.setBorder(BorderFactory.createLineBorder(Color.GREEN, 2, true));
 
         }
 
         public void mouseExited(MouseEvent event) {
-            av.setOpaque(false);
-            av.setBorder(BorderFactory.createLineBorder(TRANSPARENT, 2));
+            avatar.setOpaque(false);
+            avatar.setBorder(BorderFactory.createLineBorder(TRANSPARENT, 2));
         }
     }
 }
