@@ -47,7 +47,6 @@ public class TurnModel {
      * @param quantity Valore da aggiungere al pot
      */
     public int increasePot(int quantity) {
-        pot += quantity;
         return pot += quantity;
     }
 

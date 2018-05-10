@@ -17,10 +17,10 @@ import java.util.logging.Logger;
 public class ClientManager {
     private String serverName;
     private int serverPort;
+    public final static Logger logger = Logger.getLogger(ClientManager.class.getName());
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-
-    final static Logger logger = Logger.getLogger(ClientManager.class.getName());
+    private Socket socket;
     private final static String CLIENT_INFO = "CLIENT -> ";
     private final static String CONNECTING_INFO = " STA CERCANDO DI STABILIRE UNA CONNESSIONE VERSO IL SERVER \n";
     private final static String CONNECTION_ESTABLISHED_INFO = " CONNESSIONE AVVENUTA VERSO IL SERVER ";
@@ -47,7 +47,7 @@ public class ClientManager {
     public void attemptToConnect() {
         logger.info(CLIENT_INFO + CONNECTING_INFO);
         try {
-            Socket socket = new Socket(serverName, serverPort);
+            socket = new Socket(serverName, serverPort);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.flush();
             inputStream = new ObjectInputStream(socket.getInputStream());
@@ -65,5 +65,9 @@ public class ClientManager {
 
     public ObjectOutputStream getOutputStream() {
         return outputStream;
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 }

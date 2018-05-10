@@ -1,17 +1,21 @@
 package utils;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 
 
 public class Utils {
     public static final String RES = "/res/";
     public static final String WORKING_DIR = "user.dir";
     public static final Color TRANSPARENT = new Color(0,0,0,0);
+    public final static String DEFAULT_THEME = "Nimbus";
+    public final static String DEFAULT_FONT = "helvetica";
 
     /**
      * Permette di assegnare la versione riscalata dell'immagine originale.
@@ -45,5 +49,37 @@ public class Utils {
             e.printStackTrace();
         }
         return derivedFont;
+    }
+
+    public static <T> T askForAChoice(T[] list, String message) {
+        JComboBox<T> comboBox = new JComboBox<>(list);
+        JOptionPane.showMessageDialog(null, comboBox, message, JOptionPane.QUESTION_MESSAGE);
+        return (T) comboBox.getSelectedItem();
+    }
+
+    public static boolean isLinux() {
+        return System.getProperty("os.name").equals("Linux");
+    }
+
+    public static String getHostAddress() {
+        try {
+            return Inet4Address.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void setLookAndFeel(String theme) {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if (theme.equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -43,6 +43,7 @@ public class Blinds implements PokerState {
         MatchHandler.logger.info(STATE_STARTED);
         MatchModel matchModel = match.getMatchModel();
         TurnModel turnModel = match.getTurnModel();
+        turnModel.resetPot();
         Room room = match.getRoom();
         PlayerModel playerModel;
 
@@ -50,16 +51,20 @@ public class Blinds implements PokerState {
         playerModel = room.getPlayer(Position.SB);
         playerModel.addAction(new Pair<>(ActionType.SB, matchModel.getSmallBlind()));
         int potIncreased = turnModel.increasePot(matchModel.getSmallBlind());
+        System.out.println("FIRST SB: " + matchModel.getSmallBlind());
+        System.out.println("FIRST BB: " + matchModel.getBigBlind());
+        System.out.println("FIRST POT" + turnModel.getPot());
         room.sendBroadcast(new Events(new PlayerUpdatedEvent(playerModel), new PotUpdatedEvent(potIncreased)));
 
         MatchHandler.logger.info(BIG_BLIND);
         playerModel = room.getPlayer(Position.BB);
         playerModel.addAction(new Pair<>(ActionType.BB, matchModel.getBigBlind()));
         potIncreased = turnModel.increasePot(matchModel.getBigBlind());
+        System.out.println("SECOND POT" + turnModel.getPot());
         room.sendBroadcast(new Events(new PlayerUpdatedEvent(playerModel), new PotUpdatedEvent(potIncreased)));
 
         Action action = new Action(match);
         action.setTransitionStrategy(() -> match.setState(new Flop(match)));
-        match.setState(new Action(match));
+        match.setState(action);
     }
 }

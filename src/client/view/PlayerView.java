@@ -1,7 +1,6 @@
 package client.view;
 
 import utils.GBC;
-import utils.PlayerModelTest;
 import utils.Utils;
 
 import javax.swing.*;
@@ -17,42 +16,25 @@ import static java.awt.GridBagConstraints.*;
  * @since 1.0
  */
 
-
-//TODO: Implementare un ComponentListener in modo che si abbia il resize automatico in base al cambio delle dimensioni della View
-//TODO: Implementare il pattern MVC Server-Client in modo da aggiornare la View solo tramite le modifiche avvenute nell'effettivo Model.
 //TODO: Gestire la dimensione minima che può assumere la View! (Utile per risoluzioni molto basse)
 
 public class PlayerView extends JPanel{
     private JLabel nickname;
     private JLabel action;
-    private JLabel totalChips;
-    private JLabel actualPosition;
+    private final static int END_BORDER_PADDING = 3;
+    private final static float BORDER_WIDTH = 3.0F;
     private JLabel ranking;
     private JLabel avatar;
-    private Dimension viewSize;
+    private JLabel chips;
     private CardsPanel cardsPanel;
 
     private final static int START_BORDER_PADDING = 1;
-    private final static int END_BORDER_PADDING = 2;
+    private JLabel position;
     private final static int VIEW_PADDING = 10;
-    private final static float BORDER_WIDTH = 2.0F;
+    private Dimension size;
     private final static int MINIMUM_WIDTH = 350;
     private final static int MINIMUM_HEIGHT = 150;
     public final static String BLANK = "";
-
-    public PlayerView(Dimension viewSize) {
-        this.viewSize = viewSize;
-        nickname = new JLabel("");
-        totalChips = new JLabel();
-        actualPosition = new JLabel();
-        action = new JLabel();
-        ranking = new JLabel();
-        cardsPanel = new CardsPanel(new Dimension((viewSize.width) / 5, viewSize.height / 2), 2);
-        initView();
-        initAvatarPanel("avatars/zappa_avatar.png");
-        add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
-        initPlayerPanel();
-    }
 
     /**
      * Costruttore della PlayerView. L'idea è ottenere tutte le informazioni da mostrare all'utente attraverso un Controller
@@ -60,24 +42,20 @@ public class PlayerView extends JPanel{
      * Questa View sfrutta il BoxLayout, che permette di gestire i suoi componenti tramite le MaximumSize, in modo che si adattino
      * al cambiamento di dimensione della View padre.
      *
-     * @param viewSize Dimensione della View.
-     * @param playerModel Informazioni provenienti dal server. Rimarrà come argomento del costruttore finchè non verrà implementato a tutti
-     *                    li effetti il Pattern MVC.
+     * @param size Dimensione della View.
      */
 
-    public PlayerView(Dimension viewSize, PlayerModelTest playerModel) {
-        this.viewSize = viewSize;
-        nickname = new JLabel(playerModel.getNickname());
-        totalChips = new JLabel(playerModel.getTotalChips());
-        actualPosition = new JLabel(playerModel.getActualPosition());
-        action = new JLabel(playerModel.getAction());
-        ranking = new JLabel(playerModel.getRanking());
-        cardsPanel = new CardsPanel(new Dimension((viewSize.width)/5, viewSize.height/2), 2);
-        cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getFirstCardFilename(), "backBluePP.png"));
-        cardsPanel.addNextCard(new CardView(new Dimension((viewSize.width)/5, viewSize.height/2), playerModel.getSecondCardFilename(), "backBluePP.png"));
-
+    public PlayerView(Dimension size) {
+        this.size = size;
+        nickname = new JLabel();
+        chips = new JLabel();
+        position = new JLabel();
+        action = new JLabel();
+        ranking = new JLabel();
+        cardsPanel = new CardsPanel(new Dimension((size.width) / 5, size.height / 2), 2);
+        setBackground(Utils.TRANSPARENT);
         initView();
-        //initAvatarPanel(playerModel.getAvatarFilename());
+        initAvatarPanel("avatars/celebrity/dario zappa.png");
         add(Box.createRigidArea(new Dimension(VIEW_PADDING, 0)));
         initPlayerPanel();
     }
@@ -91,7 +69,6 @@ public class PlayerView extends JPanel{
         BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
         setBorder(BorderFactory.createEmptyBorder(VIEW_PADDING, VIEW_PADDING, VIEW_PADDING, VIEW_PADDING));
         setLayout(layout);
-        setBackground(new Color(27,27,27, 150));
     }
 
     /**
@@ -103,9 +80,9 @@ public class PlayerView extends JPanel{
 
     private void initAvatarPanel(String avatarFilename){
         avatar = new JLabel(BLANK, JLabel.CENTER);
-        BufferedImage avatarScaled = Utils.loadImage(avatarFilename, new Dimension((viewSize.width / 3), viewSize.height / 2));
+        BufferedImage avatarScaled = Utils.loadImage(avatarFilename, new Dimension((size.width / 3), size.height / 2));
         avatar.setIcon(new ImageIcon(avatarScaled));
-        avatar.setMaximumSize(new Dimension((viewSize.width / 3), viewSize.height / 2));
+        avatar.setMaximumSize(new Dimension((size.width / 3), size.height / 2));
         avatar.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(avatar);
     }
@@ -120,7 +97,7 @@ public class PlayerView extends JPanel{
         JPanel playerPanel = new JPanel();
         playerPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         playerPanel.setBackground(Utils.TRANSPARENT);
-        playerPanel.setMaximumSize(new Dimension((2 * viewSize.width)/3, viewSize.height));
+        playerPanel.setMaximumSize(new Dimension((2 * size.width) / 3, size.height));
         playerPanel.setLayout(new GridBagLayout());
 
         playerPanel.add(cardsPanel, new GBC(0, 0, 1, 4, NORTHWEST));
@@ -131,15 +108,15 @@ public class PlayerView extends JPanel{
         setComponentStyle(nickname, Color.WHITE, Font.BOLD, 20F);
         playerPanel.add(nickname, new GBC(0, 1,1, 5, NORTHWEST));
 
-        setComponentStyle(actualPosition, Color.WHITE, Font.BOLD, 20F);
-        playerPanel.add(actualPosition, new GBC(1, 1, 1, 5, NORTHEAST));
+        setComponentStyle(position, Color.WHITE, Font.BOLD, 20F);
+        playerPanel.add(position, new GBC(1, 1, 1, 5, NORTHEAST));
 
         setComponentStyle(action, Color.WHITE, Font.BOLD, 18F);
         playerPanel.add(action, new GBC(0, 2, 1, 1, WEST));
 
-        setComponentStyle(totalChips, Color.WHITE, Font.BOLD, 18F);
-        playerPanel.add(totalChips, new GBC(1, 2,1, 1, EAST));
-
+        setComponentStyle(chips, Color.WHITE, Font.BOLD, 18F);
+        chips.setFont(new Font("helvetica", Font.BOLD, 20));
+        playerPanel.add(chips, new GBC(1, 2, 1, 1, EAST));
         add(playerPanel);
     }
 
@@ -147,9 +124,20 @@ public class PlayerView extends JPanel{
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
-        g2.setColor(Color.WHITE);
+
+
+        RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHints(qualityHints);
+
+        g2.setColor(new Color(27, 27, 27, 150));
+        g2.fillRoundRect(START_BORDER_PADDING, START_BORDER_PADDING, size.width - END_BORDER_PADDING, size.height - END_BORDER_PADDING,
+                40, 40);
+
         g2.setStroke(new BasicStroke(BORDER_WIDTH));
-        g2.drawRect(START_BORDER_PADDING, START_BORDER_PADDING, viewSize.width - END_BORDER_PADDING, viewSize.height - END_BORDER_PADDING);
+        g2.setColor(Color.WHITE);
+        g2.drawRoundRect(1, 1, size.width - END_BORDER_PADDING, size.height - END_BORDER_PADDING,
+                40, 40);
     }
 
     /**
@@ -175,7 +163,7 @@ public class PlayerView extends JPanel{
 
     @Override
     public Dimension getPreferredSize() {
-        return viewSize;
+        return size;
     }
 
     /**
@@ -190,7 +178,7 @@ public class PlayerView extends JPanel{
 
     @Override
     public Dimension getMaximumSize() {
-        return viewSize;
+        return size;
     }
 
     public JLabel getNickname() {
@@ -201,13 +189,19 @@ public class PlayerView extends JPanel{
         this.nickname.setText(nickname);
     }
 
-    public void setTotalChips(int chips) {
-        this.totalChips.setText(Integer.toString(chips));
+    public void setChips(int chips) {
+        this.chips.setText(Integer.toString(chips));
+        this.chips.setBackground(new Color(0, 77, 64, 255));
+        this.chips.setOpaque(true);
+
     }
 
     public void setAvatar(String filename) {
-        //
-        BufferedImage avatarScaled = Utils.loadImage(filename, new Dimension((viewSize.width / 3), viewSize.height / 2));
+        BufferedImage avatarScaled = Utils.loadImage(filename, new Dimension((size.width / 3), size.height / 2));
         avatar.setIcon(new ImageIcon(avatarScaled));
+    }
+
+    public void setPosition(String actualPosition) {
+        this.position.setText(actualPosition);
     }
 }

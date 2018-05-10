@@ -24,7 +24,6 @@ public class WelcomeFrame extends JFrame {
     private final static String ROOM_CONNECT_OPTION = "Connettiti";
     private final static String ABOUT_US_OPTION = "About us";
     private final static String ROOM_CREATION_INFO = "La stanza verrà hostata sulla porta 4040. Invia questi dati agli altri utenti.";
-
     private final static String MESSAGE_DIALOG_ROOM = "Creazione della stanza";
 
     /**

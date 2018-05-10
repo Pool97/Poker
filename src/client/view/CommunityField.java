@@ -40,6 +40,7 @@ public class CommunityField extends JPanel {
         cardsPanel.setAlignmentX(CENTER_ALIGNMENT);
         cardsPanel.setAlignmentY(CENTER_ALIGNMENT);
         add(tooltip);
+        add(Box.createVerticalGlue());
         add(cardsPanel);
     }
 

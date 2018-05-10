@@ -63,6 +63,8 @@ public class StartGame implements PokerState {
                         player.getChips()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        System.out.println(room.getPlayers().get(0).getNickname());
+
         MatchHandler.logger.info(START_MATCH);
         room.sendBroadcast(new Events(new RoomCreatedEvent()));
         room.sendBroadcast(new Events(events));

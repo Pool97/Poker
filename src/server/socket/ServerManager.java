@@ -85,7 +85,7 @@ public class ServerManager implements Runnable {
 
             if (room.getSize() == 0) {
                 totalPlayers = ((CreatorConnectedEvent) newPlayer.getEvent()).getTotalPlayers();
-                logger.info(SERVER_INFO + WAITING_FOR_INFO + (room.getSize() - 1) + PLAYERS);
+                logger.info(SERVER_INFO + WAITING_FOR_INFO + (totalPlayers - 1) + PLAYERS);
             }
 
             PlayerCreatedEvent event = (PlayerCreatedEvent) newPlayer.getEvent();

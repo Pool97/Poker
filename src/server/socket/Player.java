@@ -141,6 +141,7 @@ public class Player {
         @Override
         public void run() {
             try {
+                outStream.reset();
                 outStream.writeObject(message);
             } catch (IOException e) {
                 MatchHandler.logger.info(STREAM_ERROR);

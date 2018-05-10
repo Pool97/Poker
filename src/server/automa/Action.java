@@ -167,7 +167,9 @@ public class Action implements PokerState {
 
         Events actionPerformed = room.readMessage(player);
         ActionPerformedEvent playerAction = (ActionPerformedEvent) actionPerformed.getEvent();
+        MatchHandler.logger.info("Puntata effettuata da: " + player.getNickname() + ": " + playerAction.getAction().getKey() + " " + playerAction.getAction().getValue());
         player.addAction(playerAction.getAction());
+        MatchHandler.logger.info("Chips now of: " + player.getNickname() + ": " + player.getChips());
         turnModel.increasePot(playerAction.getAction().getValue());
 
         MatchHandler.logger.info(PLAYERS_INFO);

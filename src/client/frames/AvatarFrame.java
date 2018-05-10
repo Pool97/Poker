@@ -17,12 +17,15 @@ import static javax.swing.JOptionPane.showInputDialog;
 import static utils.Utils.*;
 
 public class AvatarFrame extends JFrame {
+    private final static String FRAME_TITLE = "Scelta dell'Avatar";
     private final static String NICKNAME_INFO = "Inserisci il nickname per iniziare a giocare";
     private final static String CONNECT_TO_A_ROOM = "Inserisci l'IP della stanza a cui vuoi connetterti";
-    private final static String FRAME_TITLE = "Scelta dell'Avatar";
+
+    private final static String TOTAL_PLAYERS = "Inserisci il numero di partecipanti";
     private final static String AVATARS_FOLDER = "/avatars/";
     private static Dimension avatarsSize = new Dimension(125, 125);
     private static String[] EXTENSIONS = new String[]{"gif", "png", "bmp"};
+    private static Integer[] POSSIBLE_TOTAL_PLAYERS = new Integer[]{2, 3, 4, 5, 6};
     private JLabel avatarDescriptor;
     private JPanel avatarsContainer;
     private int currentRow;
@@ -31,6 +34,7 @@ public class AvatarFrame extends JFrame {
 
     public AvatarFrame(int playerMode) {
         this.playerMode = playerMode;
+        Utils.setLookAndFeel(Utils.DEFAULT_THEME);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(FRAME_TITLE);
         pack();
@@ -42,10 +46,12 @@ public class AvatarFrame extends JFrame {
 
     private void createGUI() {
         JScrollPane jScrollPane = new JScrollPane();
+        jScrollPane.setBorder(BorderFactory.createEmptyBorder());
         jScrollPane.getVerticalScrollBar().setUnitIncrement(10);
         avatarsContainer = new JPanel();
         avatarsContainer.setLayout(new GridBagLayout());
-        avatarsContainer.setBackground(new Color(0, 131, 143));
+        setBackground(Color.BLACK);
+        avatarsContainer.setBackground(Color.BLACK);
 
         addCategory(AvatarCategory.cinema);
         addCategory(AvatarCategory.celebrity);
@@ -53,13 +59,17 @@ public class AvatarFrame extends JFrame {
 
 
         JPanel descrContainer = new JPanel();
+        descrContainer.setBackground(Color.BLACK);
+
         avatarDescriptor = new JLabel();
         avatarDescriptor.setHorizontalAlignment(SwingConstants.CENTER);
         avatarDescriptor.setPreferredSize(new Dimension(200, 40));
         avatarDescriptor.setFont(Utils.getCustomFont(Font.BOLD, 20));
+        avatarDescriptor.setForeground(Color.WHITE);
+        avatarDescriptor.setBorder(BorderFactory.createLineBorder(Color.WHITE));
 
         descrContainer.add(avatarDescriptor);
-        descrContainer.setBackground(Color.BLUE);
+
         add(descrContainer, BorderLayout.SOUTH);
         jScrollPane.setViewportView(avatarsContainer);
         add(jScrollPane, BorderLayout.CENTER);
@@ -74,6 +84,7 @@ public class AvatarFrame extends JFrame {
         gbc.anchor = GBC.CENTER;
 
         JLabel categoryLabel = new JLabel(category.name(), SwingConstants.CENTER);
+        categoryLabel.setForeground(Color.WHITE);
         categoryLabel.setFont(Utils.getCustomFont(Font.PLAIN, 30));
         avatarsContainer.add(categoryLabel, gbc);
         addByCategory(category);
@@ -125,23 +136,26 @@ public class AvatarFrame extends JFrame {
         }
 
         public void mouseClicked(MouseEvent event) {
-            String nickname = showInputDialog(null, NICKNAME_INFO);
+            String nickname = showInputDialog(NICKNAME_INFO);
+
             if (nickname != null && playerMode == 0) {
-                if (System.getProperty("os.name").equals("Windows") || System.getProperty("os.name").equals("Mac OS X")) {
-                    String userResponse = JOptionPane.showInputDialog(this, "Inserisci il numero di giocatori:");
-                    dispose();
-                    new CreatorGameFrame(nickname, avatar.getPath(), Integer.parseInt(userResponse));
-                } else {
-                    new LinuxFrame();
-                }
-            }
+                if (!Utils.isLinux())
+                    new CreatorGameFrame(nickname, avatar.getPath(), Utils.askForAChoice(POSSIBLE_TOTAL_PLAYERS,
+                            TOTAL_PLAYERS), Utils.getHostAddress());
+                else
+                    new LinuxFrame(nickname, avatar.getPath());
+            } else if (nickname != null && playerMode == 1)
+                new GameFrame(nickname, avatar.getPath(), JOptionPane.showInputDialog(CONNECT_TO_A_ROOM));
+
+            dispose();
         }
 
         public void mouseEntered(MouseEvent event) {
+            avatar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             avatarDescriptor.setText(avatar.getName());
+            avatar.setBackground(new Color(255, 255, 255, 70));
             avatar.setOpaque(true);
-            avatar.setBorder(BorderFactory.createLineBorder(Color.GREEN, 2, true));
-
+            avatar.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2, true));
         }
 
         public void mouseExited(MouseEvent event) {

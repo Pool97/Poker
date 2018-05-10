@@ -51,6 +51,8 @@ public class TurnStart implements PokerState {
 
         match.getTurnModel().createDeck();
         match.getTurnModel().resetPot();
+        System.out.println("SMALL: " + matchModel.getSmallBlind());
+        System.out.println("BIG: " + matchModel.getBigBlind());
         matchModel.increaseBlinds();
 
         MatchHandler.logger.info(CONF_ENDED);

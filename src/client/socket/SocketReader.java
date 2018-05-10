@@ -20,23 +20,22 @@ public class SocketReader<T extends Message> extends SwingWorker<Void, T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Void doInBackground() throws IOException, ClassNotFoundException {
+    protected Void doInBackground() throws IOException, ClassNotFoundException, InterruptedException {
         T messageObject;
         do {
             ClientManager.logger.info(WAITING);
             messageObject = (T) inputStream.readObject();
-            System.out.println(messageObject.getClass());
             if (messageObject instanceof Events) {
-                Events events = (Events) messageObject;
-                events.getEvents().forEach(event -> event.accept(processor));
                 publish(messageObject);
+                Thread.sleep(800);
             }
         } while (true);
     }
 
     @Override
     protected void process(List<T> chunks) {
-
+        Events events = (Events) chunks.get(0);
+        events.getEvents().forEach(event -> event.accept(processor));
     }
 
     public void setEventProcess(EventProcess processor) {
