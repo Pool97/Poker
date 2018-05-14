@@ -14,16 +14,21 @@ import java.awt.*;
  */
 
 public class CommunityField extends JPanel {
-    private CardsPanel cardsPanel;
     private JLabel tooltip = new JLabel("Community Cards", JLabel.CENTER);
+    private JPanel cardsPanel;
 
     /**
      * Costruttore vuoto del CommunityField.
      */
 
-    public CommunityField(Dimension cardsSize){
-        cardsPanel = new CardsPanel(cardsSize, 5);
+    public CommunityField() {
+        cardsPanel = new JPanel();
         initView();
+        for (int i = 0; i < 5; i++) {
+            Card card = new Card(System.getProperty(Utils.WORKING_DIR) + Utils.RES + "3_cuori1.png", System.getProperty(Utils.WORKING_DIR) + Utils.RES + "back.png");
+            card.setMaximumSize(new Dimension(200, 200));
+            addNextCard(card);
+        }
     }
 
     /**
@@ -32,13 +37,15 @@ public class CommunityField extends JPanel {
 
     private void initView(){
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.X_AXIS));
+        cardsPanel.setAlignmentX(CENTER_ALIGNMENT);
+        cardsPanel.setBackground(Utils.TRANSPARENT);
+        cardsPanel.setOpaque(false);
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(Utils.TRANSPARENT);
         tooltip.setForeground(Color.WHITE);
         tooltip.setFont(Utils.getCustomFont(Font.BOLD, 40F));
         tooltip.setAlignmentX(Component.CENTER_ALIGNMENT);
-        cardsPanel.setAlignmentX(CENTER_ALIGNMENT);
-        cardsPanel.setAlignmentY(CENTER_ALIGNMENT);
         add(tooltip);
         add(Box.createVerticalGlue());
         add(cardsPanel);
@@ -50,8 +57,23 @@ public class CommunityField extends JPanel {
      * @param nextCard Prossima carta da aggiungere alle Community Cards.
      */
 
-    public void addNextCard(CardView nextCard){
-        cardsPanel.addNextCard(nextCard);
+    public void addNextCard(Card nextCard) {
+        nextCard.setAlignmentX(CENTER_ALIGNMENT);
+        cardsPanel.add(nextCard);
     }
 
+    @Override
+    public Dimension getMaximumSize() {
+        return super.getMaximumSize();
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return super.getMinimumSize();
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return super.getPreferredSize();
+    }
 }

@@ -12,6 +12,8 @@ import java.net.UnknownHostException;
 
 public class Utils {
     public static final String RES = "/res/";
+
+    public static final String EMPTY = "";
     public static final String WORKING_DIR = "user.dir";
     public static final Color TRANSPARENT = new Color(0,0,0,0);
     public final static String DEFAULT_THEME = "Nimbus";
@@ -33,7 +35,19 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return scaledImage;
+    }
 
+    public static BufferedImage loadImageByPath(String filename, Dimension scaleSize) {
+        BufferedImage scaledImage = null;
+
+        try {
+            System.out.println(filename);
+            BufferedImage originalImage = ImageIO.read(new File(filename));
+            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return scaledImage;
     }
 

@@ -27,7 +27,7 @@ public class SocketReader<T extends Message> extends SwingWorker<Void, T> {
             messageObject = (T) inputStream.readObject();
             if (messageObject instanceof Events) {
                 publish(messageObject);
-                Thread.sleep(800);
+                Thread.sleep(1000);
             }
         } while (true);
     }

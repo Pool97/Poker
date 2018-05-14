@@ -28,7 +28,30 @@ public class GBC extends GridBagConstraints {
         this.fill = fill;
     }
 
+    public GBC(int gridx, int gridy, double weightx, double weighty, int gridwidth, int gridheight, int anchor, int fill) {
+        this.gridx = gridx;
+        this.gridy = gridy;
+        this.gridwidth = gridwidth;
+        this.gridheight = gridheight;
+        this.weightx = weightx;
+        this.weighty = weighty;
+        this.anchor = anchor;
+        this.fill = fill;
+    }
+
     public GBC(int gridx, int gridy, int weightx, int weighty, int gridwidth, int gridheight, int anchor, int fill, Insets insets) {
+        this.gridx = gridx;
+        this.gridy = gridy;
+        this.gridwidth = gridwidth;
+        this.gridheight = gridheight;
+        this.weightx = weightx;
+        this.weighty = weighty;
+        this.anchor = anchor;
+        this.fill = fill;
+        this.insets = insets;
+    }
+
+    public GBC(int gridx, int gridy, double weightx, double weighty, int gridwidth, int gridheight, int anchor, int fill, Insets insets) {
         this.gridx = gridx;
         this.gridy = gridy;
         this.gridwidth = gridwidth;
@@ -49,6 +72,13 @@ public class GBC extends GridBagConstraints {
     }
 
     public GBC(int gridx, int gridy, int weightx, int weighty){
+        this.gridx = gridx;
+        this.gridy = gridy;
+        this.weightx = weightx;
+        this.weighty = weighty;
+    }
+
+    public GBC(int gridx, int gridy, double weightx, double weighty) {
         this.gridx = gridx;
         this.gridy = gridy;
         this.weightx = weightx;

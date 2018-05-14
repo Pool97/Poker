@@ -22,10 +22,10 @@ public class ActionsView extends JPanel {
     private final static String RAISE_ACTION = "RAISE";
     private final static int DEFAULT_MIN_VALUE_SLIDER = 0;
     private final static int DEFAULT_MAX_VALUE_SLIDER = 100;
-    private final static int INSET = 30;
+    private final static int INSET = 10;
     private final static int WEIGHT = 33;
     private final static int INITIAL_PADDING = 2;
-    private final static int FINAL_PADDING = 2;
+    private final static int FINAL_PADDING = 4;
     private final static int ARC_SIZE = 30;
     private final static float STROKE_WIDTH = 4.0F;
     private JButton callAction;
@@ -54,17 +54,17 @@ public class ActionsView extends JPanel {
         checkAction = new JButton(CHECK_FOLD_ACTION);
         checkAction.setFont(font);
         add(checkAction, new GBC(0, 1, WEIGHT, 1, 1, 1, GBC.CENTER, GBC.HORIZONTAL,
-                new Insets(0, INSET, 0, INSET)));
+                new Insets(0, INSET, INSET, INSET)));
 
         callAction = new JButton(CALL_ACTION);
         callAction.setFont(font);
         add(callAction, new GBC(1, 1, WEIGHT, 1, 1, 1, GBC.CENTER, GBC.HORIZONTAL,
-                new Insets(0, INSET, 0, INSET)));
+                new Insets(0, INSET, INSET, INSET)));
 
         raiseAction = new JButton(RAISE_ACTION);
         raiseAction.setFont(font);
         add(raiseAction, new GBC(2, 1, WEIGHT, 1, 1, 1, GBC.CENTER, GBC.HORIZONTAL,
-                new Insets(0, INSET, 0, INSET)));
+                new Insets(0, INSET, INSET, INSET)));
 
     }
 
@@ -95,13 +95,13 @@ public class ActionsView extends JPanel {
 
     private void initSlider() {
         Font font = new Font(Utils.DEFAULT_FONT, Font.PLAIN, 20);
-        raiseSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 10);
+        raiseSlider = new JSlider(JSlider.HORIZONTAL, 0, DEFAULT_MAX_VALUE_SLIDER, 10);
 
         SliderListener popupListener = new SliderListener();
         raiseSlider.addMouseMotionListener(popupListener);
         raiseSlider.addMouseListener(popupListener);
         raiseSlider.setMinorTickSpacing(DEFAULT_MIN_VALUE_SLIDER);
-        raiseSlider.setMajorTickSpacing(DEFAULT_MAX_VALUE_SLIDER);
+        raiseSlider.setMajorTickSpacing(DEFAULT_MAX_VALUE_SLIDER / 10);
         raiseSlider.setPaintTicks(true);
 
         Hashtable<Integer, JLabel> position = new Hashtable<>();
@@ -118,7 +118,7 @@ public class ActionsView extends JPanel {
 
         raiseSlider.setLabelTable(position);
         raiseSlider.setPaintLabels(true);
-        add(raiseSlider, new GBC(2, 0, 1, 1, 1, 1, GBC.CENTER, GBC.HORIZONTAL));
+        add(raiseSlider, new GBC(2, 0, 1, 1, 1, 1, GBC.CENTER, GBC.HORIZONTAL, new Insets(0, 0, 0, 20)));
     }
 
     /**
@@ -169,6 +169,7 @@ public class ActionsView extends JPanel {
 
     public void setMaxSliderValue(int maxValue) {
         raiseSlider.setMaximum(maxValue);
+        raiseSlider.setMajorTickSpacing(maxValue / 10);
     }
 
     /**

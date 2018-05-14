@@ -1,7 +1,7 @@
 package client.frames;
 
 import client.AvatarCategory;
-import client.view.AvatarView;
+import client.view.Avatar;
 import utils.GBC;
 import utils.Utils;
 
@@ -116,8 +116,8 @@ public class AvatarFrame extends JFrame {
             gbc.anchor = GBC.EAST;
             currentColumn++;
 
-            AvatarView avatarV = new AvatarView(avatarsSize, category, f.getName());
-            avatarV.setOpaque(false);
+            Avatar avatarV = new Avatar(category, f.getName());
+            avatarV.setPreferredSize(avatarsSize);
             avatarV.addMouseListener(new MyMouseListener(avatarV));
             avatarsContainer.add(avatarV, gbc);
 
@@ -129,9 +129,9 @@ public class AvatarFrame extends JFrame {
     }
 
     class MyMouseListener extends MouseAdapter {
-        private AvatarView avatar;
+        private Avatar avatar;
 
-        public MyMouseListener(AvatarView avatar) {
+        public MyMouseListener(Avatar avatar) {
             this.avatar = avatar;
         }
 
@@ -140,12 +140,12 @@ public class AvatarFrame extends JFrame {
 
             if (nickname != null && playerMode == 0) {
                 if (!Utils.isLinux())
-                    new CreatorGameFrame(nickname, avatar.getPath(), Utils.askForAChoice(POSSIBLE_TOTAL_PLAYERS,
+                    new CreatorGameFrame(nickname, avatar.getDirectoryPath(), Utils.askForAChoice(POSSIBLE_TOTAL_PLAYERS,
                             TOTAL_PLAYERS), Utils.getHostAddress());
                 else
-                    new LinuxFrame(nickname, avatar.getPath());
+                    new LinuxFrame(nickname, avatar.getDirectoryPath());
             } else if (nickname != null && playerMode == 1)
-                new GameFrame(nickname, avatar.getPath(), JOptionPane.showInputDialog(CONNECT_TO_A_ROOM));
+                new GameFrame(nickname, avatar.getDirectoryPath(), JOptionPane.showInputDialog(CONNECT_TO_A_ROOM));
 
             dispose();
         }

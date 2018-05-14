@@ -2,7 +2,7 @@ package client.frames;
 
 
 import client.socket.ClientManager;
-import client.view.Game;
+import client.view.GameFrame;
 import events.Events;
 import events.PlayerAddedEvent;
 import events.RoomCreatedEvent;
@@ -157,7 +157,7 @@ public class AbstractGameFrame extends JFrame {
         @Override
         protected void done() {
             dispose();
-            new Game(clientManager);
+            new GameFrame(clientManager);
         }
     }
 }
