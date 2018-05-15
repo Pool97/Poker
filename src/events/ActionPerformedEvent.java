@@ -6,9 +6,9 @@ import javafx.util.Pair;
 import server.model.ActionType;
 
 /**
- * È un evento generato dal Player ha preso la sua decisione durante il suo turno.
+ * È un evento generato dal PlayerBoard ha preso la sua decisione durante il suo turno.
  * Le decisioni che è in grado di effettuare sono tutte indicate in {@link server.model.ActionType}.
- * Il Player che ha generato l'evento è determinato dal contesto.
+ * Il PlayerBoard che ha generato l'evento è determinato dal contesto.
  *
  * @author Roberto Poletti
  * @author Nipuna Perera

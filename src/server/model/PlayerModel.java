@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
- * Model di un generico Player di Poker.
- * Permette di gestire la logica del Player.
+ * Model di un generico PlayerBoard di Poker.
+ * Permette di gestire la logica del PlayerBoard.
  *
  * @author Roberto Poletti
  * @author Nipuna Perera
@@ -26,7 +26,7 @@ public class PlayerModel implements Serializable {
     /**
      * Costruttore della classe PlayerModel.
      *
-     * @param nickname Nickname del Player
+     * @param nickname Nickname del PlayerBoard
      * @param chips    Numero iniziale di Chips a disposizione
      */
 
@@ -39,8 +39,8 @@ public class PlayerModel implements Serializable {
     /**
      * Costruttore della classe PlayerModel.
      *
-     * @param nickname Nickname del Player
-     * @param avatar   Nome del file dell'avatar del Player
+     * @param nickname Nickname del PlayerBoard
+     * @param avatar   Nome del file dell'avatar del PlayerBoard
      */
 
     public PlayerModel(String nickname, String avatar) {
@@ -52,8 +52,8 @@ public class PlayerModel implements Serializable {
     /**
      * Costruttore della classe PlayerModel.
      *
-     * @param nickname Nickname del Player
-     * @param position Posizione iniziale ricoperta dal Player
+     * @param nickname Nickname del PlayerBoard
+     * @param position Posizione iniziale ricoperta dal PlayerBoard
      */
 
     public PlayerModel(String nickname, Position position) {
@@ -112,7 +112,7 @@ public class PlayerModel implements Serializable {
     }
 
     /**
-     * Permette di calcolare e restituire la somma totale delle scommesse effettuate nel turno dal Player.
+     * Permette di calcolare e restituire la somma totale delle scommesse effettuate nel turno dal PlayerBoard.
      *
      * @return Somma totale delle scommesse effettuare nel turno.
      */

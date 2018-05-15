@@ -1,7 +1,7 @@
 package client.frames;
 
 import client.AvatarCategory;
-import client.view.Avatar;
+import client.components.Avatar;
 import utils.GBC;
 import utils.Utils;
 
@@ -97,7 +97,7 @@ public class AvatarFrame extends JFrame {
     }
 
     private void addByCategory(AvatarCategory category) {
-        File avatarDirectory = new File(System.getProperty(WORKING_DIR) + RES + AVATARS_FOLDER + category.name() + "/");
+        File avatarDirectory = new File(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_FOLDER + category.name() + "/");
         int currentColumn = 0;
         currentRow++;
 

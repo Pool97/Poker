@@ -2,7 +2,7 @@ package client.frames;
 
 
 import client.socket.ClientManager;
-import client.view.GameFrame;
+import events.EventProcessAdapter;
 import events.Events;
 import events.PlayerAddedEvent;
 import events.RoomCreatedEvent;
@@ -15,7 +15,7 @@ import java.io.ObjectInputStream;
 import java.util.List;
 
 /**
- * Permette la creazione di un frame di attesa per il Player che si connette alla stanza. È una classe "astratta",
+ * Permette la creazione di un frame di attesa per il PlayerBoard che si connette alla stanza. È una classe "astratta",
  * nel senso che rappresenta un buon modello di Frame da cui partire per specializzare quelli del creatore della
  * stanza e quelli degli altri players, che hanno comportamenti diversi in fase di avvio di questo frame.
  *
@@ -157,7 +157,7 @@ public class AbstractGameFrame extends JFrame {
         @Override
         protected void done() {
             dispose();
-            new GameFrame(clientManager);
+            new BoardFrame(clientManager);
         }
     }
 }

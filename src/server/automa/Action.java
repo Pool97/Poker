@@ -134,9 +134,9 @@ public class Action implements PokerState {
     }
 
     /**
-     * Permette di gestire la puntata da effettuare per il turno del Player indicato da argomento.
+     * Permette di gestire la puntata da effettuare per il turno del PlayerBoard indicato da argomento.
      *
-     * @param player Player che deve effettuare la mossa.
+     * @param player PlayerBoard che deve effettuare la mossa.
      */
 
     private void doAction(PlayerModel player) {

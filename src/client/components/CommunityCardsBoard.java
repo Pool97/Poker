@@ -1,4 +1,4 @@
-package client.view;
+package client.components;
 
 import utils.Utils;
 
@@ -13,22 +13,26 @@ import java.awt.*;
  * @since 1.0
  */
 
-public class CommunityField extends JPanel {
+public class CommunityCardsBoard extends JPanel {
     private JLabel tooltip = new JLabel("Community Cards", JLabel.CENTER);
     private JPanel cardsPanel;
 
     /**
-     * Costruttore vuoto del CommunityField.
+     * Costruttore vuoto del CommunityCardsBoard.
      */
 
-    public CommunityField() {
+    private CommunityCardsBoard() {
         cardsPanel = new JPanel();
         initView();
-        for (int i = 0; i < 5; i++) {
-            Card card = new Card(System.getProperty(Utils.WORKING_DIR) + Utils.RES + "3_cuori1.png", System.getProperty(Utils.WORKING_DIR) + Utils.RES + "back.png");
+        /*for (int i = 0; i < 5; i++) {
+            Card card = new Card(System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "3_cuori1.png", System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "back.png");
             card.setMaximumSize(new Dimension(200, 200));
             addNextCard(card);
-        }
+        }*/
+    }
+
+    public static CommunityCardsBoard createEmptyCommunityCards() {
+        return new CommunityCardsBoard();
     }
 
     /**
@@ -52,7 +56,7 @@ public class CommunityField extends JPanel {
     }
 
     /**
-     * Permette di aggiungere al CommunityField una nuova carta. Tipicamente questa azione avviene durante il Flop,
+     * Permette di aggiungere al CommunityCardsBoard una nuova carta. Tipicamente questa azione avviene durante il Flop,
      * il Turn o il River.
      * @param nextCard Prossima carta da aggiungere alle Community Cards.
      */

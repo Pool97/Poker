@@ -68,7 +68,7 @@ public class ServerManager implements Runnable {
 
     /**
      * Permette di aggiungere alla stanza ogni Players che si collega.
-     * Il primo Client deve essere necessariamente  Player che deve puntare attualmente il creatore della stanza, che
+     * Il primo Client deve essere necessariamente  PlayerBoard che deve puntare attualmente il creatore della stanza, che
      * fornisce la dimensione che dovrà avere la stanza (equivalentemente fornisce il numero di giocatori iniziali
      * della partita).
      */

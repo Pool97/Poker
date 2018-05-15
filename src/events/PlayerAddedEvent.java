@@ -5,7 +5,7 @@ import interfaces.EventProcess;
 import server.model.Position;
 
 /**
- * Evento generato dal server per indicare la corretta aggiunta del Player alla lista dei giocatori
+ * Evento generato dal server per indicare la corretta aggiunta del PlayerBoard alla lista dei giocatori
  * della partita.
  *
  * @author Roberto Poletti

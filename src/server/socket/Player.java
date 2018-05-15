@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Classe che gestisce la connessione con il Player, lato server.
+ * Classe che gestisce la connessione con il PlayerBoard, lato server.
  *
  * @author Roberto Poletti
  * @author Nipuna Perera
@@ -31,10 +31,10 @@ public class Player {
     private final static String TASK_ERROR = "Errore avvenuto nellla task...";
 
     /**
-     * Costruttore della classe Player
+     * Costruttore della classe PlayerBoard
      *
-     * @param socket      Connessione relativa al Player
-     * @param playerModel Model relativo al Player
+     * @param socket      Connessione relativa al PlayerBoard
+     * @param playerModel Model relativo al PlayerBoard
      */
 
     public Player(Socket socket, PlayerModel playerModel) {
@@ -44,9 +44,9 @@ public class Player {
     }
 
     /**
-     * Costruttore della classe Player
+     * Costruttore della classe PlayerBoard
      *
-     * @param socket Connessione relativa al Player
+     * @param socket Connessione relativa al PlayerBoard
      */
 
     public Player(Socket socket) {
@@ -123,7 +123,7 @@ public class Player {
     }
 
     /**
-     * RequestSender è la classe duale di {@link RequestHandler}, permette di inviare un messaggio attraverso il socket relativo al Player.
+     * RequestSender è la classe duale di {@link RequestHandler}, permette di inviare un messaggio attraverso il socket relativo al PlayerBoard.
      * Per rendere il processo efficiente, è utile che venga eseguito su un Thread diverso da quello chiamante.
      * RequestSender è progettata per mantenere astrattezza attraverso le Generics, in modo che si possa
      * rimanere in ascolto e processare qualsiasi messaggio che aderisce all'interfaccia {@link Message}.
@@ -153,7 +153,7 @@ public class Player {
 
     /**
      * RequestHandler è la classe duale di {@link RequestSender} ed è incaricata di rimanere in attesa di un messaggio inviato attraverso il socket
-     * dal Player.
+     * dal PlayerBoard.
      * Per rendere il processo efficiente, è utile che venga eseguito su un Thread diverso da quello chiamante.
      * RequestHandler è progettata per mantenere astrattezza attraverso le Generics, in modo che si possa rimanere in ascolto e processare
      * qualsiasi messaggio che aderisce all'interfaccia {@link Message}.

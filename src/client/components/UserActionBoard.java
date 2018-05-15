@@ -1,4 +1,4 @@
-package client.view;
+package client.components;
 
 import utils.GBC;
 import utils.Utils;
@@ -9,14 +9,14 @@ import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 /**
- * View che permette al Player di scegliere tra le azioni disponibili per una puntata di un turno.
+ * View che permette al PlayerBoard di scegliere tra le azioni disponibili per una puntata di un turno.
  *
  * @author Roberto Poletti
  * @author Nipuna Perera
  * @since 1.0
  */
 
-public class ActionsView extends JPanel {
+public class UserActionBoard extends JPanel {
     private final static String CHECK_FOLD_ACTION = "CHECK/FOLD";
     private final static String CALL_ACTION = "CALL";
     private final static String RAISE_ACTION = "RAISE";
@@ -34,10 +34,10 @@ public class ActionsView extends JPanel {
     private JSlider raiseSlider;
 
     /**
-     * Costruttore vuoto di ActionsView.
+     * Costruttore vuoto di UserActionBoard.
      */
 
-    public ActionsView() {
+    public UserActionBoard() {
         setBackground(Utils.TRANSPARENT);
         setLayout(new GridBagLayout());
         initActions();
@@ -45,7 +45,7 @@ public class ActionsView extends JPanel {
     }
 
     /**
-     * Permette di inizializzare i pulsanti necessari per permettere al Player di effettuare la puntata a sua scelta.
+     * Permette di inizializzare i pulsanti necessari per permettere al PlayerBoard di effettuare la puntata a sua scelta.
      */
 
     private void initActions() {
@@ -76,10 +76,7 @@ public class ActionsView extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
-        RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2D.setRenderingHints(qualityHints);
+        g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
 
         g2D.setColor(new Color(171, 39, 60));
         g2D.fillRoundRect(INITIAL_PADDING, INITIAL_PADDING, getWidth() - FINAL_PADDING, getHeight() - FINAL_PADDING, ARC_SIZE, ARC_SIZE);
@@ -89,7 +86,7 @@ public class ActionsView extends JPanel {
     }
 
     /**
-     * Permette di inizializzare lo slider, necessario per permettere al Player di effettuare l'azione di Raise, con
+     * Permette di inizializzare lo slider, necessario per permettere al PlayerBoard di effettuare l'azione di Raise, con
      * un valore di Chips scelto tramite lo slider.
      */
 

@@ -4,7 +4,7 @@ import interfaces.Event;
 import interfaces.EventProcess;
 
 /**
- * Evento generato dal Player creatore della stanza.
+ * Evento generato dal PlayerBoard creatore della stanza.
  * Esso contiene il numero massimo di giocatori che possono partecipare al match.
  *
  * @author Roberto Poletti

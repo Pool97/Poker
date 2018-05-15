@@ -6,8 +6,8 @@ import events.Events;
 import events.PlayerCreatedEvent;
 
 /**
- * Frame di attesa per il Player.
- * Il Player si connette alla stanza e viene fornita una grafica che permette di monitorare gli attuali
+ * Frame di attesa per il PlayerBoard.
+ * Il PlayerBoard si connette alla stanza e viene fornita una grafica che permette di monitorare gli attuali
  * Players in attesa all'interno della stanza e di mostrare il numero di players mancanti.
  *
  * @author Roberto Poletti

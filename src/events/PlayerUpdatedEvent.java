@@ -5,7 +5,7 @@ import interfaces.EventProcess;
 import server.model.PlayerModel;
 
 /**
- * Evento generato dal Server ogni qualvolta il model di un Player viene modificato
+ * Evento generato dal Server ogni qualvolta il model di un PlayerBoard viene modificato
  * a causa dell'evoluzione della partita.
  *
  * @author Roberto Poletti

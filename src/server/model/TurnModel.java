@@ -34,7 +34,7 @@ public class TurnModel {
 
     /**
      * Permette di resettare a zero il pot.
-     * Solitamente questa azione avviene alla fine di ogni turno, quando il pot finale viene riscosso dal Player che si è aggiudicato il turno.
+     * Solitamente questa azione avviene alla fine di ogni turno, quando il pot finale viene riscosso dal PlayerBoard che si è aggiudicato il turno.
      */
 
     public void resetPot() {

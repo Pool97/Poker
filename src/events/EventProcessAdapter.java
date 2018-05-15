@@ -1,6 +1,5 @@
-package client.frames;
+package events;
 
-import events.*;
 import interfaces.EventProcess;
 
 public class EventProcessAdapter implements EventProcess {

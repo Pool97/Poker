@@ -10,7 +10,7 @@ import server.model.*;
 /**
  * Questo è lo stato dell'automa che si occupa di riscuotere le puntate obbligatorie del turno, ossia lo Small Blind e
  * il Big Blind.
- * Informa successivamente a tutti i Players delle modifiche apportate alle chips dei Player in SB e BB e delle
+ * Informa successivamente a tutti i Players delle modifiche apportate alle chips dei PlayerBoard in SB e BB e delle
  * modifiche apportate al valore del pot.
  *
  * @author Roberto Poletti

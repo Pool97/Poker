@@ -1,4 +1,4 @@
-package client.view;
+package client.components;
 
 import utils.GBC;
 import utils.Utils;
@@ -7,12 +7,12 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class ParametersView extends JPanel {
+public class MatchBoard extends JPanel {
     private JLabel smallBlind;
     private JLabel bigBlind;
     private JLabel pot;
 
-    public ParametersView(int smallBlind, int bigBlind, int pot) {
+    public MatchBoard(int smallBlind, int bigBlind, int pot) {
         setLayout(new GridBagLayout());
         setBackground(Utils.TRANSPARENT);
         setBorder(new EmptyBorder(15, 15, 15, 15));

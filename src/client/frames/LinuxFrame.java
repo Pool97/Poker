@@ -1,6 +1,6 @@
 package client.frames;
 
-import client.view.InterfaceView;
+import client.components.InterfaceView;
 import utils.Utils;
 
 import javax.swing.*;

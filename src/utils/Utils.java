@@ -11,10 +11,10 @@ import java.net.UnknownHostException;
 
 
 public class Utils {
-    public static final String RES = "/res/";
+    public static final String RES_DIRECTORY = "/res/";
 
     public static final String EMPTY = "";
-    public static final String WORKING_DIR = "user.dir";
+    public static final String WORKING_DIRECTORY = "user.dir";
     public static final Color TRANSPARENT = new Color(0,0,0,0);
     public final static String DEFAULT_THEME = "Nimbus";
     public final static String DEFAULT_FONT = "helvetica";
@@ -30,7 +30,7 @@ public class Utils {
         BufferedImage scaledImage = null;
 
         try {
-            BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIR) + RES + filename));
+            BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + filename));
             scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int)scaleSize.getWidth(), (int)scaleSize.getHeight(), Scalr.OP_DARKER);
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,6 +84,12 @@ public class Utils {
         return null;
     }
 
+    public static RenderingHints getHighQualityRenderingHints() {
+        RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        return qualityHints;
+    }
     public static void setLookAndFeel(String theme) {
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {

@@ -34,7 +34,7 @@ public class Room {
 
     /**
      * Permette di aggiungere un nuovo giocatore alla stanza.
-     * @param player Il Player
+     * @param player Il PlayerBoard
      */
 
     public void addPlayer(Player player) {
@@ -67,7 +67,7 @@ public class Room {
 
     /**
      * Permette di traslare di una posizione tutti i Players del MatchHandler.
-     * Esempio: se alla fine del turno un Player era il D (= Dealer) nel prossimo turno diventerà SB
+     * Esempio: se alla fine del turno un PlayerBoard era il D (= Dealer) nel prossimo turno diventerà SB
      * ( = Small Blind) e così via per tutti i Players.
      */
 
@@ -78,10 +78,10 @@ public class Room {
     }
 
     /**
-     * Permette di restituire il Player relativo alla posizione da Poker specifica.
+     * Permette di restituire il PlayerBoard relativo alla posizione da Poker specifica.
      *
-     * @param position Posizione del Player
-     * @return Player
+     * @param position Posizione del PlayerBoard
+     * @return PlayerBoard
      */
 
     public PlayerModel getPlayer(Position position) {
@@ -118,7 +118,7 @@ public class Room {
     /**
      * Permette di rimanere in ascolto su un Thread separato per un qualsiasi messaggio inviato dal Client specificato attraverso il suo Model.
      *
-     * @param playerModel Il Player da cui ricevere il messaggio
+     * @param playerModel Il PlayerBoard da cui ricevere il messaggio
      * @param <T>         Tipo di messaggio da ricevere (vedi {@link Message})
      */
 
@@ -131,7 +131,7 @@ public class Room {
 
     /**
      * Permette di rimanere in ascolto su un Thread separato per un qualsiasi messaggio inviato dal Client specificato attraverso {@link Player}.
-     * @param player Il Player da cui ricevere il messaggio
+     * @param player Il PlayerBoard da cui ricevere il messaggio
      * @param <T> Tipo di messaggio da ricevere (vedi {@link Message})
      */
 
@@ -142,7 +142,7 @@ public class Room {
     /**
      * Permette di propagare un messaggio a un singolo player.
      *
-     * @param player Il Player a cui inviare il messaggio
+     * @param player Il PlayerBoard a cui inviare il messaggio
      * @param message Messaggio da inviare
      * @param <T> Tipo di messaggio da inviare (vedi {@link Message})
      */

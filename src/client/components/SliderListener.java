@@ -1,4 +1,4 @@
-package client.view;
+package client.components;
 
 import utils.Utils;
 

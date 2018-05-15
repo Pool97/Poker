@@ -6,7 +6,7 @@ import interfaces.EventProcess;
 import java.io.Serializable;
 
 /**
- * Evento generato dal Player nel momento in cui la configurazione del suo personaggio
+ * Evento generato dal PlayerBoard nel momento in cui la configurazione del suo personaggio
  * è conclusa.
  *
  * @author Roberto Poletti

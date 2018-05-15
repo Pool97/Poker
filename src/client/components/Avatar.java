@@ -1,4 +1,4 @@
-package client.view;
+package client.components;
 
 import client.AvatarCategory;
 import utils.Utils;
@@ -9,14 +9,15 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 
-import static utils.Utils.RES;
-import static utils.Utils.WORKING_DIR;
+import static utils.Utils.RES_DIRECTORY;
+import static utils.Utils.WORKING_DIRECTORY;
 
 public class Avatar extends JComponent implements ComponentListener {
-    private static final String AVATARS_FOLDER = "/avatars/";
-    private static final String IMAGE_EXTENSION = ".png";
     private BufferedImage image;
     private String directoryPath;
+
+    private static final String AVATARS_DIRECTORY = "/avatars/";
+    private static final String IMAGE_EXTENSION = ".png";
 
     public Avatar(String directoryPath) {
         this.directoryPath = directoryPath;
@@ -42,10 +43,13 @@ public class Avatar extends JComponent implements ComponentListener {
     }
 
     public void setDirectoryPath(AvatarCategory category, String avatarName) {
-        directoryPath = System.getProperty(WORKING_DIR) + RES + AVATARS_FOLDER + category + "/" + avatarName;
+        directoryPath = System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_DIRECTORY + category + "/" + avatarName;
     }
 
-    @Override
+    public boolean isImageLoaded(BufferedImage image) {
+        return image != null;
+    }
+
     public Dimension getMinimumSize() {
         return new Dimension(80, 80);
     }
@@ -63,7 +67,8 @@ public class Avatar extends JComponent implements ComponentListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (image != null)
+
+        if (isImageLoaded(image))
             g.drawImage(image, 0, 0, null);
     }
 
