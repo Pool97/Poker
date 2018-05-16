@@ -21,7 +21,7 @@ public class PokerTable {
         createRightSide();
         createBottomSide();
         createLeftSide();
-        createEmptyCommunityCards();
+        createCommunityCardsBoard();
     }
 
     private void createTopSide() {
@@ -40,7 +40,7 @@ public class PokerTable {
         tableSides.add(new VerticalTableSide(VERTICAL_NUMBER_OF_SEATS));
     }
 
-    private void createEmptyCommunityCards() {
+    private void createCommunityCardsBoard() {
         communityCardsBoard = CommunityCardsBoard.createEmptyCommunityCards();
     }
 
@@ -65,7 +65,12 @@ public class PokerTable {
     }
 
     public void sit(PlayerBoard playerBoard) {
-        tableSides.stream().filter(TableSide::hasAvailableSeat).findFirst().get().sit(playerBoard);
+        tableSides.stream()
+                .filter(TableSide::hasAvailableSeat)
+                .findFirst()
+                .get()
+                .sit(playerBoard);
+
         playerBoards.add(playerBoard);
     }
 

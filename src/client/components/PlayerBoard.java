@@ -13,7 +13,6 @@ import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.SwingConstants.LEFT;
 import static utils.Utils.*;
 
-
 public class PlayerBoard extends JPanel {
     private Avatar avatar;
     private JLabel chips;
@@ -32,7 +31,7 @@ public class PlayerBoard extends JPanel {
         setChipsProperties();
 
         createAvatarAndCardsContainer();
-        setAvatarAndCardsContainer();
+        setAvatarAndCardsContainerProperties();
 
         attachComponents();
     }
@@ -40,43 +39,6 @@ public class PlayerBoard extends JPanel {
     private void setComponentProperties() {
         setLayout(new GridBagLayout());
         setOpaque(false);
-    }
-
-    private void createAvatarAndCardsContainer() {
-        avatarAndCardsContainer = new JPanel();
-    }
-
-    private void setAvatarAndCardsContainer() {
-        avatarAndCardsContainer.setLayout(new BoxLayout(avatarAndCardsContainer, X_AXIS));
-        avatarAndCardsContainer.setOpaque(false);
-    }
-
-    private void attachAvatar() {
-        avatarAndCardsContainer.add(avatar);
-    }
-
-    private void attachComponents() {
-        attachAvatar();
-        attachCards();
-        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
-        attachNickname();
-        attachChips();
-    }
-
-    private void attachNickname() {
-        add(this.nickname, new GBC(0, 1, 1, 0.15, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
-    }
-
-    private void attachChips() {
-        add(this.chips, new GBC(0, 2, 1, 0.15, 1, 1, WEST, NONE, new Insets(0, 20, 10, 0)));
-    }
-
-    private void attachCards() {
-        avatarAndCardsContainer.add(Box.createRigidArea(new Dimension(20, 0)));
-        avatarAndCardsContainer.add(new Card(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "3_cuori1.png",
-                System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "back.png"));
-        avatarAndCardsContainer.add(new Card(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "3_cuori1.png",
-                System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "back.png"));
     }
 
     private void createAvatar(String avatarDirectoryPath) {
@@ -99,6 +61,43 @@ public class PlayerBoard extends JPanel {
     private void setChipsProperties() {
         this.chips.setFont(new Font(DEFAULT_FONT, PLAIN, 20));
         this.chips.setForeground(WHITE);
+    }
+
+    private void createAvatarAndCardsContainer() {
+        avatarAndCardsContainer = new JPanel();
+    }
+
+    private void setAvatarAndCardsContainerProperties() {
+        avatarAndCardsContainer.setLayout(new BoxLayout(avatarAndCardsContainer, X_AXIS));
+        avatarAndCardsContainer.setOpaque(false);
+    }
+
+    private void attachComponents() {
+        attachAvatar();
+        attachCards();
+        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
+        attachNickname();
+        attachChips();
+    }
+
+    private void attachAvatar() {
+        avatarAndCardsContainer.add(avatar);
+    }
+
+    private void attachCards() {
+        avatarAndCardsContainer.add(Box.createRigidArea(new Dimension(20, 0)));
+        avatarAndCardsContainer.add(new Card(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "3_cuori1.png",
+                System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "back.png"));
+        avatarAndCardsContainer.add(new Card(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "3_cuori1.png",
+                System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "back.png"));
+    }
+
+    private void attachNickname() {
+        add(this.nickname, new GBC(0, 1, 1, 0.15, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
+    }
+
+    private void attachChips() {
+        add(this.chips, new GBC(0, 2, 1, 0.15, 1, 1, WEST, NONE, new Insets(0, 20, 10, 0)));
     }
 
     @Override
@@ -132,11 +131,11 @@ public class PlayerBoard extends JPanel {
         this.chips.setText(Integer.toString(chips));
     }
 
-    public String getNickname() {
-        return nickname.getText();
-    }
-
     public void setNickname(String nickname) {
         this.nickname.setText(nickname);
+    }
+
+    public String getNickname() {
+        return nickname.getText();
     }
 }

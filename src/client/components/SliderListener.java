@@ -8,68 +8,122 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 
+import static java.awt.Font.BOLD;
+import static javax.swing.SwingConstants.CENTER;
+import static utils.Utils.*;
+
 public class SliderListener extends MouseAdapter {
     private JWindow tooltip;
-    private JLabel label = new JLabel("", SwingConstants.CENTER);
-    private Dimension size = new Dimension(120, 50);
-    private int prevValue = -1;
+    private JLabel sliderValue;
+    private JPanel container;
+    private Dimension windowSize = new Dimension(120, 50);
+    private int previousValue = -1;
 
     public SliderListener() {
         super();
+        createTooltip();
+        setTooltipProperties();
+
+        createContainer();
+        setContainerProperties();
+        attachContainer();
+
+        createSliderValue();
+        attachSliderValue();
+        setSliderValueProperties();
+    }
+
+    private void createTooltip() {
         tooltip = new JWindow();
-        tooltip.setBackground(Utils.TRANSPARENT);
-        JPanel container = new JPanel() {
+    }
+
+    private void setTooltipProperties() {
+        tooltip.setBackground(TRANSPARENT);
+        tooltip.setSize(windowSize);
+    }
+
+    private void createContainer() {
+        container = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
+                Graphics2D g2D = (Graphics2D) g;
+                g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
 
-                RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                qualityHints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                g2.setRenderingHints(qualityHints);
-                g2.setStroke(new BasicStroke(4.0F));
+                drawBackground(g2D);
+                drawBorder(g2D);
+            }
 
-                g2.setColor(Color.BLACK);
-                g2.fillRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 20, 20);
-                g2.setColor(new Color(255, 215, 0));
-                g2.drawRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 20, 20);
+            public void drawBorder(Graphics2D g2D) {
+                g2D.setStroke(new BasicStroke(4.0F));
+                g2D.setColor(new Color(255, 215, 0));
+                g2D.drawRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 20, 20);
+            }
 
-
+            public void drawBackground(Graphics2D g2D) {
+                g2D.setColor(Color.BLACK);
+                g2D.fillRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 20, 20);
             }
         };
-        container.setBackground(Utils.TRANSPARENT);
+    }
+
+    private void setContainerProperties() {
         container.setLayout(new BorderLayout());
-        label.setOpaque(false);
-        label.setForeground(new Color(255, 215, 0));
-        label.setFont(new Font("helvetica", Font.BOLD, 18));
-        container.add(label);
+        container.setBackground(TRANSPARENT);
+    }
+
+    private void attachContainer() {
         tooltip.add(container);
-
-        tooltip.setSize(size);
     }
 
-    public void setPopup(MouseEvent mouseEvent) {
+    private void createSliderValue() {
+        sliderValue = new JLabel(EMPTY, CENTER);
+    }
+
+    private void attachSliderValue() {
+        container.add(sliderValue);
+    }
+
+    private void setSliderValueProperties() {
+        sliderValue.setOpaque(false);
+        sliderValue.setForeground(new Color(255, 215, 0));
+        sliderValue.setFont(new Font(DEFAULT_FONT, BOLD, 18));
+    }
+
+    private void updateTooltipProperties(MouseEvent mouseEvent) {
         JSlider slider = (JSlider) mouseEvent.getComponent();
-        int intValue = slider.getValue();
-        if (prevValue != intValue) {
-            final DecimalFormat db = new DecimalFormat();
-            label.setText(db.format(slider.getValue()));
-            Point pt = mouseEvent.getPoint();
-            pt.y = -size.height;
-            SwingUtilities.convertPointToScreen(pt, mouseEvent.getComponent());
-            pt.translate(-size.width / 2, 0);
-            tooltip.setLocation(pt);
+        int newValue = slider.getValue();
+
+        if (isUpdatedValue(newValue)) {
+            sliderValue.setText(formatValue(newValue));
+            Point mouseLocation = mouseEvent.getPoint();
+            tooltip.setLocation(calculateNewTooltipLocation(mouseLocation, slider));
         }
-        prevValue = intValue;
+
+        previousValue = newValue;
     }
 
+    private boolean isUpdatedValue(int value) {
+        return previousValue != value;
+    }
+
+    private String formatValue(int value) {
+        DecimalFormat db = new DecimalFormat();
+        return db.format(value);
+    }
+
+    private Point calculateNewTooltipLocation(Point mouseLocation, JSlider slider) {
+        mouseLocation.y = -windowSize.height;
+        SwingUtilities.convertPointToScreen(mouseLocation, slider);
+        mouseLocation.translate(-windowSize.width / 2, 0);
+        return mouseLocation;
+    }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         tooltip.setVisible(true);
-        setPopup(e);
+        updateTooltipProperties(e);
     }
-
 
     @Override
     public void mouseReleased(MouseEvent e) {

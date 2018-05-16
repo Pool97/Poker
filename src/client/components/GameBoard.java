@@ -19,9 +19,11 @@ public class GameBoard extends JPanel {
 
     public GameBoard() {
         setComponentProperties();
+
         createMiddlePart();
         setMiddlePartProperties();
         attachMiddlePart();
+
         createBottomPart();
         setBottomPartProperties();
         attachBottomPart();
@@ -68,11 +70,11 @@ public class GameBoard extends JPanel {
         middlePart.add(pokerTable.getRightSide(), new TableLayoutConstraints(2, 0, 2, 0, CENTER, CENTER));
     }
 
-    public void attach(JButton placeHolder, UserActionBoard userActionBoard, MatchBoard matchBoard) {
+    public void attach(JButton placeHolder, ActionBoard actionBoard, MatchBoard matchBoard) {
         bottomPart.add(placeHolder, new GBC(0, 0, 25, 1, 1, 1, NORTHEAST, BOTH,
                 new Insets(0, 10, 10, 10)));
 
-        bottomPart.add(userActionBoard, new GBC(1, 0, 50, 1, 1, 1, GBC.CENTER,
+        bottomPart.add(actionBoard, new GBC(1, 0, 50, 1, 1, 1, GBC.CENTER,
                 VERTICAL, new Insets(0, 10, 10, 10)));
 
         bottomPart.add(matchBoard, new GBC(3, 0, 10, 1, 1, 1, NORTHEAST,

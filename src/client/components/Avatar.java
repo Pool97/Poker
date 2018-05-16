@@ -9,8 +9,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 
-import static utils.Utils.RES_DIRECTORY;
-import static utils.Utils.WORKING_DIRECTORY;
+import static utils.Utils.*;
 
 public class Avatar extends JComponent implements ComponentListener {
     private BufferedImage image;
@@ -29,21 +28,25 @@ public class Avatar extends JComponent implements ComponentListener {
         addComponentListener(this);
     }
 
-    public String getDirectoryPath() {
-        return directoryPath;
-    }
-
     public void setDirectoryPath(String directoryPath) {
         this.directoryPath = directoryPath;
     }
 
+    public String getDirectoryPath() {
+        return directoryPath;
+    }
+
     public String getName() {
-        String nameWithExtension = directoryPath.substring(directoryPath.lastIndexOf("/") + 1, directoryPath.length());
-        return nameWithExtension.replace(IMAGE_EXTENSION, Utils.EMPTY);
+        String filenameWithExtension = directoryPath.substring(directoryPath.lastIndexOf("/") + 1, directoryPath.length());
+        return filenameWithExtension.replace(IMAGE_EXTENSION, EMPTY);
     }
 
     public void setDirectoryPath(AvatarCategory category, String avatarName) {
         directoryPath = System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_DIRECTORY + category + "/" + avatarName;
+    }
+
+    public void loadImage() {
+        image = Utils.loadImageByPath(directoryPath, getSize());
     }
 
     public boolean isImageLoaded(BufferedImage image) {
@@ -74,7 +77,7 @@ public class Avatar extends JComponent implements ComponentListener {
 
     @Override
     public void componentResized(ComponentEvent e) {
-        image = Utils.loadImageByPath(directoryPath, getSize());
+        loadImage();
         repaint();
     }
 

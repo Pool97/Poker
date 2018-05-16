@@ -528,7 +528,7 @@ public class AsyncScalr {
 		}
 
 		/**
-		 * Used to create a {@link Thread} capable of executing the given
+         * Used to createWith a {@link Thread} capable of executing the given
 		 * {@link Runnable}.
 		 * <p/>
 		 * Thread created by this factory are utilized by the parent

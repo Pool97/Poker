@@ -107,7 +107,7 @@ import java.awt.image.*;
  * <p/>
  * Some more obscure image types either have poor or no support, leading to
  * severely degraded quality and processing performance when an attempt is made
- * by imgscalr to create a scaled instance <em>of the same type</em> as the
+ * by imgscalr to createWith a scaled instance <em>of the same type</em> as the
  * source image. In many cases, especially when applying {@link BufferedImageOp}
  * s, using poorly supported image types can even lead to exceptions or total
  * corruption of the image (e.g. solid black image).
@@ -266,7 +266,7 @@ public class Scalr {
 	 * <p/>
 	 * For those that have worked with ConvolveOps before, this Op uses the
      * {@link ConvolveOp#EDGE_NO_OP} instruction to not EventProcess the pixels along
-	 * the very edge of the image (otherwise EDGE_ZERO_FILL would create a
+     * the very edge of the image (otherwise EDGE_ZERO_FILL would createWith a
 	 * black-border around the image). If you have not worked with a ConvolveOp
 	 * before, it just means this default OP will "do the right thing" and not
 	 * give you garbage results.
@@ -274,7 +274,7 @@ public class Scalr {
 	 * This ConvolveOp uses no {@link RenderingHints} values as internally the
 	 * {@link ConvolveOp} class only uses hints when doing a color conversion
 	 * between the source and destination {@link BufferedImage} targets.
-	 * imgscalr allows the {@link ConvolveOp} to create its own destination
+     * imgscalr allows the {@link ConvolveOp} to createWith its own destination
 	 * image every time, so no color conversion is ever needed and thus no
 	 * hints.
 	 * <h3>Performance</h3>
@@ -392,8 +392,8 @@ public class Scalr {
 		int newHeight = src.getHeight();
 
 		/*
-		 * We create a transform per operation request as (oddly enough) it ends
-		 * up being faster for the VM to create, use and destroy these instances
+         * We createWith a transform per operation request as (oddly enough) it ends
+         * up being faster for the VM to createWith, use and destroy these instances
 		 * than it is to re-use a single AffineTransform per-thread via the
 		 * AffineTransform.setTo(...) methods which was my first choice (less
 		 * object creation); after benchmarking this explicit case and looking
@@ -945,7 +945,7 @@ public class Scalr {
 
 			/*
 			 * Must use op.getBounds instead of src.getWidth and src.getHeight
-			 * because we are trying to create an image big enough to hold the
+             * because we are trying to createWith an image big enough to hold the
 			 * result of this operation (which may be to scale the image
 			 * smaller), in that case the bounds reported by this op and the
 			 * bounds reported by the source image will be different.
@@ -960,8 +960,8 @@ public class Scalr {
 								+ "] getBounds2D(src) returned null bounds for the target image; this should not happen and indicates a problem with application of this type of op.");
 
 			/*
-			 * We must manually create the target image; we cannot rely on the
-			 * null-destination filter() method to create a valid destination
+             * We must manually createWith the target image; we cannot rely on the
+             * null-destination filter() method to createWith a valid destination
 			 * for us thanks to this JDK bug that has been filed for almost a
 			 * decade:
 			 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4965606
@@ -1704,65 +1704,39 @@ public class Scalr {
 	}
 
 	/**
-	 * Used to define the different scaling hints that the algorithm can use.
-	 *
-	 * @author Riyad Kalla (software@thebuzzmedia.com)
-	 * @since 1.1
-	 */
-	public enum Method {
-		/**
-		 * Used to indicate that the scaling implementation should decide which
-		 * method to use in order to get the best looking scaled image in the
-		 * least amount of time.
-		 * <p/>
-		 * The scaling algorithm will use the
-		 * {@link Scalr#THRESHOLD_QUALITY_BALANCED} or
-		 * {@link Scalr#THRESHOLD_BALANCED_SPEED} thresholds as cut-offs to
-		 * decide between selecting the <code>QUALITY</code>,
-		 * <code>BALANCED</code> or <code>SPEED</code> scaling algorithms.
-		 * <p/>
-		 * By default the thresholds chosen will give nearly the best looking
-		 * result in the fastest amount of time. We intend this method to work
-		 * for 80% of people looking to scale an image quickly and get a good
-		 * looking result.
-		 */
-		AUTOMATIC,
-		/**
-		 * Used to indicate that the scaling implementation should scale as fast
-		 * as possible and return a result. For smaller images (800px in size)
-		 * this can result in noticeable aliasing but it can be a few magnitudes
-		 * times faster than using the QUALITY method.
-		 */
-		SPEED,
-		/**
-		 * Used to indicate that the scaling implementation should use a scaling
-		 * operation balanced between SPEED and QUALITY. Sometimes SPEED looks
-		 * too low quality to be useful (e.g. text can become unreadable when
-		 * scaled using SPEED) but using QUALITY mode will increase the
-		 * processing time too much. This mode provides a "better than SPEED"
-		 * quality in a "less than QUALITY" amount of time.
-		 */
-		BALANCED,
-		/**
-		 * Used to indicate that the scaling implementation should do everything
-		 * it can to create as nice of a result as possible. This approach is
-		 * most important for smaller pictures (800px or smaller) and less
-		 * important for larger pictures as the difference between this method
-		 * and the SPEED method become less and less noticeable as the
-		 * source-image size increases. Using the AUTOMATIC method will
-		 * automatically prefer the QUALITY method when scaling an image down
-		 * below 800px in size.
-		 */
-		QUALITY,
-		/**
-		 * Used to indicate that the scaling implementation should go above and
-		 * beyond the work done by {@link Method#QUALITY} to make the image look
-		 * exceptionally good at the cost of more processing time. This is
-		 * especially evident when generating thumbnails of images that look
-		 * jagged with some of the other {@link Method}s (even
-		 * {@link Method#QUALITY}).
-		 */
-		ULTRA_QUALITY
+     * Used to createWith a {@link BufferedImage} with the most optimal RGB TYPE (
+     * {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}
+     * ) capable of being rendered into from the given <code>src</code>. The
+     * width and height of both images will be identical.
+     * <p/>
+     * This does not perform a copy of the image data from <code>src</code> into
+     * the result image; see {@link #copyToOptimalImage(BufferedImage)} for
+     * that.
+     * <p/>
+     * We force all rendering results into one of these two types, avoiding the
+     * case where a source image is of an unsupported (or poorly supported)
+     * format by Java2D causing the rendering result to end up looking terrible
+     * (common with GIFs) or be totally corrupt (e.g. solid black image).
+     * <p/>
+     * Originally reported by Magnus Kvalheim from Movellas when scaling certain
+     * GIF and PNG images.
+     *
+     * @param src
+     *            The source image that will be analyzed to determine the most
+     *            optimal image type it can be rendered into.
+     *
+     * @return a new {@link BufferedImage} representing the most optimal target
+     *         image type that <code>src</code> can be rendered into.
+     *
+     * @see <a
+     *      href="http://www.mail-archive.com/java2d-interest@capra.eng.sun.com/msg05621.html">How
+     *      Java2D handles poorly supported image types</a>
+     * @see <a
+     *      href="http://code.google.com/p/java-image-scaling/source/browse/trunk/src/main/java/com/mortennobel/imagescaling/MultiStepRescaleOp.java">Thanks
+     *      to Morten Nobel for implementation hint</a>
+     */
+    protected static BufferedImage createOptimalImage(BufferedImage src) {
+        return createOptimalImage(src, src.getWidth(), src.getHeight());
 	}
 
 	/**
@@ -1906,43 +1880,7 @@ public class Scalr {
 	}
 
 	/**
-	 * Used to create a {@link BufferedImage} with the most optimal RGB TYPE (
-	 * {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}
-	 * ) capable of being rendered into from the given <code>src</code>. The
-	 * width and height of both images will be identical.
-	 * <p/>
-	 * This does not perform a copy of the image data from <code>src</code> into
-	 * the result image; see {@link #copyToOptimalImage(BufferedImage)} for
-	 * that.
-	 * <p/>
-	 * We force all rendering results into one of these two types, avoiding the
-	 * case where a source image is of an unsupported (or poorly supported)
-	 * format by Java2D causing the rendering result to end up looking terrible
-	 * (common with GIFs) or be totally corrupt (e.g. solid black image).
-	 * <p/>
-	 * Originally reported by Magnus Kvalheim from Movellas when scaling certain
-	 * GIF and PNG images.
-	 * 
-	 * @param src
-	 *            The source image that will be analyzed to determine the most
-	 *            optimal image type it can be rendered into.
-	 * 
-	 * @return a new {@link BufferedImage} representing the most optimal target
-	 *         image type that <code>src</code> can be rendered into.
-	 * 
-	 * @see <a
-	 *      href="http://www.mail-archive.com/java2d-interest@capra.eng.sun.com/msg05621.html">How
-	 *      Java2D handles poorly supported image types</a>
-	 * @see <a
-	 *      href="http://code.google.com/p/java-image-scaling/source/browse/trunk/src/main/java/com/mortennobel/imagescaling/MultiStepRescaleOp.java">Thanks
-	 *      to Morten Nobel for implementation hint</a>
-	 */
-	protected static BufferedImage createOptimalImage(BufferedImage src) {
-		return createOptimalImage(src, src.getWidth(), src.getHeight());
-	}
-
-	/**
-	 * Used to create a {@link BufferedImage} with the given dimensions and the
+     * Used to createWith a {@link BufferedImage} with the given dimensions and the
 	 * most optimal RGB TYPE ( {@link BufferedImage#TYPE_INT_RGB} or
 	 * {@link BufferedImage#TYPE_INT_ARGB} ) capable of being rendered into from
 	 * the given <code>src</code>.
@@ -1958,7 +1896,7 @@ public class Scalr {
 	 * <p/>
 	 * Originally reported by Magnus Kvalheim from Movellas when scaling certain
 	 * GIF and PNG images.
-	 * 
+     *
 	 * @param src
 	 *            The source image that will be analyzed to determine the most
 	 *            optimal image type it can be rendered into.
@@ -1966,13 +1904,13 @@ public class Scalr {
 	 *            The width of the newly created resulting image.
 	 * @param height
 	 *            The height of the newly created resulting image.
-	 * 
+     *
 	 * @return a new {@link BufferedImage} representing the most optimal target
 	 *         image type that <code>src</code> can be rendered into.
-	 * 
+     *
 	 * @throws IllegalArgumentException
 	 *             if <code>width</code> or <code>height</code> are &lt; 0.
-	 * 
+     *
 	 * @see <a
 	 *      href="http://www.mail-archive.com/java2d-interest@capra.eng.sun.com/msg05621.html">How
 	 *      Java2D handles poorly supported image types</a>
@@ -1992,6 +1930,68 @@ public class Scalr {
 				(src.getTransparency() == Transparency.OPAQUE ? BufferedImage.TYPE_INT_RGB
 						: BufferedImage.TYPE_INT_ARGB));
 	}
+
+    /**
+     * Used to define the different scaling hints that the algorithm can use.
+     *
+     * @author Riyad Kalla (software@thebuzzmedia.com)
+     * @since 1.1
+     */
+    public enum Method {
+        /**
+         * Used to indicate that the scaling implementation should decide which
+         * method to use in order to get the best looking scaled image in the
+         * least amount of time.
+         * <p/>
+         * The scaling algorithm will use the
+         * {@link Scalr#THRESHOLD_QUALITY_BALANCED} or
+         * {@link Scalr#THRESHOLD_BALANCED_SPEED} thresholds as cut-offs to
+         * decide between selecting the <code>QUALITY</code>,
+         * <code>BALANCED</code> or <code>SPEED</code> scaling algorithms.
+         * <p/>
+         * By default the thresholds chosen will give nearly the best looking
+         * result in the fastest amount of time. We intend this method to work
+         * for 80% of people looking to scale an image quickly and get a good
+         * looking result.
+         */
+        AUTOMATIC,
+        /**
+         * Used to indicate that the scaling implementation should scale as fast
+         * as possible and return a result. For smaller images (800px in size)
+         * this can result in noticeable aliasing but it can be a few magnitudes
+         * times faster than using the QUALITY method.
+         */
+        SPEED,
+        /**
+         * Used to indicate that the scaling implementation should use a scaling
+         * operation balanced between SPEED and QUALITY. Sometimes SPEED looks
+         * too low quality to be useful (e.g. text can become unreadable when
+         * scaled using SPEED) but using QUALITY mode will increase the
+         * processing time too much. This mode provides a "better than SPEED"
+         * quality in a "less than QUALITY" amount of time.
+         */
+        BALANCED,
+        /**
+         * Used to indicate that the scaling implementation should do everything
+         * it can to createWith as nice of a result as possible. This approach is
+         * most important for smaller pictures (800px or smaller) and less
+         * important for larger pictures as the difference between this method
+         * and the SPEED method become less and less noticeable as the
+         * source-image size increases. Using the AUTOMATIC method will
+         * automatically prefer the QUALITY method when scaling an image down
+         * below 800px in size.
+         */
+        QUALITY,
+        /**
+         * Used to indicate that the scaling implementation should go above and
+         * beyond the work done by {@link Method#QUALITY} to make the image look
+         * exceptionally good at the cost of more processing time. This is
+         * especially evident when generating thumbnails of images that look
+         * jagged with some of the other {@link Method}s (even
+         * {@link Method#QUALITY}).
+         */
+        ULTRA_QUALITY
+    }
 
 	/**
 	 * Used to copy a {@link BufferedImage} from a non-optimal type into a new

@@ -17,7 +17,7 @@ public class BoardFrame extends JFrame {
     private GameBoard gameBoard;
     private PokerTable pokerTable;
     private JButton placeHolder;
-    private UserActionBoard userActionBoard;
+    private ActionBoard actionBoard;
     private MatchBoard matchBoard;
     private ClientManager clientManager;
 
@@ -43,8 +43,8 @@ public class BoardFrame extends JFrame {
 
     private void createUserBoard() {
         placeHolder = new JButton("Placeholder");
-        userActionBoard = new UserActionBoard();
-        matchBoard = new MatchBoard(0, 0, 0);
+        actionBoard = new ActionBoard();
+        matchBoard = new MatchBoard();
     }
 
     private void attachComponents() {
@@ -58,7 +58,7 @@ public class BoardFrame extends JFrame {
     }
 
     private void attachUserBoard() {
-        gameBoard.attach(placeHolder, userActionBoard, matchBoard);
+        gameBoard.attach(placeHolder, actionBoard, matchBoard);
     }
 
     private void attachBoard() {
@@ -88,23 +88,23 @@ public class BoardFrame extends JFrame {
                 final Pair<ActionType, Integer> action = event.getOptions().get(i);
                 if (action.getKey() == ActionType.CALL) {
                     callValue = action.getValue();
-                    userActionBoard.setCallActionListener(eventG -> {
+                    actionBoard.addCallListener(eventG -> {
                         SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
                                 new Events(new ActionPerformedEvent(new Pair<>(ActionType.CALL, action.getValue()))));
                         called.execute();
                     });
                 } else if (action.getKey() == ActionType.CHECK) {
-                    userActionBoard.setCheckActionListener(eventG -> {
+                    actionBoard.addCheckAndFoldListener(eventG -> {
                         SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
                                 new Events(new ActionPerformedEvent(new Pair<>(ActionType.CHECK, 0))));
                         called.execute();
                     });
                 } else if (action.getKey() == ActionType.RAISE) {
-                    userActionBoard.setMinSliderValue(callValue + 1);
-                    userActionBoard.setMaxSliderValue(action.getValue());
-                    userActionBoard.setRaiseActionListener(eventG -> {
+                    actionBoard.setMinimumSliderValue(callValue + 1);
+                    actionBoard.setMaximumSliderValue(action.getValue());
+                    actionBoard.addRaiseListener(eventG -> {
                         SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
-                                new Events(new ActionPerformedEvent(new Pair<>(ActionType.RAISE, userActionBoard.getSliderValue()))));
+                                new Events(new ActionPerformedEvent(new Pair<>(ActionType.RAISE, actionBoard.getSliderValue()))));
                         called.execute();
                     });
                 }

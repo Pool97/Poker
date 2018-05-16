@@ -25,6 +25,14 @@ public class Card extends JComponent implements ComponentListener {
         return image != null;
     }
 
+    public void loadImage() {
+        image = Utils.loadImageByPath(getDirectoryPathImageToLoad(), getSize());
+    }
+
+    public String getDirectoryPathImageToLoad() {
+        return isCovered ? backImageDirectoryPath : frontImageDirectoryPath;
+    }
+
     public void setCovered(boolean isCovered) {
         this.isCovered = isCovered;
     }
@@ -54,10 +62,7 @@ public class Card extends JComponent implements ComponentListener {
 
     @Override
     public void componentResized(ComponentEvent e) {
-        if (isCovered)
-            image = Utils.loadImageByPath(backImageDirectoryPath, getSize());
-        else
-            image = Utils.loadImageByPath(frontImageDirectoryPath, getSize());
+        loadImage();
         repaint();
     }
 
