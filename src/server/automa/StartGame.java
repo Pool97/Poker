@@ -1,9 +1,9 @@
 package server.automa;
 
-import events.Events;
-import events.PlayerAddedEvent;
-import events.RoomCreatedEvent;
 import interfaces.PokerState;
+import server.events.Events;
+import server.events.PlayerLoggedEvent;
+import server.events.RoomCreatedEvent;
 import server.model.MatchModel;
 import server.model.Room;
 
@@ -55,11 +55,11 @@ public class StartGame implements PokerState {
 
         room.setPlayersChips(matchModel.getStartChips());
         room.setPlayersPositions();
-        room.sort();
+        room.sortByPosition();
 
-        ArrayList<PlayerAddedEvent> events = room.getPlayers()
+        ArrayList<PlayerLoggedEvent> events = room.getPlayers()
                 .stream()
-                .map(player -> new PlayerAddedEvent(player.getNickname(), player.getAvatar(), player.getPosition(),
+                .map(player -> new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), player.getPosition(),
                         player.getChips()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -68,6 +68,6 @@ public class StartGame implements PokerState {
         MatchHandler.logger.info(START_MATCH);
         room.sendBroadcast(new Events(new RoomCreatedEvent()));
         room.sendBroadcast(new Events(events));
-        match.setState(new TurnStart(match));
+        match.setState(new StartTurn(match));
     }
 }

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 
 public class DeckModel {
-    private Stack<Pair<CardSuit, CardRank>> deck;
+    private Stack<CardModel> deck;
 
     private static List<Pair<Integer, Integer>> createDeck(){
         List<Pair<Integer, Integer>> orderedDeck = new ArrayList<>();
@@ -37,11 +37,11 @@ public class DeckModel {
         List<Pair<Integer, Integer>> deckShuffled = createDeck();
         Collections.shuffle(deckShuffled);
         deck = deckShuffled.stream()
-                .map(pair -> new Pair<>(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()]))
-                .collect(Collectors.toCollection(Stack<Pair<CardSuit, CardRank>>::new));
+                .map(pair -> new CardModel(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()]))
+                .collect(Collectors.toCollection(Stack<CardModel>::new));
     }
 
-    public Pair<CardSuit, CardRank> nextCard(){
+    public CardModel nextCard() {
         return deck.pop();
     }
 }

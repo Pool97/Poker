@@ -1,11 +1,11 @@
 package client.frames;
 
+import client.events.CreatorConnectedEvent;
+import client.events.PlayerConnectedEvent;
 import client.socket.ClientManager;
 import client.socket.SocketWriter;
-import events.CreatorConnectedEvent;
-import events.Events;
-import events.PlayerCreatedEvent;
 import server.ServerThread;
+import server.events.Events;
 
 /**
  * Frame di attesa per il creatore della stanza.
@@ -26,7 +26,7 @@ public class CreatorGameFrame extends AbstractGameFrame {
         clientManager = new ClientManager(ipAddr, 4040);
         clientManager.attemptToConnect();
         new SocketReaderStart<>(clientManager.getInputStream()).execute();
-        Events events = new Events(new PlayerCreatedEvent(nickname, avatar),
+        Events events = new Events(new PlayerConnectedEvent(nickname, avatar),
                 new CreatorConnectedEvent(totalPlayers));
         new SocketWriter<>(clientManager.getOutputStream(), events).execute();
 

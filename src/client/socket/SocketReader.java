@@ -1,8 +1,9 @@
 package client.socket;
 
-import events.Events;
-import interfaces.EventProcess;
+import interfaces.EventsManager;
 import interfaces.Message;
+import interfaces.ServerEvent;
+import server.events.Events;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -11,8 +12,8 @@ import java.util.List;
 
 public class SocketReader<T extends Message> extends SwingWorker<Void, T> {
     private ObjectInputStream inputStream;
-    private final static String WAITING = "In attesa di un messaggio dal Server...";
-    private EventProcess processor;
+    private final static String WAITING_FOR_SERVER = "In attesa di un messaggio dal Server...";
+    private EventsManager eventsManager;
 
     public SocketReader(ObjectInputStream inputStream) {
         this.inputStream = inputStream;
@@ -21,24 +22,26 @@ public class SocketReader<T extends Message> extends SwingWorker<Void, T> {
     @SuppressWarnings("unchecked")
     @Override
     protected Void doInBackground() throws IOException, ClassNotFoundException, InterruptedException {
-        T messageObject;
+        T events;
         do {
-            ClientManager.logger.info(WAITING);
-            messageObject = (T) inputStream.readObject();
-            if (messageObject instanceof Events) {
-                publish(messageObject);
-                Thread.sleep(1000);
+            ClientManager.logger.info(WAITING_FOR_SERVER);
+            events = (T) inputStream.readObject();
+
+            if (events instanceof Events) {
+                publish(events);
+                Thread.sleep(1500);
             }
+
         } while (true);
     }
 
     @Override
     protected void process(List<T> chunks) {
         Events events = (Events) chunks.get(0);
-        events.getEvents().forEach(event -> event.accept(processor));
+        events.getEvents().forEach(event -> ((ServerEvent) event).accept(eventsManager));
     }
 
-    public void setEventProcess(EventProcess processor) {
-        this.processor = processor;
+    public void setEventsManager(EventsManager processor) {
+        this.eventsManager = processor;
     }
 }

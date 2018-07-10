@@ -265,7 +265,7 @@ public class Scalr {
 	 * </table>
 	 * <p/>
 	 * For those that have worked with ConvolveOps before, this Op uses the
-     * {@link ConvolveOp#EDGE_NO_OP} instruction to not EventProcess the pixels along
+     * {@link ConvolveOp#EDGE_NO_OP} instruction to not EventsManager the pixels along
      * the very edge of the image (otherwise EDGE_ZERO_FILL would createWith a
 	 * black-border around the image). If you have not worked with a ConvolveOp
 	 * before, it just means this default OP will "do the right thing" and not
@@ -2261,7 +2261,7 @@ public class Scalr {
 			/*
 			 * Before re-assigning our interim (partially scaled)
 			 * incrementalImage to be the new src image before we iterate around
-             * again to EventProcess it down further, we want to flush() the previous
+             * again to EventsManager it down further, we want to flush() the previous
 			 * src image IF (and only IF) it was one of our own temporary
 			 * BufferedImages created during this incremental down-sampling
 			 * cycle. If it wasn't one of ours, then it was the original

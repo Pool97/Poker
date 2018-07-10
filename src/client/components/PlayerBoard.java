@@ -1,38 +1,51 @@
 package client.components;
 
 import utils.GBC;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 import static java.awt.Color.WHITE;
 import static java.awt.Font.PLAIN;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.WEST;
+import static java.awt.GridBagConstraints.*;
 import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.SwingConstants.LEFT;
-import static utils.Utils.*;
+import static javax.swing.SwingConstants.RIGHT;
+import static utils.Utils.DEFAULT_FONT;
+import static utils.Utils.getCustomFont;
 
-public class PlayerBoard extends JPanel {
+public class PlayerBoard extends BorderPanel {
     private Avatar avatar;
-    private JLabel chips;
+    private JLabel chipIndicator;
     private JLabel nickname;
+    private JLabel position;
+    private JLabel handIndicator;
     private JPanel avatarAndCardsContainer;
+    private ArrayList<Card> cards;
 
-    public PlayerBoard(String nickname, int chips, String avatarDirectoryPath) {
+    public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
+        cards = new ArrayList<>();
         setComponentProperties();
 
         createAvatar(avatarDirectoryPath);
 
         createNickname(nickname);
-        setNicknameProperties();
+        setComponentProperties(this.nickname);
+
+        createPosition(position);
+        setComponentProperties(this.position);
+
+        createHand();
+        setComponentProperties(this.handIndicator);
 
         createChips(chips);
         setChipsProperties();
 
         createAvatarAndCardsContainer();
         setAvatarAndCardsContainerProperties();
-
+        createCards(isCovered);
         attachComponents();
     }
 
@@ -49,18 +62,31 @@ public class PlayerBoard extends JPanel {
         this.nickname = new JLabel(nickname, LEFT);
     }
 
-    private void setNicknameProperties() {
-        nickname.setFont(getCustomFont(PLAIN, 20F));
-        nickname.setForeground(WHITE);
+    private void createPosition(String position) {
+        this.position = new JLabel(position, RIGHT);
+    }
+
+    private void createHand() {
+        this.handIndicator = new JLabel(Utils.EMPTY, RIGHT);
+    }
+
+    private void createCards(boolean isCovered) {
+        cards.add(Card.createCard(isCovered));
+        cards.add(Card.createCard(isCovered));
+    }
+
+    private void setComponentProperties(JComponent component) {
+        component.setFont(getCustomFont(PLAIN, 20F));
+        component.setForeground(WHITE);
     }
 
     private void createChips(int chips) {
-        this.chips = new JLabel(Integer.toString(chips), LEFT);
+        this.chipIndicator = new JLabel(Integer.toString(chips), LEFT);
     }
 
     private void setChipsProperties() {
-        this.chips.setFont(new Font(DEFAULT_FONT, PLAIN, 20));
-        this.chips.setForeground(WHITE);
+        chipIndicator.setFont(new Font(DEFAULT_FONT, PLAIN, 20));
+        chipIndicator.setForeground(WHITE);
     }
 
     private void createAvatarAndCardsContainer() {
@@ -75,8 +101,10 @@ public class PlayerBoard extends JPanel {
     private void attachComponents() {
         attachAvatar();
         attachCards();
-        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
+        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
         attachNickname();
+        attachPosition();
+        attachHand();
         attachChips();
     }
 
@@ -86,37 +114,34 @@ public class PlayerBoard extends JPanel {
 
     private void attachCards() {
         avatarAndCardsContainer.add(Box.createRigidArea(new Dimension(20, 0)));
-        avatarAndCardsContainer.add(new Card(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "3_cuori1.png",
-                System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "back.png"));
-        avatarAndCardsContainer.add(new Card(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "3_cuori1.png",
-                System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + "back.png"));
+        cards.forEach(card -> avatarAndCardsContainer.add(card));
     }
 
     private void attachNickname() {
-        add(this.nickname, new GBC(0, 1, 1, 0.15, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
+        add(nickname, new GBC(0, 1, 1, 0.15, 1, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
+    }
+
+    private void attachPosition() {
+        add(position, new GBC(1, 1, 1, 0.15, 1, 1, EAST, NONE, new Insets(10, 0, 0, 20)));
+    }
+
+    private void attachHand() {
+        add(handIndicator, new GBC(1, 2, 1, 0.15, 1, 1, EAST, NONE, new Insets(0, 0, 10, 20)));
     }
 
     private void attachChips() {
-        add(this.chips, new GBC(0, 2, 1, 0.15, 1, 1, WEST, NONE, new Insets(0, 20, 10, 0)));
+        add(chipIndicator, new GBC(0, 2, 1, 0.15, 1, 1, WEST, NONE, new Insets(0, 20, 10, 0)));
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2D = (Graphics2D) g;
-
-        g2D.setRenderingHints(getHighQualityRenderingHints());
-        drawBackground(g2D);
-        drawBorder(g2D);
-    }
-
-    private void drawBackground(Graphics2D g2D) {
+    protected void drawBackground(Graphics2D g2D) {
         g2D.setColor(new Color(191, 54, 12));
         g2D.fillRoundRect(2, 2, getWidth() - 2, getHeight() - 3,
                 40, 40);
     }
 
-    private void drawBorder(Graphics2D g2D) {
+    @Override
+    protected void drawBorder(Graphics2D g2D) {
         g2D.setStroke(new BasicStroke(4f));
         g2D.setColor(WHITE);
         g2D.drawRoundRect(2, 2, getWidth() - 4, getHeight() - 4,
@@ -127,8 +152,8 @@ public class PlayerBoard extends JPanel {
         this.avatar.setDirectoryPath(avatar);
     }
 
-    public void setChips(int chips) {
-        this.chips.setText(Integer.toString(chips));
+    public void setChipIndicator(int chips) {
+        chipIndicator.setText(Integer.toString(chips));
     }
 
     public void setNickname(String nickname) {
@@ -137,5 +162,31 @@ public class PlayerBoard extends JPanel {
 
     public String getNickname() {
         return nickname.getText();
+    }
+
+    public void setPosition(String position) {
+        this.position.setText(position);
+    }
+
+    public void setHandIndicator(String hand) {
+        handIndicator.setText(hand);
+    }
+
+    public void setNicknameColor(Color color) {
+        nickname.setForeground(color);
+    }
+
+
+    public void assignNewCards(String frontImage1, String frontImage2) {
+        cards.get(0).setFrontImageDirectoryPath(frontImage1);
+        cards.get(1).setFrontImageDirectoryPath(frontImage2);
+        cards.forEach(Card::loadImage);
+        cards.forEach(Card::repaint);
+    }
+
+    public void coverCards(boolean cover) {
+        cards.forEach(card -> card.setCovered(cover));
+        cards.forEach(Card::getDirectoryPathImageToLoad);
+        cards.forEach(Card::loadImage);
     }
 }

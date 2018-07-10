@@ -1,7 +1,5 @@
 package server.model;
 
-import javafx.util.Pair;
-
 /**
  * Il Model fondamentale del gioco.
  * Permette di tenere traccia di tutti i cambiamenti avvenuti nel MatchHandler, dal suo inizio alla sua fine.
@@ -55,11 +53,15 @@ public class TurnModel {
         deckModel.createAndShuffle();
     }
 
-    public Pair<CardSuit, CardRank> getNextCard() {
+    public CardModel getNextCard() {
         return deckModel.nextCard();
     }
 
-    public void addCommunityCards(Pair<CardSuit, CardRank>... cards) {
+    public CommunityModel getCommunityModel() {
+        return communityModel;
+    }
+
+    public void addCommunityCards(CardModel... cards) {
         communityModel.addCards(cards);
     }
 }

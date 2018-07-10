@@ -37,6 +37,7 @@ public class PositionManager {
     }
 
     public Position nextPosition(Position oldPosition) {
+        System.out.println(availablePositions.toString());
         return availablePositions.get((availablePositions.indexOf(oldPosition) + 1) % availablePositions.size());
     }
 

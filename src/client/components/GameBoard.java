@@ -52,6 +52,7 @@ public class GameBoard extends JPanel {
     private void setBottomPartProperties() {
         bottomPart.setLayout(new GridBagLayout());
         bottomPart.setBackground(Utils.TRANSPARENT);
+        bottomPart.setOpaque(false);
     }
 
     private void attachMiddlePart() {
@@ -65,7 +66,7 @@ public class GameBoard extends JPanel {
     public void attach(PokerTable pokerTable) {
         add(pokerTable.getTopSide(), new TableLayoutConstraints(0, 0, 0, 0, CENTER, CENTER));
         add(pokerTable.getBottomSide(), new TableLayoutConstraints(0, 2, 0, 2, CENTER, BOTTOM));
-        middlePart.add(pokerTable.getCommunityCardsBoard(), new TableLayoutConstraints(1, 0, 1, 0, CENTER, TOP));
+        middlePart.add(pokerTable.getCommunityCardsBoard(), new TableLayoutConstraints(1, 0, 1, 0, FULL, TOP));
         middlePart.add(pokerTable.getLeftSide(), new TableLayoutConstraints(0, 0, 0, 0, CENTER, CENTER));
         middlePart.add(pokerTable.getRightSide(), new TableLayoutConstraints(2, 0, 2, 0, CENTER, CENTER));
     }

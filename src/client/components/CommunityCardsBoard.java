@@ -4,13 +4,15 @@ import utils.Utils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 import static java.awt.Color.WHITE;
 import static java.awt.Font.BOLD;
 import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.BoxLayout.Y_AXIS;
 import static javax.swing.SwingConstants.CENTER;
-import static utils.Utils.TRANSPARENT;
 
 /**
  * View che rappresenta e gestisce le Community Cards del Poker.
@@ -23,8 +25,10 @@ public class CommunityCardsBoard extends JPanel {
     private final static String NAMEPLATE = "Community Cards";
     private JLabel plate;
     private JPanel cardsContainer;
+    private ArrayList<Card> cards;
 
     private CommunityCardsBoard() {
+        cards = new ArrayList<>();
         setComponentProperties();
 
         createPlate();
@@ -33,9 +37,11 @@ public class CommunityCardsBoard extends JPanel {
         createCardsContainer();
         setCardsContainerProperties();
 
+        createCards();
         attachPlate();
-        attachVerticalSeparator();
+        //attachVerticalSeparator();
         attachCardsContainer();
+        attachCards();
     }
 
     public static CommunityCardsBoard createEmptyCommunityCards() {
@@ -45,7 +51,7 @@ public class CommunityCardsBoard extends JPanel {
     private void setComponentProperties() {
         setLayout(new BoxLayout(this, Y_AXIS));
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        setBackground(TRANSPARENT);
+        setBackground(new Color(0, 80, 5));
     }
 
     private void createPlate() {
@@ -65,8 +71,13 @@ public class CommunityCardsBoard extends JPanel {
     private void setCardsContainerProperties() {
         cardsContainer.setLayout(new BoxLayout(cardsContainer, X_AXIS));
         cardsContainer.setAlignmentX(CENTER_ALIGNMENT);
-        cardsContainer.setBackground(TRANSPARENT);
-        cardsContainer.setOpaque(false);
+        cardsContainer.setOpaque(true);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        cardsContainer.setBackground(new Color(0, 80, 5));
     }
 
     private void attachPlate() {
@@ -81,8 +92,23 @@ public class CommunityCardsBoard extends JPanel {
         add(cardsContainer);
     }
 
-    public void addCard(Card nextCard) {
-        nextCard.setAlignmentX(CENTER_ALIGNMENT);
-        cardsContainer.add(nextCard);
+    private void createCards() {
+        IntStream.range(0, 5).forEach($ -> cards.add(Card.createEmptyCard()));
+    }
+
+    private void attachCards() {
+        cards.forEach(card -> cardsContainer.add(card));
+    }
+
+    public void updateCard(String imageDirectoryPath) {
+        Card card = cards.stream().filter(communityCard -> !communityCard.isVisible()).findFirst().get();
+        card.setFrontImageDirectoryPath(imageDirectoryPath);
+        card.loadImage();
+        card.setVisible(true);
+        repaint();
+    }
+
+    public void hideAllCards() {
+        cards.forEach(card -> card.setVisible(false));
     }
 }

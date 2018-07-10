@@ -1,9 +1,7 @@
 package client.components;
 
 import utils.GBC;
-import utils.Utils;
 
-import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
@@ -12,14 +10,14 @@ import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.WEST;
 import static utils.Utils.TRANSPARENT;
 
-public class MatchBoard extends JPanel {
+public class MatchBoard extends BorderPanel {
     private final static String SMALL_BLIND_DESCR = "Small Blind";
     private final static String BIG_BLIND_DESCR = "Big Blind";
     private final static String POT_DESCR = "Pot";
     private final static int INITIAL_VALUE = 0;
-    private Entry smallBlind;
-    private Entry bigBlind;
-    private Entry pot;
+    private EntryPanel smallBlind;
+    private EntryPanel bigBlind;
+    private EntryPanel pot;
 
     public MatchBoard() {
         setComponentProperties();
@@ -41,7 +39,7 @@ public class MatchBoard extends JPanel {
     }
 
     private void createSmallBlind() {
-        smallBlind = Entry.createWith(SMALL_BLIND_DESCR, INITIAL_VALUE);
+        smallBlind = EntryPanel.createWith(SMALL_BLIND_DESCR, INITIAL_VALUE);
     }
 
     private void attachSmallBlind() {
@@ -50,7 +48,7 @@ public class MatchBoard extends JPanel {
     }
 
     private void createBigBlind() {
-        bigBlind = Entry.createWith(BIG_BLIND_DESCR, INITIAL_VALUE);
+        bigBlind = EntryPanel.createWith(BIG_BLIND_DESCR, INITIAL_VALUE);
     }
 
     private void attachBigBlind() {
@@ -59,7 +57,7 @@ public class MatchBoard extends JPanel {
     }
 
     private void createPot() {
-        pot = Entry.createWith(POT_DESCR, INITIAL_VALUE);
+        pot = EntryPanel.createWith(POT_DESCR, INITIAL_VALUE);
     }
 
     private void attachPot() {
@@ -77,16 +75,6 @@ public class MatchBoard extends JPanel {
 
     public void setPot(int value) {
         pot.setValue(value);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2D = (Graphics2D) g;
-
-        g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
-        drawBackground(g2D);
-        drawBorder(g2D);
     }
 
     public void drawBackground(Graphics2D g2D) {

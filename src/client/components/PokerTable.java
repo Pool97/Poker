@@ -1,6 +1,7 @@
 package client.components;
 
 import interfaces.TableSide;
+import server.events.PlayerUpdatedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,24 @@ public class PokerTable {
         playerBoards.add(playerBoard);
     }
 
-    public List<PlayerBoard> getPlayerBoards() {
+    public PlayerBoard getPlayerBoardBy(String playerName) {
+        return playerBoards
+                .stream()
+                .filter(board -> board.getNickname().equalsIgnoreCase(playerName))
+                .findFirst()
+                .get();
+    }
+
+    public void updatePlayerProperties(PlayerUpdatedEvent event) {
+        PlayerBoard board = getPlayerBoardBy(event.getNickname());
+        board.setChipIndicator(event.getChips());
+    }
+
+    public void addCardToCommunityCardsBoard(String imageDirectoryPath) {
+        communityCardsBoard.updateCard(imageDirectoryPath);
+    }
+
+    public List<PlayerBoard> getPlayerBoard() {
         return playerBoards;
     }
 }

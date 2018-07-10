@@ -67,12 +67,8 @@ public class WelcomeFrame extends JFrame {
         container.add(roomButton);
         container.add(Box.createHorizontalGlue());
         roomButton.addActionListener(event -> {
-            int userResponse = JOptionPane.showOptionDialog(this, ROOM_CREATION_INFO, MESSAGE_DIALOG_ROOM,
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
-            if (userResponse == JOptionPane.OK_OPTION) {
-                dispose();
-                new AvatarFrame(0);
-            }
+            dispose();
+            new SelectAvatarFrame(0);
         });
 
         JButton connectButton = new JButton();
@@ -81,7 +77,7 @@ public class WelcomeFrame extends JFrame {
         container.add(Box.createHorizontalGlue());
         connectButton.addActionListener(event -> {
             dispose();
-            new AvatarFrame(1);
+            new SelectAvatarFrame(1);
         });
         JButton infoButton = new JButton();
         setCustomButton(infoButton, ABOUT_US_OPTION, Color.CYAN);

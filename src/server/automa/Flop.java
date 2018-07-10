@@ -1,11 +1,9 @@
 package server.automa;
 
-import events.CommunityUpdatedEvent;
-import events.Events;
 import interfaces.PokerState;
-import javafx.util.Pair;
-import server.model.CardRank;
-import server.model.CardSuit;
+import server.events.CommunityUpdatedEvent;
+import server.events.Events;
+import server.model.CardModel;
 import server.model.Room;
 import server.model.TurnModel;
 
@@ -43,16 +41,18 @@ public class Flop implements PokerState {
         turnModel.getNextCard();
 
         MatchHandler.logger.info(CARDS_GEN);
-        Pair<CardSuit, CardRank> firstCard = turnModel.getNextCard();
-        Pair<CardSuit, CardRank> secondCard = turnModel.getNextCard();
-        Pair<CardSuit, CardRank> thirdCard = turnModel.getNextCard();
+
+        CardModel firstCard = turnModel.getNextCard();
+        CardModel secondCard = turnModel.getNextCard();
+        CardModel thirdCard = turnModel.getNextCard();
 
         turnModel.addCommunityCards(firstCard, secondCard, thirdCard);
+
         MatchHandler.logger.info(CARDS_READY);
         room.sendBroadcast(new Events(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
 
-        Action action = new Action(match);
-        action.setTransitionStrategy(() -> match.setState(new Streets(match)));
-        match.setState(new Action(match));
+        NextAction nextAction = new NextAction(match);
+        nextAction.setTransitionStrategy(() -> match.setState(new Turn(match)));
+        match.setState(nextAction);
     }
 }

@@ -16,4 +16,5 @@ public class ActionButton extends JButton {
     private void setComponentProperties() {
         setFont(new Font(DEFAULT_FONT, PLAIN, 30));
     }
+
 }

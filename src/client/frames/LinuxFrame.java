@@ -35,11 +35,11 @@ public class LinuxFrame extends JFrame {
     }
 
     private void createGUI() {
-        setBackground(Color.BLACK);
+        setBackground(new Color(3, 155, 229));
         JScrollPane jScrollPane = new JScrollPane();
         jScrollPane.setBorder(BorderFactory.createEmptyBorder());
         netContainer = new JPanel();
-        netContainer.setBackground(Color.BLACK);
+        netContainer.setBackground(new Color(3, 155, 229));
         netContainer.setLayout(new BoxLayout(netContainer, BoxLayout.PAGE_AXIS));
         jScrollPane.setViewportView(netContainer);
         searchForAddresses();

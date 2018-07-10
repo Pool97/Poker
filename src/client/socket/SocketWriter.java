@@ -21,8 +21,8 @@ public class SocketWriter<T extends Message> extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() {
         try {
-            outputStream.reset();
             outputStream.writeObject(message);
+            outputStream.flush();
 
         } catch (IOException e) {
             ClientManager.logger.finer(WRITE_ERROR);

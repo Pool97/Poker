@@ -1,6 +1,6 @@
 package server.model;
 
-import javafx.util.Pair;
+import interfaces.PokerAction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,51 +15,19 @@ import java.util.Objects;
  * @since 1.0
  */
 
-public class PlayerModel implements Serializable {
+public class PlayerModel implements Serializable, Cloneable {
     private String nickname;
     private Position position;
     private String avatar;
-    private int rank;
     private int chips;
-    private ArrayList<Pair<ActionType, Integer>> actions;
-
-    /**
-     * Costruttore della classe PlayerModel.
-     *
-     * @param nickname Nickname del PlayerBoard
-     * @param chips    Numero iniziale di Chips a disposizione
-     */
-
-    public PlayerModel(String nickname, int chips) {
-        this.nickname = nickname;
-        this.chips = chips;
-        actions = new ArrayList<>();
-    }
-
-    /**
-     * Costruttore della classe PlayerModel.
-     *
-     * @param nickname Nickname del PlayerBoard
-     * @param avatar   Nome del file dell'avatar del PlayerBoard
-     */
+    private ArrayList<CardModel> cards;
+    private ArrayList<PokerAction> actions;
 
     public PlayerModel(String nickname, String avatar) {
         this.nickname = nickname;
         this.avatar = avatar;
         actions = new ArrayList<>();
-    }
-
-    /**
-     * Costruttore della classe PlayerModel.
-     *
-     * @param nickname Nickname del PlayerBoard
-     * @param position Posizione iniziale ricoperta dal PlayerBoard
-     */
-
-    public PlayerModel(String nickname, Position position) {
-        this.nickname = nickname;
-        this.position = position;
-        actions = new ArrayList<>();
+        cards = new ArrayList<>();
     }
 
     public String getNickname() {
@@ -78,6 +46,9 @@ public class PlayerModel implements Serializable {
         this.chips = chips;
     }
 
+    public void addChips(int chips) {
+        this.chips += chips;
+    }
     public Position getPosition() {
         return position;
     }
@@ -86,29 +57,31 @@ public class PlayerModel implements Serializable {
         this.position = position;
     }
 
-    /**
-     * Permette, attraverso l'analisi delle mosse effettuate in un determinato turno, di stabilire se
-     * il giocatore è in All-In oppure no.
-     *
-     * @return true se è in All-In, false altrimenti.
-     */
+    public void addCard(CardModel card) {
+        cards.add(card);
+    }
+
+    public ArrayList<CardModel> getCards() {
+        return cards;
+    }
+
+    public void removeCards() {
+        cards.clear();
+    }
+
+    public void removeActions() {
+        actions.clear();
+    }
 
     public boolean isAllIn() {
         return actions
                 .stream()
-                .anyMatch(action -> action.getKey() == ActionType.ALL_IN);
+                .anyMatch(action -> action instanceof AllIn);
     }
-
-    /**
-     * Permette, attraverso l'analisi delle mosse effettuate in un determinato turno, di stabilire se
-     * il giocatore ha effettuato il fold nel turno, oppure no.
-     *
-     * @return true se ha foldato, false altrimenti.
-     */
 
     public boolean hasFolded() {
         return actions.stream()
-                .anyMatch(action -> action.getKey() == ActionType.FOLD);
+                .anyMatch(action -> action instanceof Fold);
     }
 
     /**
@@ -118,7 +91,7 @@ public class PlayerModel implements Serializable {
      */
 
     public int getTurnBet() {
-        return actions.stream().mapToInt(Pair::getValue).sum();
+        return actions.stream().mapToInt(PokerAction::getValue).sum();
     }
 
     /**
@@ -127,9 +100,9 @@ public class PlayerModel implements Serializable {
      * @param action Nuova mossa effettuata
      */
 
-    public void addAction(Pair<ActionType, Integer> action) {
+    public void addAction(PokerAction action) {
         if (chips == action.getValue())
-            action = new Pair<>(ActionType.ALL_IN, action.getValue());
+            action = new AllIn(action.getValue());
 
         chips -= action.getValue();
         actions.add(action);
@@ -152,8 +125,7 @@ public class PlayerModel implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
 
         PlayerModel that = (PlayerModel) o;
-        return rank == that.rank &&
-                chips == that.chips &&
+        return chips == that.chips &&
                 Objects.equals(nickname, that.nickname) &&
                 position == that.position &&
                 Objects.equals(avatar, that.avatar);
@@ -161,6 +133,16 @@ public class PlayerModel implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(nickname, position, avatar, rank, chips);
+        return Objects.hash(nickname, position, avatar, chips);
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

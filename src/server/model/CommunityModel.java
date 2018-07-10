@@ -19,4 +19,8 @@ public class CommunityModel {
     public void addCards(Pair<CardSuit, CardRank>... cards) {
         communityCards.addAll(Arrays.asList(cards));
     }
+
+    public Pair<CardSuit, CardRank> getCard(int index) {
+        return communityCards.get(index);
+    }
 }

@@ -10,7 +10,7 @@ public class InterfaceView extends JPanel {
     private JLabel ipAddress;
 
     public InterfaceView(String ipAddress) {
-        setBackground(Color.BLACK);
+        setBackground(new Color(3, 155, 229));
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 0));
         this.ipAddress = new JLabel(ipAddress, SwingConstants.LEFT);

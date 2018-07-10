@@ -1,9 +1,9 @@
 package client.frames;
 
+import client.events.PlayerConnectedEvent;
 import client.socket.ClientManager;
 import client.socket.SocketWriter;
-import events.Events;
-import events.PlayerCreatedEvent;
+import server.events.Events;
 
 /**
  * Frame di attesa per il PlayerBoard.
@@ -24,7 +24,7 @@ public class GameFrame extends AbstractGameFrame {
         new SocketReaderStart<>(clientManager.getInputStream()).execute();
 
         SocketWriter socketWriter = new SocketWriter<>(clientManager.getOutputStream(),
-                new Events(new PlayerCreatedEvent(nickname, avatar)));
+                new Events(new PlayerConnectedEvent(nickname, avatar)));
         socketWriter.execute();
 
         initPanel();

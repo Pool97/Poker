@@ -10,15 +10,29 @@ import java.awt.image.BufferedImage;
 
 public class Card extends JComponent implements ComponentListener {
     private final static int TOP_LEFT = 0;
+    private final static String DEFAULT_IMAGE = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "back.png";
+    private final static String DEFAULT_BACK = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "backOrangePP.png";
     private String frontImageDirectoryPath;
     private String backImageDirectoryPath;
     private boolean isCovered;
     private BufferedImage image;
 
-    public Card(String frontImageDirectoryPath, String backImageDirectoryPath) {
-        this.frontImageDirectoryPath = frontImageDirectoryPath;
-        this.backImageDirectoryPath = backImageDirectoryPath;
+    private Card(boolean isVisible, boolean isCovered) {
+        this.frontImageDirectoryPath = DEFAULT_IMAGE;
+        this.backImageDirectoryPath = DEFAULT_BACK;
+
+        setVisible(isVisible);
+        setCovered(isCovered);
+
         addComponentListener(this);
+    }
+
+    public static Card createEmptyCard() {
+        return new Card(false, false);
+    }
+
+    public static Card createCard(boolean isCovered) {
+        return new Card(true, isCovered);
     }
 
     public boolean isImageLoaded(BufferedImage image) {
@@ -37,12 +51,17 @@ public class Card extends JComponent implements ComponentListener {
         this.isCovered = isCovered;
     }
 
+    public void setFrontImageDirectoryPath(String imageDirectoryPath) {
+        this.frontImageDirectoryPath = imageDirectoryPath;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (isImageLoaded(image))
+        if (isImageLoaded(image)) {
             g.drawImage(image, TOP_LEFT, TOP_LEFT, null);
+        }
     }
 
     @Override

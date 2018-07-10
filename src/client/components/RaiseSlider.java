@@ -7,51 +7,56 @@ import java.awt.*;
 import java.util.Hashtable;
 
 public class RaiseSlider extends JSlider {
-    private final static int DEFAULT_MIN_VALUE_SLIDER = 0;
-    private final static int DEFAULT_MAX_VALUE_SLIDER = 100;
+    private final static int DEFAULT_MIN_VALUE_SLIDER = 1000;
+    private final static int DEFAULT_MAX_VALUE_SLIDER = 20000;
     private Hashtable<Integer, JLabel> extremeValuesContainer;
     private JLabel minimumValue;
     private JLabel maximumValue;
 
     public RaiseSlider() {
-        super(JSlider.HORIZONTAL, DEFAULT_MIN_VALUE_SLIDER, DEFAULT_MAX_VALUE_SLIDER, 0);
+        super(JSlider.HORIZONTAL, DEFAULT_MIN_VALUE_SLIDER, DEFAULT_MAX_VALUE_SLIDER, DEFAULT_MIN_VALUE_SLIDER);
         setComponentListeners();
         setComponentProperties();
         createExtremeValuesContainer();
-        createMinimumValue();
+        createMinimumValue(DEFAULT_MIN_VALUE_SLIDER);
         setMinimumValueProperties();
-        createMaximumValue();
+        createMaximumValue(DEFAULT_MAX_VALUE_SLIDER);
         setMaximumValueProperties();
         attachExtremeValues();
         attachExtremeValuesContainer();
     }
 
     private void setComponentProperties() {
-        setMinorTickSpacing(DEFAULT_MIN_VALUE_SLIDER);
-        setMajorTickSpacing(DEFAULT_MAX_VALUE_SLIDER / 10);
+        setSpacing(2, 5000);
         setPaintTicks(true);
         setPaintLabels(true);
+        setBackground(new Color(171, 39, 60));
+    }
+
+    private void setSpacing(int minorSpacing, int maxSpacing) {
+        //setMinorTickSpacing(minorSpacing);
+        //setMajorTickSpacing(5000);
     }
 
     private void createExtremeValuesContainer() {
         extremeValuesContainer = new Hashtable<>();
     }
 
-    private void createMinimumValue() {
-        minimumValue = new JLabel(Integer.toString(DEFAULT_MIN_VALUE_SLIDER));
+    private void createMinimumValue(int value) {
+        minimumValue = new JLabel(Integer.toString(value));
     }
 
     private void setMinimumValueProperties() {
-        minimumValue.setFont(new Font(Utils.DEFAULT_FONT, Font.PLAIN, 20));
+        minimumValue.setFont(new Font(Utils.DEFAULT_FONT, Font.BOLD, 12));
         minimumValue.setForeground(Color.WHITE);
     }
 
-    private void createMaximumValue() {
-        maximumValue = new JLabel(Integer.toString(DEFAULT_MAX_VALUE_SLIDER));
+    private void createMaximumValue(int value) {
+        maximumValue = new JLabel(Integer.toString(value));
     }
 
     private void setMaximumValueProperties() {
-        maximumValue.setFont(new Font(Utils.DEFAULT_FONT, Font.PLAIN, 20));
+        maximumValue.setFont(new Font(Utils.DEFAULT_FONT, Font.BOLD, 12));
         maximumValue.setForeground(Color.WHITE);
     }
 
@@ -69,4 +74,41 @@ public class RaiseSlider extends JSlider {
         addMouseMotionListener(listener);
         addMouseListener(listener);
     }
+
+    public void setMaximumValue(int value) {
+        maximumValue.setText(Integer.toString(value));
+    }
+
+    public void setMinimumValue(int value) {
+        minimumValue.setText(Integer.toString(value));
+    }
+
+    public void regenerateSlider(int minValue, int maxValue) {
+        setPaintLabels(false);
+        setLabelTable(null);
+        setMaximumValue(maxValue);
+        setMinimumValue(minValue);
+
+        //setSpacing(minValue/ 10, maxValue / 10);
+
+        extremeValuesContainer = new Hashtable<>();
+        createMinimumValue(minValue);
+        setMinimumValueProperties();
+
+        createMaximumValue(maxValue);
+        setMaximumValueProperties();
+
+        extremeValuesContainer.put(minValue, minimumValue);
+        extremeValuesContainer.put(maxValue, maximumValue);
+
+        setLabelTable(extremeValuesContainer);
+
+        setMinimum(minValue);
+        setMaximum(maxValue);
+        setValue(minValue);
+        setPaintTicks(true);
+        setPaintLabels(true);
+    }
+
+
 }

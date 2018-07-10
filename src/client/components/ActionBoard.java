@@ -10,12 +10,12 @@ import static java.awt.Color.WHITE;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static utils.Utils.TRANSPARENT;
-import static utils.Utils.getHighQualityRenderingHints;
 
-public class ActionBoard extends JPanel {
-    private final static String CHECK_FOLD_TEXT = "CHECK/FOLD";
+public class ActionBoard extends BorderPanel {
+    private final static String CHECK_TEXT = "CHECK";
     private final static String CALL_TEXT = "CALL";
     private final static String RAISE_TEXT = "RAISE";
+    private final static String FOLD_TEXT = "FOLD";
     private final static int INSET = 10;
     private final static int WEIGHT = 33;
     private final static int START_PADDING = 2;
@@ -23,8 +23,9 @@ public class ActionBoard extends JPanel {
     private final static int ARC_SIZE = 30;
     private final static float STROKE_WIDTH = 4.0F;
     private ActionButton call;
-    private ActionButton checkAndFold;
+    private ActionButton check;
     private ActionButton raise;
+    private ActionButton fold;
     private RaiseSlider raiseSlider;
 
     public ActionBoard() {
@@ -36,11 +37,15 @@ public class ActionBoard extends JPanel {
         createRaise();
         attachRaise();
 
-        createCheckAndFold();
-        attachCheckAndFold();
+        createCheck();
+        attachCheck();
+
+        createFold();
+        attachFold();
 
         createRaiseSlider();
         attachRaiseSlider();
+        setActionButtonsEnabled(false);
     }
 
     private void setComponentProperties() {
@@ -53,7 +58,7 @@ public class ActionBoard extends JPanel {
     }
 
     private void attachCall() {
-        add(call, new GBC(1, 1, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
+        add(call, new GBC(1, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
                 new Insets(0, INSET, INSET, INSET)));
     }
 
@@ -61,17 +66,26 @@ public class ActionBoard extends JPanel {
         raise = new ActionButton(RAISE_TEXT);
     }
 
+    private void createFold() {
+        fold = new ActionButton(FOLD_TEXT);
+    }
+
     private void attachRaise() {
-        add(raise, new GBC(2, 1, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
+        add(raise, new GBC(2, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
                 new Insets(0, INSET, INSET, INSET)));
     }
 
-    private void createCheckAndFold() {
-        checkAndFold = new ActionButton(CHECK_FOLD_TEXT);
+    private void attachFold() {
+        add(fold, new GBC(3, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
+                new Insets(0, INSET, INSET, INSET)));
     }
 
-    private void attachCheckAndFold() {
-        add(checkAndFold, new GBC(0, 1, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
+    private void createCheck() {
+        check = new ActionButton(CHECK_TEXT);
+    }
+
+    private void attachCheck() {
+        add(check, new GBC(0, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
                 new Insets(0, INSET, INSET, INSET)));
     }
 
@@ -80,56 +94,86 @@ public class ActionBoard extends JPanel {
     }
 
     private void attachRaiseSlider() {
-        add(raiseSlider, new GBC(2, 0, 1, 1, 1, 1, CENTER, HORIZONTAL, new Insets(0, 0, 0, 20)));
+        JPanel sliderContainer = new JPanel();
+        sliderContainer.setBackground(new Color(171, 39, 60));
+        sliderContainer.add(raiseSlider);
+        add(sliderContainer, new GBC(0, 1, 1, 1, 4, 1, CENTER, HORIZONTAL, new Insets(0, 10, 0, 10)));
 
     }
 
     public void addCallListener(ActionListener listener) {
+        if (call.getActionListeners().length > 0)
+            call.removeActionListener(call.getActionListeners()[0]);
+
         call.addActionListener(listener);
     }
 
-    public void addCheckAndFoldListener(ActionListener listener) {
-        checkAndFold.addActionListener(listener);
+    public void addCheckListener(ActionListener listener) {
+        if (check.getActionListeners().length == 0)
+            check.addActionListener(listener);
     }
 
     public void addRaiseListener(ActionListener listener) {
+        if (raise.getActionListeners().length > 0)
+            raise.removeActionListener(raise.getActionListeners()[0]);
         raise.addActionListener(listener);
+    }
+
+    public void addFoldListener(ActionListener listener) {
+        if (fold.getActionListeners().length == 0)
+            fold.addActionListener(listener);
     }
 
     public int getSliderValue() {
         return raiseSlider.getValue();
     }
 
-    public void setMaximumSliderValue(int value) {
-        raiseSlider.setMaximum(value);
-        raiseSlider.setMajorTickSpacing(value / 10);
+    public void setExtremeSliderValues(int minValue, int maxValue) {
+        raiseSlider.regenerateSlider(minValue, maxValue);
     }
 
-    public void setMinimumSliderValue(int value) {
-        raiseSlider.setMinimum(value);
-    }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2D = (Graphics2D) g;
-        g2D.setRenderingHints(getHighQualityRenderingHints());
-
-
-        drawBackground(g2D);
-        drawBorder(g2D);
-    }
-
-    private void drawBackground(Graphics2D g2D) {
+    protected void drawBackground(Graphics2D g2D) {
         g2D.setColor(new Color(171, 39, 60));
         g2D.fillRoundRect(START_PADDING, START_PADDING, getWidth() - END_PADDING, getHeight() - END_PADDING, ARC_SIZE, ARC_SIZE);
     }
 
-    private void drawBorder(Graphics2D g2D) {
+    @Override
+    protected void drawBorder(Graphics2D g2D) {
         g2D.setStroke(new BasicStroke(STROKE_WIDTH));
         g2D.setColor(WHITE);
         g2D.drawRoundRect(START_PADDING, START_PADDING, getWidth() - END_PADDING, getHeight() - END_PADDING, ARC_SIZE, ARC_SIZE);
     }
 
+    public void setCallText(String text) {
+        call.setText(CALL_TEXT + text);
+    }
 
+    public void setRaiseText(String text) {
+        raise.setText(RAISE_TEXT + text);
+    }
+
+    public void setCallEnabled(boolean enable) {
+        call.setEnabled(enable);
+    }
+
+    public void setCheckEnabled(boolean enable) {
+        check.setEnabled(enable);
+    }
+
+    public void setRaiseEnabled(boolean enable) {
+        raise.setEnabled(enable);
+    }
+
+    public void setFoldEnabled(boolean enable) {
+        fold.setEnabled(enable);
+    }
+
+    public void setActionButtonsEnabled(boolean enable) {
+        setCallEnabled(enable);
+        setCheckEnabled(enable);
+        setFoldEnabled(enable);
+        setRaiseEnabled(enable);
+    }
 }

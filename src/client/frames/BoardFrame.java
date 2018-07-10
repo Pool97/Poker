@@ -1,16 +1,18 @@
 package client.frames;
 
+import client.ConcreteActionManager;
 import client.components.*;
+import client.events.EventsAdapter;
 import client.socket.ClientManager;
 import client.socket.SocketReader;
-import client.socket.SocketWriter;
-import events.*;
+import interfaces.ActionManager;
 import interfaces.Message;
-import javafx.util.Pair;
-import server.model.ActionType;
+import server.events.*;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 
 public class BoardFrame extends JFrame {
@@ -20,10 +22,12 @@ public class BoardFrame extends JFrame {
     private ActionBoard actionBoard;
     private MatchBoard matchBoard;
     private ClientManager clientManager;
+    private String nickname;
 
-    public BoardFrame(ClientManager manager) {
+    public BoardFrame(ClientManager manager, String nickname) {
         this.clientManager = manager;
-
+        this.nickname = nickname;
+        System.out.println("Sono io: " + nickname);
         createBoard();
         createPokerTable();
         createUserBoard();
@@ -73,42 +77,28 @@ public class BoardFrame extends JFrame {
 
     private void listenToServer() {
         SocketReader<? extends Message> reader = new SocketReader<>(clientManager.getInputStream());
-        reader.setEventProcess(new EventProcessor());
+        reader.setEventsManager(new ConcreteEventManager());
         reader.execute();
     }
 
-    class EventProcessor extends EventProcessAdapter {
-        @Override
-        public void process(ActionOptionsEvent event) {
-            int callValue = 0;
-            for (int i = 0; i < event.getOptions().size(); i++)
-                System.out.println("Azioni disponibile: " + event.getOptions().get(i).getKey() + " " + event.getOptions().get(i).getValue());
+    private void logAvailableActions(PlayerTurnEvent event) {
+        ClientManager.logger.info("Azioni disponibili: " + nickname + " \n");
+        event.getOptions()
+                .forEach(action -> ClientManager.logger.info("Azione: " + action.toString()));
+    }
 
-            for (int i = 0; i < event.getOptions().size(); i++) {
-                final Pair<ActionType, Integer> action = event.getOptions().get(i);
-                if (action.getKey() == ActionType.CALL) {
-                    callValue = action.getValue();
-                    actionBoard.addCallListener(eventG -> {
-                        SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
-                                new Events(new ActionPerformedEvent(new Pair<>(ActionType.CALL, action.getValue()))));
-                        called.execute();
-                    });
-                } else if (action.getKey() == ActionType.CHECK) {
-                    actionBoard.addCheckAndFoldListener(eventG -> {
-                        SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
-                                new Events(new ActionPerformedEvent(new Pair<>(ActionType.CHECK, 0))));
-                        called.execute();
-                    });
-                } else if (action.getKey() == ActionType.RAISE) {
-                    actionBoard.setMinimumSliderValue(callValue + 1);
-                    actionBoard.setMaximumSliderValue(action.getValue());
-                    actionBoard.addRaiseListener(eventG -> {
-                        SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
-                                new Events(new ActionPerformedEvent(new Pair<>(ActionType.RAISE, actionBoard.getSliderValue()))));
-                        called.execute();
-                    });
-                }
-            }
+    class ConcreteEventManager extends EventsAdapter {
+        private ActionManager actionManager;
+
+        public ConcreteEventManager() {
+            actionManager = new ConcreteActionManager(clientManager, actionBoard);
+        }
+
+        @Override
+        public void process(PlayerTurnEvent event) {
+            logAvailableActions(event);
+            event.getOptions()
+                    .forEach(action -> action.accept(actionManager));
         }
 
         @Override
@@ -118,24 +108,54 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerAddedEvent event) {
-            PlayerBoard playerBoardLogged = new PlayerBoard(event.getNickname(), event.getInitialChips(), event.getAvatar());
+        public void process(PlayerLoggedEvent event) {
+            PlayerBoard playerBoardLogged;
+            playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition().name(), true, event.getChips(), event.getAvatar());
+            if (event.getNickname().equalsIgnoreCase(nickname)) {
+                playerBoardLogged.setNicknameColor(Color.YELLOW);
+            }
             pokerTable.sit(playerBoardLogged);
-
         }
 
         @Override
         public void process(PlayerUpdatedEvent event) {
-            PlayerBoard playerBoard = pokerTable.getPlayerBoards().stream()
-                    .filter(playerView -> playerView.getNickname().equalsIgnoreCase(event.getPlayer().getNickname())).findFirst().get();
-            //playerBoard.setPosition(event.getPlayer().getPosition().name());
-            System.out.println(event.getPlayer().getChips());
-            playerBoard.setChips(event.getPlayer().getChips());
+            pokerTable.updatePlayerProperties(event);
         }
 
         @Override
         public void process(PotUpdatedEvent event) {
             matchBoard.setPot(event.getPot());
+        }
+
+        @Override
+        public void process(CommunityUpdatedEvent event) {
+            while (event.number() != 0)
+                pokerTable.addCardToCommunityCardsBoard(event.getCard().getImageDirectoryPath());
+        }
+
+        @Override
+        public void process(TurnStartedEvent event) {
+            PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getNickname());
+            playerBoard.setPosition(event.getTurnPosition());
+            playerBoard.assignNewCards(event.getFrontImageCards().get(0), event.getFrontImageCards().get(1));
+
+            if (event.getNickname().equalsIgnoreCase(nickname))
+                playerBoard.coverCards(false);
+        }
+
+        @Override
+        public void process(ShowdownEvent event) {
+            pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(false));
+            for (Map.Entry<String, String> entry : event.getPoints().entrySet())
+                pokerTable.getPlayerBoard().stream().filter(playerBoard -> playerBoard.getNickname().equals(entry.getKey()))
+                        .forEach(playerBoard -> playerBoard.setHandIndicator(entry.getValue()));
+        }
+
+        @Override
+        public void process(TurnEndedEvent event) {
+            pokerTable.getCommunityCardsBoard().hideAllCards();
+            pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(true));
+            pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setHandIndicator(Utils.EMPTY));
         }
     }
 }

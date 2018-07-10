@@ -1,17 +1,21 @@
 package client.frames;
 
 
+import client.components.ProgressBar;
+import client.events.EventsAdapter;
 import client.socket.ClientManager;
-import events.EventProcessAdapter;
-import events.Events;
-import events.PlayerAddedEvent;
-import events.RoomCreatedEvent;
 import interfaces.Message;
+import interfaces.ServerEvent;
+import server.events.Events;
+import server.events.PlayerLoggedEvent;
+import server.events.RoomCreatedEvent;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,15 +36,31 @@ public class AbstractGameFrame extends JFrame {
     protected String nickname;
     protected ClientManager clientManager;
     private JPanel playersList;
+    private ArrayList<String> nicknames;
 
     public AbstractGameFrame() {
-
+        nicknames = new ArrayList<>();
     }
 
     protected void initPanel() {
-        JPanel panelGraphic = new JPanel();
+
+        BorderLayout border = new BorderLayout();
+        JPanel container = new JPanel();
+        container.setLayout(border);
+
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.updateValue(56);
+        container.add(progressBar);
         playersList = new JPanel();
-        JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelGraphic, playersList);
+        playersList.setLayout(new BoxLayout(playersList, BoxLayout.Y_AXIS));
+        playersList.setVisible(true);
+        playersList.setBackground(new Color(251, 140, 0));
+
+
+        JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, container, playersList);
+        splitter.setDividerLocation(0.5);
+        splitter.setResizeWeight(0.5);
+
         add(splitter, BorderLayout.CENTER);
     }
 
@@ -62,24 +82,28 @@ public class AbstractGameFrame extends JFrame {
      * al tipo di messaggio ricevuto.
      */
 
-    class EventProcessor extends EventProcessAdapter {
+    class EventsProcessor extends EventsAdapter {
         private boolean isRoomCreated = false;
 
         @Override
-        public void process(PlayerAddedEvent event) {
-            playersList.add(new JLabel(event.getNickname()));
+        public void process(PlayerLoggedEvent event) {
+            if (!nicknames.contains(event.getNickname())) {
+                nicknames.add(event.getNickname());
+                JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
+                nickname.setAlignmentX(Component.CENTER_ALIGNMENT);
+                nickname.setFont(Utils.getCustomFont(Font.BOLD, 30));
+                nickname.setForeground(Color.WHITE);
+                playersList.add(nickname);
+                validate();
+
+            }
+
         }
 
         @Override
         public void process(RoomCreatedEvent event) {
             isRoomCreated = true;
         }
-
-        /**
-         * Permette di stabilire se la stanza è già stata creata oppure no.
-         *
-         * @return True se è stata creata, false altrimenti.
-         */
 
         public boolean isRoomCreated() {
             return isRoomCreated;
@@ -98,7 +122,7 @@ public class AbstractGameFrame extends JFrame {
     public class SocketReaderStart<T extends Message> extends SwingWorker<Void, T> {
         private final static String WAITING = "In attesa della creazione della stanza...";
         private ObjectInputStream inputStream;
-        private EventProcessor processor;
+        private EventsProcessor processor;
 
         /**
          * Costruttore di SocketReaderStart.
@@ -107,7 +131,7 @@ public class AbstractGameFrame extends JFrame {
 
         public SocketReaderStart(ObjectInputStream inputStream) {
             this.inputStream = inputStream;
-            processor = new EventProcessor();
+            processor = new EventsProcessor();
         }
 
         /**
@@ -122,7 +146,7 @@ public class AbstractGameFrame extends JFrame {
             do {
                 ClientManager.logger.info(WAITING);
                 try {
-                    messageObject = (T) inputStream.readObject();
+                    messageObject = (T) inputStream.readUnshared();
                     if (messageObject instanceof Events) {
                         publish(messageObject);
                         Thread.sleep(800);
@@ -136,7 +160,7 @@ public class AbstractGameFrame extends JFrame {
 
         /**
          * Questo metodo viene richiamato dallo SwingWorker ed eseguito direttamente sull'EDT. Si occupa di informare
-         * il gestore degli eventi {@link EventProcessor} di aggiornare opportunamente la grafica, in base al tipo
+         * il gestore degli eventi {@link EventsProcessor} di aggiornare opportunamente la grafica, in base al tipo
          * di messaggio ricevuto da Server.
          *
          * @param chunks Messaggio ricevuto dal Server
@@ -145,7 +169,7 @@ public class AbstractGameFrame extends JFrame {
         @Override
         protected void process(List<T> chunks) {
             Events events = (Events) chunks.get(0);
-            events.getEvents().forEach(event -> event.accept(processor));
+            events.getEvents().forEach(event -> ((ServerEvent) event).accept(processor));
         }
 
         /**
@@ -157,7 +181,7 @@ public class AbstractGameFrame extends JFrame {
         @Override
         protected void done() {
             dispose();
-            new BoardFrame(clientManager);
+            new BoardFrame(clientManager, nickname);
         }
     }
 }

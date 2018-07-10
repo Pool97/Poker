@@ -16,13 +16,6 @@ public class MatchModel {
         bigBlind = 0;
     }
 
-    /**
-     * Permette di incrementare i bui in ogni turno. Per non rendere troppo lunga la partita ogni Big Blind
-     * sarà il doppio di quello precedente. Lo Small Blind si calcola di conseguenza, essendo da regolamento
-     * ufficiale la metà del Big Blind. Ovviamente è ragionevole porre un limite all'aumento del Big Blind, esso
-     * non può assumere valori che sono al di sopra dell'importo iniziale di chips-per-player.
-     */
-
     public void increaseBlinds() {
         if (bigBlind < startChips) {
             bigBlind *= 2;

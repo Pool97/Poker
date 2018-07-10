@@ -1,8 +1,9 @@
 package server.socket;
 
-import events.CreatorConnectedEvent;
-import events.Events;
-import events.PlayerCreatedEvent;
+import client.events.CreatorConnectedEvent;
+import client.events.PlayerConnectedEvent;
+import server.events.Events;
+import server.events.PlayerLoggedEvent;
 import server.model.PlayerModel;
 import server.model.Room;
 
@@ -88,10 +89,13 @@ public class ServerManager implements Runnable {
                 logger.info(SERVER_INFO + WAITING_FOR_INFO + (totalPlayers - 1) + PLAYERS);
             }
 
-            PlayerCreatedEvent event = (PlayerCreatedEvent) newPlayer.getEvent();
+            PlayerConnectedEvent event = (PlayerConnectedEvent) newPlayer.getEvent();
             PlayerModel playerModel = new PlayerModel(event.getNickname(), event.getAvatar());
             player.setPlayerModel(playerModel);
             room.addPlayer(player);
+            Events playersListEvent = new Events();
+            room.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(new PlayerLoggedEvent(playerModel1.getNickname())));
+            room.sendBroadcast(playersListEvent);
             logger.info(PLAYER_ADDED + event.getNickname());
 
             if (room.getSize() == totalPlayers) {
