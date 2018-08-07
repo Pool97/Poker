@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * Classe che è incaricata di gestire la logica del deck di Poker. Tra i possibili metodi possiamo trovare
@@ -32,13 +31,13 @@ public class DeckModel {
      * Permette la creazione di un Deck di carte da Poker e il suo mescolamento.
      */
 
-    public void createAndShuffle(){
+    public void createAndShuffle() {
         deck = new Stack<>();
         List<Pair<Integer, Integer>> deckShuffled = createDeck();
         Collections.shuffle(deckShuffled);
-        deck = deckShuffled.stream()
-                .map(pair -> new CardModel(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()]))
-                .collect(Collectors.toCollection(Stack<CardModel>::new));
+        for (Pair<Integer, Integer> pair : deckShuffled) {
+            deck.push(new CardModel(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()]));
+        }
     }
 
     public CardModel nextCard() {

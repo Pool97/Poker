@@ -1,7 +1,6 @@
 package client.frames;
 
-import org.pushingpixels.substance.api.skin.SubstanceMistAquaLookAndFeel;
-import utils.Utils;
+import client.components.ActionButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,45 +56,43 @@ public class WelcomeFrame extends JFrame {
      */
 
     private void createGUI() {
+
         JPanel container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-
-        container.add(Box.createHorizontalGlue());
-
-        JButton roomButton = new JButton();
-        setCustomButton(roomButton, ROOM_CREATION_OPTION, Color.GREEN);
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setBackground(new Color(178, 39, 60));
+        container.add(Box.createVerticalGlue());
+        ActionButton roomButton = new ActionButton(ROOM_CREATION_OPTION, new Color(0, 140, 65));
+        setCustomButton(roomButton, ROOM_CREATION_OPTION.toUpperCase(), Color.GREEN);
         container.add(roomButton);
-        container.add(Box.createHorizontalGlue());
         roomButton.addActionListener(event -> {
             dispose();
             new SelectAvatarFrame(0);
         });
 
-        JButton connectButton = new JButton();
-        setCustomButton(connectButton, ROOM_CONNECT_OPTION, Color.BLUE);
+        ActionButton connectButton = new ActionButton(ROOM_CONNECT_OPTION, Color.ORANGE);
+        setCustomButton(connectButton, ROOM_CONNECT_OPTION.toUpperCase(), Color.BLUE);
         container.add(connectButton);
-        container.add(Box.createHorizontalGlue());
         connectButton.addActionListener(event -> {
             dispose();
             new SelectAvatarFrame(1);
         });
-        JButton infoButton = new JButton();
-        setCustomButton(infoButton, ABOUT_US_OPTION, Color.CYAN);
+        ActionButton infoButton = new ActionButton(ABOUT_US_OPTION, new Color(18, 109, 183));
+        setCustomButton(infoButton, ABOUT_US_OPTION.toUpperCase(), Color.CYAN);
         container.add(infoButton);
-        container.add(Box.createHorizontalGlue());
+        container.add(Box.createVerticalGlue());
 
         add(container);
         pack();
     }
 
     private void setCustomButton(JButton button, String text, Color color) {
-        button.setFont(Utils.getCustomFont(Font.PLAIN, 18));
         button.setText(text);
+        button.setFont(new Font("helvetica", Font.BOLD, 16));
         button.setFocusPainted(false);
         button.setAlignmentX(CENTER_ALIGNMENT);
-        button.setPreferredSize(new Dimension(200, 200));
-        button.setMaximumSize(new Dimension(200, 200));
-        button.setBackground(color);
+        button.setPreferredSize(new Dimension(200, 150));
+        button.setMaximumSize(new Dimension(300, 150));
+        //button.setBackground(color);
     }
 
     /**
@@ -104,10 +101,17 @@ public class WelcomeFrame extends JFrame {
 
     private void setLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(new SubstanceMistAquaLookAndFeel());
-        } catch (UnsupportedLookAndFeelException e1) {
-            e1.printStackTrace();
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // If Nimbus is not available, you can set the GUI to another look and feel.
         }
+
+
     }
 
     @Override

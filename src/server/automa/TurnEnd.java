@@ -7,6 +7,8 @@ import server.events.TurnEndedEvent;
 import server.model.PlayerModel;
 import server.model.Room;
 
+import java.util.concurrent.CountDownLatch;
+
 public class TurnEnd implements PokerState {
     private MatchHandler match;
 
@@ -24,6 +26,12 @@ public class TurnEnd implements PokerState {
         match.getRoom().getPlayers().forEach(PlayerModel::removeCards);
         match.getRoom().getPlayers().forEach(PlayerModel::removeActions);
         events.addEvent(new TurnEndedEvent());
+        CountDownLatch latch = new CountDownLatch(1);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         room.sendBroadcast(events);
         try {
             Thread.sleep(1000);
@@ -31,6 +39,7 @@ public class TurnEnd implements PokerState {
             e.printStackTrace();
         }
         match.setState(new StartTurn(match));
+
 
     }
 

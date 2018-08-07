@@ -82,7 +82,7 @@ public class MatchBoard extends BorderPanel {
         g2D.fillRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 30, 30);
     }
 
-    public void drawBorder(Graphics2D g2D) {
+    public void drawBorder(Graphics2D g2D, Color color) {
         g2D.setStroke(new BasicStroke(4));
         g2D.setColor(new Color(255, 215, 0));
         g2D.drawRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 30, 30);

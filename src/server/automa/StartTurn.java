@@ -67,6 +67,7 @@ public class StartTurn implements PokerState {
         turnModel.createDeck();
         turnModel.resetPot();
         matchModel.increaseBlinds();
+        turnModel.getCommunityModel().clear();
     }
 
     private void sendNewBlindsValuesToPlayers() {

@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-import static java.awt.Color.WHITE;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static utils.Utils.TRANSPARENT;
@@ -16,12 +15,12 @@ public class ActionBoard extends BorderPanel {
     private final static String CALL_TEXT = "CALL";
     private final static String RAISE_TEXT = "RAISE";
     private final static String FOLD_TEXT = "FOLD";
-    private final static int INSET = 10;
+    private final static int INSET = 20;
     private final static int WEIGHT = 33;
-    private final static int START_PADDING = 2;
-    private final static int END_PADDING = 4;
+    private final static int START_PADDING = 6;
+    private final static int END_PADDING = 6;
     private final static int ARC_SIZE = 30;
-    private final static float STROKE_WIDTH = 4.0F;
+    private final static float STROKE_WIDTH = 6.0F;
     private ActionButton call;
     private ActionButton check;
     private ActionButton raise;
@@ -54,39 +53,39 @@ public class ActionBoard extends BorderPanel {
     }
 
     private void createCall() {
-        call = new ActionButton(CALL_TEXT);
+        call = new ActionButton(CALL_TEXT, Color.ORANGE);
     }
 
     private void attachCall() {
         add(call, new GBC(1, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
-                new Insets(0, INSET, INSET, INSET)));
+                new Insets(15, INSET, INSET, INSET)));
     }
 
     private void createRaise() {
-        raise = new ActionButton(RAISE_TEXT);
+        raise = new ActionButton(RAISE_TEXT, Color.ORANGE);
     }
 
     private void createFold() {
-        fold = new ActionButton(FOLD_TEXT);
+        fold = new ActionButton(FOLD_TEXT, Color.ORANGE);
     }
 
     private void attachRaise() {
         add(raise, new GBC(2, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
-                new Insets(0, INSET, INSET, INSET)));
+                new Insets(15, INSET, INSET, INSET)));
     }
 
     private void attachFold() {
         add(fold, new GBC(3, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
-                new Insets(0, INSET, INSET, INSET)));
+                new Insets(15, INSET, INSET, INSET)));
     }
 
     private void createCheck() {
-        check = new ActionButton(CHECK_TEXT);
+        check = new ActionButton(CHECK_TEXT, Color.ORANGE);
     }
 
     private void attachCheck() {
         add(check, new GBC(0, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
-                new Insets(0, INSET, INSET, INSET)));
+                new Insets(15, INSET, INSET, INSET)));
     }
 
     private void createRaiseSlider() {
@@ -97,7 +96,7 @@ public class ActionBoard extends BorderPanel {
         JPanel sliderContainer = new JPanel();
         sliderContainer.setBackground(new Color(171, 39, 60));
         sliderContainer.add(raiseSlider);
-        add(sliderContainer, new GBC(0, 1, 1, 1, 4, 1, CENTER, HORIZONTAL, new Insets(0, 10, 0, 10)));
+        add(sliderContainer, new GBC(0, 1, 1, 1, 4, 1, CENTER, HORIZONTAL, new Insets(0, 15, 15, 15)));
 
     }
 
@@ -136,14 +135,14 @@ public class ActionBoard extends BorderPanel {
     @Override
     protected void drawBackground(Graphics2D g2D) {
         g2D.setColor(new Color(171, 39, 60));
-        g2D.fillRoundRect(START_PADDING, START_PADDING, getWidth() - END_PADDING, getHeight() - END_PADDING, ARC_SIZE, ARC_SIZE);
+        g2D.fillRoundRect(START_PADDING + 3, START_PADDING + 3, getWidth() - END_PADDING - 4, getHeight() - END_PADDING - 10, ARC_SIZE, ARC_SIZE);
     }
 
     @Override
-    protected void drawBorder(Graphics2D g2D) {
+    protected void drawBorder(Graphics2D g2D, Color color) {
         g2D.setStroke(new BasicStroke(STROKE_WIDTH));
-        g2D.setColor(WHITE);
-        g2D.drawRoundRect(START_PADDING, START_PADDING, getWidth() - END_PADDING, getHeight() - END_PADDING, ARC_SIZE, ARC_SIZE);
+        g2D.setColor(color);
+        g2D.drawRoundRect(START_PADDING, START_PADDING, getWidth() - END_PADDING - 4, getHeight() - END_PADDING - 4, ARC_SIZE, ARC_SIZE);
     }
 
     public void setCallText(String text) {

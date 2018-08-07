@@ -25,6 +25,13 @@ public class PlayerBoard extends BorderPanel {
     private JPanel avatarAndCardsContainer;
     private ArrayList<Card> cards;
 
+    private final long animationDuration = 2000;
+    private Timer tm;
+    private long animStartTime;
+    private Color colorStart = Color.WHITE;
+    private Color colorEnd = new Color(41, 121, 255);
+    private Color currentColor;
+
     public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
         cards = new ArrayList<>();
         setComponentProperties();
@@ -136,15 +143,15 @@ public class PlayerBoard extends BorderPanel {
     @Override
     protected void drawBackground(Graphics2D g2D) {
         g2D.setColor(new Color(191, 54, 12));
-        g2D.fillRoundRect(2, 2, getWidth() - 2, getHeight() - 3,
+        g2D.fillRoundRect(8, 8, getWidth() - 12, getHeight() - 12,
                 40, 40);
     }
 
     @Override
-    protected void drawBorder(Graphics2D g2D) {
-        g2D.setStroke(new BasicStroke(4f));
-        g2D.setColor(WHITE);
-        g2D.drawRoundRect(2, 2, getWidth() - 4, getHeight() - 4,
+    protected void drawBorder(Graphics2D g2D, Color color) {
+        g2D.setStroke(new BasicStroke(6f));
+        g2D.setColor(color);
+        g2D.drawRoundRect(6, 6, getWidth() - 10, getHeight() - 10,
                 40, 40);
     }
 
@@ -176,6 +183,40 @@ public class PlayerBoard extends BorderPanel {
         nickname.setForeground(color);
     }
 
+
+    public void activateColorTransition() {
+        tm = new Timer(50, e -> {
+            long currentTime = System.nanoTime() / 1000000;
+            long totalTime = currentTime - animStartTime;
+            if (totalTime > animationDuration) {
+                animStartTime = currentTime;
+            }
+            float fraction = (float) totalTime / animationDuration;
+            fraction = Math.min(1.0f, fraction);
+            int red = (int) (fraction * colorEnd.getRed() +
+                    (1 - fraction) * colorStart.getRed());
+            int green = (int) (fraction * colorEnd.getGreen() +
+                    (1 - fraction) * colorStart.getGreen());
+            int blue = (int) (fraction * colorEnd.getBlue() +
+                    (1 - fraction) * colorStart.getBlue());
+            currentColor = new Color(red, green, blue);
+            borderColor = currentColor;
+            repaint();
+        });
+        tm.setInitialDelay(1000);
+        animStartTime = 1000 + System.nanoTime() / 1000000;
+        animStartTime = 1000 + System.nanoTime() / 1000000;
+        tm.start();
+    }
+
+    public void disableColorTransition() {
+        if (tm != null && tm.isRunning()) {
+            tm.stop();
+            borderColor = Color.WHITE;
+            repaint();
+        }
+
+    }
 
     public void assignNewCards(String frontImage1, String frontImage2) {
         cards.get(0).setFrontImageDirectoryPath(frontImage1);

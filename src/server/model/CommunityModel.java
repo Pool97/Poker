@@ -1,26 +1,28 @@
 package server.model;
 
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CommunityModel {
-    private ArrayList<Pair<CardSuit, CardRank>> communityCards;
+    private ArrayList<CardModel> communityCards;
 
     public CommunityModel() {
         communityCards = new ArrayList<>();
     }
 
-    public void addCard(Pair<CardSuit, CardRank> card) {
+    public void addCard(CardModel card) {
         communityCards.add(card);
     }
 
-    public void addCards(Pair<CardSuit, CardRank>... cards) {
+    public void addCards(CardModel... cards) {
         communityCards.addAll(Arrays.asList(cards));
     }
 
-    public Pair<CardSuit, CardRank> getCard(int index) {
+    public CardModel getCard(int index) {
         return communityCards.get(index);
+    }
+
+    public void clear() {
+        communityCards.clear();
     }
 }

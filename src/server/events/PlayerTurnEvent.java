@@ -8,9 +8,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PlayerTurnEvent implements Serializable, ServerEvent {
+    private String player;
     private ArrayList<PokerAction> optionsAvailable;
 
-    public PlayerTurnEvent() {
+    public PlayerTurnEvent(String player) {
+        this.player = player;
         optionsAvailable = new ArrayList<>();
     }
 
@@ -22,6 +24,9 @@ public class PlayerTurnEvent implements Serializable, ServerEvent {
         return optionsAvailable;
     }
 
+    public String getPlayerNickname() {
+        return player;
+    }
 
     @Override
     public void accept(EventsManager processor) {

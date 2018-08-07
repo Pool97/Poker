@@ -1,29 +1,45 @@
 package server.model;
 
-import javafx.util.Pair;
-import utils.Utils;
+import java.io.Serializable;
 
-public class CardModel extends Pair<CardSuit, CardRank> {
+public class CardModel implements Serializable {
     private String imageDirectoryPath;
+    protected CardRank value;
+    private CardSuit key;
 
     public CardModel(CardSuit key, CardRank value) {
-        super(key, value);
+        this.key = key;
+        this.value = value;
         setImageDirectoryPath();
     }
 
-    public boolean equals(Pair<CardSuit, CardRank> o) {
-        if (!(o instanceof CardModel))
+    public boolean equals(CardModel o) {
+        if (o == null)
             return false;
-        CardModel card = (CardModel) o;
-        return getKey() == card.getKey() && getValue() == card.getValue();
+        return key == o.key && value == o.value;
     }
 
+
     private void setImageDirectoryPath() {
-        imageDirectoryPath = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "cards/" +
-                getValue().name().toLowerCase().concat("_") + getKey().name().toLowerCase().concat(".png");
+        imageDirectoryPath = System.getProperty("user.dir") + "/res/" + "cards/" +
+                getValue().name().toLowerCase().concat("_") + key.name().toLowerCase().concat(".png");
     }
 
     public String getImageDirectoryPath() {
         return imageDirectoryPath;
+    }
+
+    public CardRank getValue() {
+        return value;
+    }
+
+    public CardSuit getKey() {
+        return key;
+    }
+
+    public CardModel setValue() {
+        if (value == CardRank.ACE || value == CardRank.ACE_MAX)
+            value = value == CardRank.ACE_MAX ? CardRank.ACE : CardRank.ACE_MAX;
+        return this;
     }
 }

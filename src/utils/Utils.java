@@ -1,8 +1,7 @@
 package utils;
 
-import javafx.util.Pair;
+import server.model.CardModel;
 import server.model.CardRank;
-import server.model.CardSuit;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,9 +9,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.stream.Collectors;
 
 
 public class Utils {
@@ -56,6 +57,7 @@ public class Utils {
         BufferedImage scaledImage = null;
 
         try {
+            System.out.println(filename);
             BufferedImage originalImage = ImageIO.read(new File(filename));
             scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
         } catch (IOException e) {
@@ -95,6 +97,47 @@ public class Utils {
         return null;
     }
 
+    /*private void searchForAddresses() {
+        Enumeration<NetworkInterface> interfaces = null;
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface i = interfaces.nextElement();
+            for (Enumeration<InetAddress> addresses = i.getInetAddresses(); addresses.hasMoreElements(); ) {
+                InetAddress addr = addresses.nextElement();
+                if (addr instanceof Inet4Address) {
+                    InterfaceView interfaceView = new InterfaceView(addr.getHostAddress());
+                    interfaceView.addMouseListener(new LinuxFrame.MyMouseListener(interfaceView));
+                    interfaceView.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    netContainer.add(interfaceView);
+                }
+            }
+        }
+    }*/
+
+    public static String getIpAddress() {
+        Enumeration<NetworkInterface> interfaces = null;
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface i = interfaces.nextElement();
+            for (Enumeration<InetAddress> addresses = i.getInetAddresses(); addresses.hasMoreElements(); ) {
+                InetAddress addr = addresses.nextElement();
+                if (addr instanceof Inet4Address) {
+                    return addr.getHostAddress();
+                }
+            }
+        }
+        return "";
+    }
+
     public static RenderingHints getHighQualityRenderingHints() {
         RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -114,189 +157,48 @@ public class Utils {
         }
     }
 
-    public static String cardName(Pair<CardSuit, CardRank> p) {
-        String nameCard = p.getValue().toString() + "_" + p.getKey().toString() + ".png";
-        return nameCard;
+    public static void sortCards(ArrayList<CardModel> cards, boolean isAceMax) {
+        CardRank aceValueReversed = isAceMax ? CardRank.ACE : CardRank.ACE_MAX;
+
+        ArrayList<CardModel> orderedCards = cards.stream()
+                .filter(card -> card.getValue() != aceValueReversed)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        orderedCards.addAll(cards.stream()
+                .filter(card -> card.getValue() == aceValueReversed)
+                .map(CardModel::setValue)
+                .collect(Collectors.toCollection(ArrayList::new)));
+
+        Comparator<CardModel> comparator = Comparator.comparingInt(card -> card.getValue().ordinal());
+        orderedCards.sort(comparator.reversed());
+        cards.clear();
+        cards.addAll(orderedCards);
     }
 
-
-    public static int controllo(Pair<CardSuit, CardRank> p) {
-        if (p.getValue().toString().equals("ACE"))
-            return 14;
-        else if (p.getValue().toString().equals("TWO"))
-            return 2;
-        else if (p.getValue().toString().equals("THREE"))
-            return 3;
-        else if (p.getValue().toString().equals("FOUR"))
-            return 4;
-        else if (p.getValue().toString().equals("FIVE"))
-            return 5;
-        else if (p.getValue().toString().equals("SIX"))
-            return 6;
-        else if (p.getValue().toString().equals("SEVEN"))
-            return 7;
-        else if (p.getValue().toString().equals("EIGHT"))
-            return 8;
-        else if (p.getValue().toString().equals("NINE"))
-            return 9;
-        else if (p.getValue().toString().equals("TEN"))
-            return 10;
-        else if (p.getValue().toString().equals("JACK"))
-            return 11;
-        else if (p.getValue().toString().equals("QUEEN"))
-            return 12;
-        else if (p.getValue().toString().equals("KING"))
-            return 13;
-
-        return 0;
-
-
-    }
-
-    public static int controlloA14(Pair<CardSuit, CardRank> p) {
-        if (p.getValue().toString().equals("ACE"))
-            return 14;
-        else if (p.getValue().toString().equals("TWO"))
-            return 2;
-        else if (p.getValue().toString().equals("THREE"))
-            return 3;
-        else if (p.getValue().toString().equals("FOUR"))
-            return 4;
-        else if (p.getValue().toString().equals("FIVE"))
-            return 5;
-        else if (p.getValue().toString().equals("SIX"))
-            return 6;
-        else if (p.getValue().toString().equals("SEVEN"))
-            return 7;
-        else if (p.getValue().toString().equals("EIGHT"))
-            return 8;
-        else if (p.getValue().toString().equals("NINE"))
-            return 9;
-        else if (p.getValue().toString().equals("TEN"))
-            return 10;
-        else if (p.getValue().toString().equals("JACK"))
-            return 11;
-        else if (p.getValue().toString().equals("QUEEN"))
-            return 12;
-        else if (p.getValue().toString().equals("KING"))
-            return 13;
-
-        return 0;
-
-
-    }
-
-    public static int controlloA1(Pair<CardSuit, CardRank> p) {
-        if (p.getValue().toString().equals("ACE"))
-            return 1;
-        else if (p.getValue().toString().equals("TWO"))
-            return 2;
-        else if (p.getValue().toString().equals("THREE"))
-            return 3;
-        else if (p.getValue().toString().equals("FOUR"))
-            return 4;
-        else if (p.getValue().toString().equals("FIVE"))
-            return 5;
-        else if (p.getValue().toString().equals("SIX"))
-            return 6;
-        else if (p.getValue().toString().equals("SEVEN"))
-            return 7;
-        else if (p.getValue().toString().equals("EIGHT"))
-            return 8;
-        else if (p.getValue().toString().equals("NINE"))
-            return 9;
-        else if (p.getValue().toString().equals("TEN"))
-            return 10;
-        else if (p.getValue().toString().equals("JACK"))
-            return 11;
-        else if (p.getValue().toString().equals("QUEEN"))
-            return 12;
-        else if (p.getValue().toString().equals("KING"))
-            return 13;
-
-        return 0;
-
-
-    }
-
-
-    public static String controlloS(Pair<CardSuit, CardRank> p) {
-
-        if (p.getKey().toString().equals("CLUBS"))
-            return "C";
-        else if (p.getKey().toString().equals("DIAMONDS"))
-            return "D";
-        else if (p.getKey().toString().equals("HEARTS"))
-            return "H";
-        else if (p.getKey().toString().equals("SPADES"))
-            return "S";
-
-
-        return "SCEMO";
-
-
-    }
-
-    public static int[] cardArray(Pair<CardSuit, CardRank> com1, Pair<CardSuit, CardRank> com2, Pair<CardSuit, CardRank> com3, Pair<CardSuit, CardRank> com4, Pair<CardSuit, CardRank> com5, Pair<CardSuit, CardRank> ply1, Pair<CardSuit, CardRank> ply2) {
-
-        c1 = controllo(com1);
-        c2 = controllo(com2);
-        c3 = controllo(com3);
-        c4 = controllo(com4);
-        c5 = controllo(com5);
-        pl1 = controllo(ply1);
-        pl2 = controllo(ply2);
-
-        int[] cardsC = {c1, c2, c3, c4, c5, pl1, pl2};
-
-        return cardsC;
-    }
-
-    public static ArrayList<Integer> cardArrayA14(ArrayList<Pair<CardSuit, CardRank>> a) {
-
-        int n = a.size();
-        ArrayList<Integer> cardsC = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            cardsC.add(controlloA14(a.get(i)));
+    public static void removeDuplicates(ArrayList<CardModel> cards) {
+        int k = 1;
+        int n = cards.size();
+        for (int i = 1; i < n; i++) {
+            if (cards.get(i).getValue() != cards.get(i - 1).getValue()) {
+                cards.set(k, cards.get(i));
+                k++;
+            }
         }
-
-        return cardsC;
     }
 
-    public static ArrayList<Integer> cardArrayA1(ArrayList<Pair<CardSuit, CardRank>> a) {
-
-        int n = a.size();
-        ArrayList<Integer> cardsC = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            cardsC.add(controlloA1(a.get(i)));
+    public static int checkNumberOfCouples(ArrayList<CardModel> cardsToExamine, ArrayList<CardModel> finalCards) {
+        for (int i = 0; i < cardsToExamine.size(); i++) {
+            for (int j = 0; j < cardsToExamine.size(); j++) {
+                if (i != j) {
+                    if (!finalCards.contains(cardsToExamine.get(j)) && !finalCards.contains(cardsToExamine.get(i))) {
+                        if (cardsToExamine.get(i).getValue() == cardsToExamine.get(j).getValue()) {
+                            finalCards.add(cardsToExamine.get(i));
+                            finalCards.add(cardsToExamine.get(j));
+                        }
+                    }
+                }
+            }
         }
-
-        return cardsC;
-    }
-
-
-    public static ArrayList<String> cardArrayString(ArrayList<Pair<CardSuit, CardRank>> a) {
-
-        int n = a.size();
-        ArrayList<String> cardsC = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            cardsC.add(controlloS(a.get(i)));
-        }
-
-        return cardsC;
-    }
-
-    public static ArrayList<Pair<CardSuit, CardRank>> cardArrayPair(Pair<CardSuit, CardRank> com1, Pair<CardSuit, CardRank> com2, Pair<CardSuit, CardRank> com3, Pair<CardSuit, CardRank> com4, Pair<CardSuit, CardRank> com5, Pair<CardSuit, CardRank> ply1, Pair<CardSuit, CardRank> ply2) {
-
-        ArrayList<Pair<CardSuit, CardRank>> cardsC = new ArrayList<>();
-        cardsC.add(com1);
-        cardsC.add(com2);
-        cardsC.add(com3);
-        cardsC.add(com4);
-        cardsC.add(com5);
-        cardsC.add(ply1);
-        cardsC.add(ply2);
-
-        return cardsC;
+        return finalCards.size() / 2;
     }
 }

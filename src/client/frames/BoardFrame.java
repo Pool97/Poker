@@ -97,8 +97,11 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(PlayerTurnEvent event) {
             logAvailableActions(event);
-            event.getOptions()
-                    .forEach(action -> action.accept(actionManager));
+            PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
+            playerBoard.activateColorTransition();
+
+            if (event.getPlayerNickname().equalsIgnoreCase(nickname))
+                event.getOptions().forEach(action -> action.accept(actionManager));
         }
 
         @Override
@@ -120,6 +123,7 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(PlayerUpdatedEvent event) {
             pokerTable.updatePlayerProperties(event);
+
         }
 
         @Override
@@ -141,6 +145,7 @@ public class BoardFrame extends JFrame {
 
             if (event.getNickname().equalsIgnoreCase(nickname))
                 playerBoard.coverCards(false);
+
         }
 
         @Override

@@ -44,7 +44,7 @@ public abstract class Action implements PokerState {
 
         int callValue = maxValue - player.getTurnBet();
 
-        optionsEvent = new PlayerTurnEvent();
+        optionsEvent = new PlayerTurnEvent(player.getNickname());
         optionsEvent.addOption(new Fold());
 
         if (callValue > 0)
@@ -71,7 +71,7 @@ public abstract class Action implements PokerState {
     }
 
     private void sendPossibleActionsTo(PlayerModel player) {
-        match.getRoom().sendMessage(player, new Events(optionsEvent));
+        match.getRoom().sendBroadcast(new Events(optionsEvent));
     }
 
     private ActionPerformedEvent readActionFrom(PlayerModel player) {

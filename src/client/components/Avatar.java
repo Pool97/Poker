@@ -1,35 +1,29 @@
 package client.components;
 
-import client.AvatarCategory;
 import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 import static utils.Utils.*;
 
-public class Avatar extends JComponent implements ComponentListener {
+public class Avatar extends JComponent implements MouseListener, ComponentListener {
     private BufferedImage image;
     private String directoryPath;
 
-    private static final String AVATARS_DIRECTORY = "/avatars/";
+    private static final String AVATARS_DIRECTORY = "avatars";
+    private float opacity;
     private static final String IMAGE_EXTENSION = ".png";
 
-    public Avatar(String directoryPath) {
-        this.directoryPath = directoryPath;
+    public Avatar(String avatarName) {
+        setDirectoryPath(avatarName);
         addComponentListener(this);
-    }
-
-    public Avatar(AvatarCategory category, String avatarName) {
-        setDirectoryPath(category, avatarName);
-        addComponentListener(this);
-    }
-
-    public void setDirectoryPath(String directoryPath) {
-        this.directoryPath = directoryPath;
+        addMouseListener(this);
     }
 
     public String getDirectoryPath() {
@@ -37,16 +31,16 @@ public class Avatar extends JComponent implements ComponentListener {
     }
 
     public String getName() {
-        String filenameWithExtension = directoryPath.substring(directoryPath.lastIndexOf("/") + 1, directoryPath.length());
+        String filenameWithExtension = directoryPath.substring(directoryPath.lastIndexOf("/") + 1);
         return filenameWithExtension.replace(IMAGE_EXTENSION, EMPTY);
     }
 
-    public void setDirectoryPath(AvatarCategory category, String avatarName) {
-        directoryPath = System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_DIRECTORY + category + "/" + avatarName;
+    public void setDirectoryPath(String avatarName) {
+        directoryPath = System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_DIRECTORY + "/" + avatarName;
     }
 
     public void loadImage() {
-        image = Utils.loadImageByPath(directoryPath, getSize());
+        image = Utils.loadImageByPath(directoryPath, new Dimension(getWidth() - 6, getHeight() - 6));
     }
 
     public boolean isImageLoaded(BufferedImage image) {
@@ -70,9 +64,26 @@ public class Avatar extends JComponent implements ComponentListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
+        g2D.setColor(Color.WHITE);
+        g2D.setStroke(new BasicStroke(2));
+        if (isImageLoaded(image)) {
+            g.drawImage(image, 3, 3, null);
+            g.drawOval(2, 2, getWidth() - 4, getHeight() - 3);
+        }
 
-        if (isImageLoaded(image))
-            g.drawImage(image, 0, 0, null);
+        applyOpacity((Graphics2D) g, opacity);
+
+    }
+
+    public void applyOpacity(Graphics2D g2D, float alpha) {
+        g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
+        Composite oldComposite = g2D.getComposite();
+        g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        g2D.setColor(Color.DARK_GRAY);
+        g2D.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+        g2D.setComposite(oldComposite);
     }
 
     @Override
@@ -94,5 +105,31 @@ public class Avatar extends JComponent implements ComponentListener {
     @Override
     public void componentHidden(ComponentEvent e) {
 
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        opacity = .25f;
+        repaint();
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        opacity = .0f;
     }
 }

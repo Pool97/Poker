@@ -85,6 +85,7 @@ public class PokerTable {
 
     public void updatePlayerProperties(PlayerUpdatedEvent event) {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
+        board.disableColorTransition();
         board.setChipIndicator(event.getChips());
     }
 
