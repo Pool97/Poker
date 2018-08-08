@@ -115,7 +115,7 @@ public class PlayerModel implements Serializable, Cloneable {
      */
 
     public boolean hasLost() {
-        return chips == 0;
+        return chips <= 0;
     }
 
 

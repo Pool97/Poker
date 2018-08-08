@@ -121,6 +121,15 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
+        public void process(PlayerHasLostEvent event) {
+            if (nickname.equals(event.getNickname())) {
+                JOptionPane.showMessageDialog(null, "Hai perso mentekatto!!xDxD");
+            }
+
+            pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
+        }
+
+        @Override
         public void process(PlayerUpdatedEvent event) {
             pokerTable.updatePlayerProperties(event);
 

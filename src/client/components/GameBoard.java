@@ -34,7 +34,7 @@ public class GameBoard extends JPanel {
     }
 
     private void setComponentProperties() {
-        double[][] layoutSize = {{TableLayout.FILL}, {0.20, 0.40, 0.20, 0.20}};
+        double[][] layoutSize = {{TableLayout.FILL}, {0.20, 0.30, 0.20, 0.30}};
         setLayout(new TableLayout(layoutSize));
         setBackground(Color.DARK_GRAY);
     }
@@ -60,7 +60,7 @@ public class GameBoard extends JPanel {
     }
 
     private void attachBottomPart() {
-        add(bottomPart, new TableLayoutConstraints(0, 3, 0, 3, FULL, CENTER));
+        add(bottomPart, new TableLayoutConstraints(0, 3, 0, 3, FULL, BOTTOM));
     }
 
     public void attach(PokerTable pokerTable) {
@@ -73,13 +73,13 @@ public class GameBoard extends JPanel {
 
     public void attach(JButton placeHolder, ActionBoard actionBoard, MatchBoard matchBoard) {
         bottomPart.add(placeHolder, new GBC(0, 0, 25, 1, 1, 1, NORTHEAST, BOTH,
-                new Insets(0, 10, 10, 10)));
+                new Insets(0, 10, 30, 10)));
 
-        bottomPart.add(actionBoard, new GBC(1, 0, 50, 1, 1, 1, GBC.CENTER,
-                VERTICAL, new Insets(0, 10, 10, 10)));
+        bottomPart.add(actionBoard, new GBC(1, 0, 50, 1, 1, 1, GBC.NORTH,
+                VERTICAL, new Insets(0, 10, 30, 10)));
 
         bottomPart.add(matchBoard, new GBC(3, 0, 10, 1, 1, 1, NORTHEAST,
-                VERTICAL, new Insets(0, 10, 10, 10)));
+                VERTICAL, new Insets(0, 10, 30, 10)));
     }
 
     @Override

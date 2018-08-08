@@ -45,7 +45,9 @@ public class Room {
     }
 
     public void movePlayersPosition() {
-        players.forEach(player -> player.getPlayerModel().setPosition(positionManager.nextPosition(player.getPlayerModel().getPosition())));
+        players.stream()
+                .filter(player -> !player.getPlayerModel().hasLost())
+                .forEach(player -> player.getPlayerModel().setPosition(positionManager.nextPosition(player.getPlayerModel().getPosition())));
     }
 
     public PlayerModel getPlayer(Position position) {
@@ -65,6 +67,9 @@ public class Room {
         positionManager.addPositions(size);
     }
 
+    public void removePosition() {
+        positionManager.removePosition();
+    }
     public Position getNextPosition(Position oldPosition) {
         return positionManager.nextPosition(oldPosition);
     }

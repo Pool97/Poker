@@ -39,4 +39,12 @@ public class VerticalTableSide extends JPanel implements TableSide {
         if (hasAvailableSeat())
             add(Box.createRigidArea(new Dimension(0, 50)));
     }
+
+    public boolean hasContained(PlayerBoard playerBoard) {
+        return playersSeated.stream().anyMatch(playerBoard1 -> playerBoard1 == playerBoard);
+    }
+
+    public void removePlayer(PlayerBoard playerBoard) {
+        remove(playerBoard);
+    }
 }

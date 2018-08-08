@@ -138,6 +138,7 @@ public class SelectAvatarFrame extends JFrame {
             currentColumn++;
 
             Avatar avatarV = new Avatar(f.getName());
+            avatarV.setOpacity(true);
             avatarV.setPreferredSize(avatarsSize);
             avatarV.addMouseListener(new MyMouseListener(avatarV));
             avatarsContainer.add(avatarV, new GBC(currentColumn, currentRow, 0, 0, 1, 1, GBC.CENTER,

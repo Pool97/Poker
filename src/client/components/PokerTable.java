@@ -96,4 +96,8 @@ public class PokerTable {
     public List<PlayerBoard> getPlayerBoard() {
         return playerBoards;
     }
+
+    public void removePlayer(PlayerBoard playerBoard) {
+        tableSides.stream().filter(tableSide -> tableSide.hasContained(playerBoard)).forEach(tableSide -> tableSide.removePlayer(playerBoard));
+    }
 }

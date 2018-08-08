@@ -15,6 +15,7 @@ import static utils.Utils.*;
 public class Avatar extends JComponent implements MouseListener, ComponentListener {
     private BufferedImage image;
     private String directoryPath;
+    private boolean isOpacity;
 
     private static final String AVATARS_DIRECTORY = "avatars";
     private float opacity;
@@ -28,6 +29,10 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
 
     public String getDirectoryPath() {
         return directoryPath;
+    }
+
+    public void setOpacity(boolean isOpacity) {
+        this.isOpacity = isOpacity;
     }
 
     public String getName() {
@@ -69,11 +74,13 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
         g2D.setColor(Color.WHITE);
         g2D.setStroke(new BasicStroke(2));
         if (isImageLoaded(image)) {
+            int minimum = Math.min(getWidth(), getHeight());
             g.drawImage(image, 3, 3, null);
-            g.drawOval(2, 2, getWidth() - 4, getHeight() - 3);
+            g.drawOval(2, 2, minimum - 4, minimum - 3);
         }
 
-        applyOpacity((Graphics2D) g, opacity);
+        if (isOpacity)
+            applyOpacity((Graphics2D) g, opacity);
 
     }
 
@@ -124,12 +131,16 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        opacity = .25f;
-        repaint();
+        if (isOpacity) {
+            opacity = .25f;
+            repaint();
+        }
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        opacity = .0f;
+        if (isOpacity) {
+            opacity = .0f;
+        }
     }
 }

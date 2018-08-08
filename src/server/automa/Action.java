@@ -47,8 +47,13 @@ public abstract class Action implements PokerState {
         optionsEvent = new PlayerTurnEvent(player.getNickname());
         optionsEvent.addOption(new Fold());
 
-        if (callValue > 0)
-            optionsEvent.addOption(new Call(callValue));
+        if (callValue > 0) {
+            if (player.getChips() - callValue < 0)
+                optionsEvent.addOption(new Call(player.getChips()));
+            else {
+                optionsEvent.addOption(new Call(callValue));
+            }
+        }
         else
             optionsEvent.addOption(new Check());
 
@@ -60,7 +65,7 @@ public abstract class Action implements PokerState {
         sendPossibleActionsTo(player);
 
         ActionPerformedEvent playerAction = readActionFrom(player);
-        MatchHandler.logger.info(ACTION_PERFORMED + player.getNickname());
+        MatchHandler.logger.info(ACTION_PERFORMED + player.getNickname() + " " + playerAction.getAction().getValue());
         player.addAction(playerAction.getAction());
         MatchHandler.logger.info(PLAYER_CHIPS + player.getNickname() + ": " + player.getChips());
 

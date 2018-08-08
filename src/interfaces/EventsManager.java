@@ -23,4 +23,6 @@ public interface EventsManager {
 
     void process(ShowdownEvent event);
 
+    void process(PlayerHasLostEvent event);
+
 }

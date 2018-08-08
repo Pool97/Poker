@@ -52,7 +52,7 @@ public class Card extends JComponent implements ComponentListener {
     }
 
     public void setFrontImageDirectoryPath(String imageDirectoryPath) {
-        this.frontImageDirectoryPath = imageDirectoryPath;
+        this.frontImageDirectoryPath = System.getProperty("user.dir") + imageDirectoryPath;
     }
 
     @Override

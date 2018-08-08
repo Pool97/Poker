@@ -85,7 +85,7 @@ public class StartTurn implements PokerState {
     }
 
     private void assignCardsToPlayers() {
-        room.getPlayers().forEach(player -> player.addCard(turnModel.getNextCard()));
-        room.getPlayers().forEach(player -> player.addCard(turnModel.getNextCard()));
+        room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> player.addCard(turnModel.getNextCard()));
+        room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> player.addCard(turnModel.getNextCard()));
     }
 }

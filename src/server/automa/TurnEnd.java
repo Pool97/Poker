@@ -2,12 +2,11 @@ package server.automa;
 
 import interfaces.PokerState;
 import server.events.Events;
+import server.events.PlayerHasLostEvent;
 import server.events.PotUpdatedEvent;
 import server.events.TurnEndedEvent;
 import server.model.PlayerModel;
 import server.model.Room;
-
-import java.util.concurrent.CountDownLatch;
 
 public class TurnEnd implements PokerState {
     private MatchHandler match;
@@ -23,15 +22,14 @@ public class TurnEnd implements PokerState {
         match.getTurnModel().resetPot();
         events.addEvent(new PotUpdatedEvent(match.getTurnModel().getPot()));
         Room room = match.getRoom();
+        match.getRoom().setPlayersPositions();
         match.getRoom().getPlayers().forEach(PlayerModel::removeCards);
         match.getRoom().getPlayers().forEach(PlayerModel::removeActions);
+        match.getRoom().getPlayers().stream()
+                .filter(PlayerModel::hasLost)
+                .forEach(playerModel -> events.addEvent(new PlayerHasLostEvent(playerModel.getNickname())));
+        match.getRoom().getPlayers().stream().filter(PlayerModel::hasLost).forEach(playerModel -> room.removePosition());
         events.addEvent(new TurnEndedEvent());
-        CountDownLatch latch = new CountDownLatch(1);
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         room.sendBroadcast(events);
         try {
             Thread.sleep(1000);

@@ -53,4 +53,9 @@ public class EventsAdapter implements EventsManager {
     public void process(ShowdownEvent event) {
 
     }
+
+    @Override
+    public void process(PlayerHasLostEvent event) {
+
+    }
 }

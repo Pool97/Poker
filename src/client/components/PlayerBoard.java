@@ -108,7 +108,7 @@ public class PlayerBoard extends BorderPanel {
     private void attachComponents() {
         attachAvatar();
         attachCards();
-        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(10, 20, 0, 0)));
+        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(15, 20, 0, 0)));
         attachNickname();
         attachPosition();
         attachHand();
@@ -160,6 +160,7 @@ public class PlayerBoard extends BorderPanel {
     }
 
     public void setChipIndicator(int chips) {
+        System.out.println("Chips ora fiaaaa: " + chips);
         chipIndicator.setText(Integer.toString(chips));
     }
 

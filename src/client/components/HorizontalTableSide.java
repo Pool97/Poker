@@ -40,4 +40,12 @@ public class HorizontalTableSide extends JPanel implements TableSide {
         if (hasAvailableSeat())
             add(Box.createRigidArea(new Dimension(300, 10)));
     }
+
+    public boolean hasContained(PlayerBoard playerBoard) {
+        return playersSeated.stream().anyMatch(playerBoard1 -> playerBoard1 == playerBoard);
+    }
+
+    public void removePlayer(PlayerBoard playerBoard) {
+        remove(playerBoard);
+    }
 }

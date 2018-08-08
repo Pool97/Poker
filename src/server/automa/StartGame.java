@@ -48,12 +48,12 @@ public class StartGame implements PokerState {
 
         Room room = match.getRoom();
         MatchModel matchModel = match.getMatchModel();
-
-        room.setAvailablePositions(room.getSize());
         matchModel.setStartChips(room.getSize() * 10000);
+        room.setPlayersChips(matchModel.getStartChips());
+        room.setAvailablePositions(room.getSize());
         matchModel.setInitialBlinds();
 
-        room.setPlayersChips(matchModel.getStartChips());
+
         room.setPlayersPositions();
         room.sortByPosition();
 

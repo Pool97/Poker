@@ -21,7 +21,7 @@ public class CardModel implements Serializable {
 
 
     private void setImageDirectoryPath() {
-        imageDirectoryPath = System.getProperty("user.dir") + "/res/" + "cards/" +
+        imageDirectoryPath = "/res/" + "cards/" +
                 getValue().name().toLowerCase().concat("_") + key.name().toLowerCase().concat(".png");
     }
 

@@ -37,12 +37,13 @@ public class ConcreteActionManager implements ActionManager {
     @Override
     public void process(RaiseOption raiseOption) {
         actionBoard.setRaiseEnabled(true);
-        //actionBoard.setRaiseText(" " + raiseOption.getMinValue() + "$");
+
         actionBoard.setExtremeSliderValues(raiseOption.getMinValue(), raiseOption.getMaxValue());
         actionBoard.addRaiseListener(eventG -> {
             SocketWriter<? extends Message> called = new SocketWriter<>(clientManager.getOutputStream(),
                     new Events(new ActionPerformedEvent(new Raise(actionBoard.getSliderValue()))));
             called.execute();
+            actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
         });
     }
