@@ -51,6 +51,9 @@ public class StartTurn implements PokerState {
 
         room = match.getRoom();
 
+        if (room.getWinner() != null) {
+
+        }
         updateMatchParameters();
 
         room.movePlayersPosition();

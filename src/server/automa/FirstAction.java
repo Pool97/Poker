@@ -16,7 +16,7 @@ import server.model.Room;
  */
 
 public class FirstAction extends Action implements PokerState {
-    private final static String STATE_STARTED = "Lo stato di PokerAction è avviato. \n";
+    //private final static String STATE_STARTED = "Lo stato di PokerAction è avviato. \n";
     private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
@@ -34,7 +34,7 @@ public class FirstAction extends Action implements PokerState {
 
     @Override
     public void goNext() {
-        MatchHandler.logger.info(STATE_STARTED);
+        //MatchHandler.logger.info(STATE_STARTED);
         MatchHandler.logger.info(START_ACTIONS);
         Room room = match.getRoom();
         Position nextPosition = room.getNextPosition(Position.BB);

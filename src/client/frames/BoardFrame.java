@@ -121,6 +121,13 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
+        public void process(PlayerHasWinEvent event) {
+            if (nickname.equals(event.getNickname())) {
+                JOptionPane.showMessageDialog(null, "Hai vinto mentekatto!!xDxD");
+            }
+        }
+
+        @Override
         public void process(PlayerHasLostEvent event) {
             if (nickname.equals(event.getNickname())) {
                 JOptionPane.showMessageDialog(null, "Hai perso mentekatto!!xDxD");

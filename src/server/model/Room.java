@@ -94,9 +94,21 @@ public class Room {
         players.forEach(player -> player.sendMessage(poolExecutor, message));
     }
 
+    public boolean hasWinner() {
+        return getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).count() == 1;
+    }
+
+    public PlayerModel getWinner() {
+        if (hasWinner())
+            return getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).findFirst().get();
+        else
+            return null;
+    }
+
     public ArrayList<PlayerModel> getPlayersInGame() {
         return getPlayers()
                 .stream()
+                .filter(playerModel -> !playerModel.hasLost())
                 .filter(player -> !player.hasFolded())
                 .collect(Collectors.toCollection(ArrayList::new));
     }

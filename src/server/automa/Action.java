@@ -18,12 +18,15 @@ public abstract class Action implements PokerState {
 
     public Action(MatchHandler match) {
         this.match = match;
+        MatchHandler.logger.info("NUOVA PUNTATA!\n");
     }
 
 
     protected boolean isEquityReached() {
-        if (match.getRoom().checkIfAllInActionsAreEqualized())
+        if (match.getRoom().checkIfAllInActionsAreEqualized()) {
+            MatchHandler.logger.info("C'è ancora qualche giocatore in gioco che non ha equalizzato gli all'in!");
             return false;
+        }
 
         return match.getRoom().countDistinctBets() <= 1;
     }
@@ -32,6 +35,7 @@ public abstract class Action implements PokerState {
     protected boolean checkIfOnePlayerRemained() {
         return match.getRoom().getPlayers()
                 .stream()
+                .filter(playerModel -> !playerModel.hasLost())
                 .filter(player -> !player.hasFolded())
                 .count() == 1;
     }
@@ -40,7 +44,11 @@ public abstract class Action implements PokerState {
         Room room = match.getRoom();
         TurnModel turnModel = match.getTurnModel();
 
+
         int maxValue = room.calculateMaxTurnBet();
+        MatchHandler.logger.info("Max turn bet: " + maxValue);
+        match.getRoom().getPlayers().forEach(playerModel -> MatchHandler.logger.info("" + playerModel.getTurnBet()));
+        
 
         int callValue = maxValue - player.getTurnBet();
 
@@ -65,9 +73,9 @@ public abstract class Action implements PokerState {
         sendPossibleActionsTo(player);
 
         ActionPerformedEvent playerAction = readActionFrom(player);
-        MatchHandler.logger.info(ACTION_PERFORMED + player.getNickname() + " " + playerAction.getAction().getValue());
+        MatchHandler.logger.fine(ACTION_PERFORMED + player.getNickname() + " " + playerAction.getAction().getValue() + "\n");
         player.addAction(playerAction.getAction());
-        MatchHandler.logger.info(PLAYER_CHIPS + player.getNickname() + ": " + player.getChips());
+        MatchHandler.logger.fine(PLAYER_CHIPS + player.getNickname() + ": " + player.getChips());
 
         turnModel.increasePot(playerAction.getAction().getValue());
 
