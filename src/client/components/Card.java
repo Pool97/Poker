@@ -20,7 +20,7 @@ public class Card extends JComponent implements ComponentListener {
     private Card(boolean isVisible, boolean isCovered) {
         this.frontImageDirectoryPath = DEFAULT_IMAGE;
         this.backImageDirectoryPath = DEFAULT_BACK;
-
+        setOpaque(true);
         setVisible(isVisible);
         setCovered(isCovered);
 

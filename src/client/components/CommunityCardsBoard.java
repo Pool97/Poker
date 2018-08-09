@@ -72,12 +72,13 @@ public class CommunityCardsBoard extends JPanel {
         cardsContainer.setLayout(new BoxLayout(cardsContainer, X_AXIS));
         cardsContainer.setAlignmentX(CENTER_ALIGNMENT);
         cardsContainer.setOpaque(true);
+        cardsContainer.setBackground(new Color(0, 80, 5));
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        cardsContainer.setBackground(new Color(0, 80, 5));
+
     }
 
     private void attachPlate() {
@@ -110,5 +111,7 @@ public class CommunityCardsBoard extends JPanel {
 
     public void hideAllCards() {
         cards.forEach(card -> card.setVisible(false));
+        System.out.println("STO INVISIBILIZZENDO TUTTOTTUTOT");
+
     }
 }

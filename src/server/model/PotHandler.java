@@ -53,6 +53,7 @@ public class PotHandler {
 
     public String evaluateTurnWinner() {
         ArrayList<PlayerModel> inGamePlayers = players.stream()
+                .filter(playerModel -> !playerModel.hasLost())
                 .filter(playerModel -> !playerModel.hasFolded())
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -91,14 +92,15 @@ public class PotHandler {
         }
 
         int winnerSum = 0;
-
+        System.out.println("LAstIndex" + lastIndex);
         //Determina vincita player
         for (int i = 0; i <= lastIndex - 1; i++) {
-            for (Map.Entry<String, Integer> entry : pots.get(lastIndex - 1).entrySet()) {
+            for (Map.Entry<String, Integer> entry : pots.get(i).entrySet()) {
                 winnerSum += entry.getValue();
             }
         }
 
+        System.out.println(winnerSum);
         //fornisci vincita al player
         players.stream().filter(player -> player.getNickname().equals(winner)).findFirst().get().addChips(winnerSum);
 
@@ -106,6 +108,9 @@ public class PotHandler {
         for (int i = lastIndex; i < pots.size(); i++) {
             HashMap<String, Integer> pot = pots.get(i);
             for (Map.Entry<String, Integer> entry : pot.entrySet()) {
+                players.stream().filter(playerModel -> playerModel.getNickname().equals(entry.getKey()))
+                        .forEach(playerModel -> System.out.println("Il player " + playerModel.getNickname() + "vuole essere risarcito per" + entry.getValue() + "big dlin dlin"));
+
                 players.stream().filter(player -> player.getNickname().equals(entry.getKey())).findFirst().get().addChips(entry.getValue());
             }
         }

@@ -2,10 +2,7 @@ package server.automa;
 
 import client.events.ActionPerformedEvent;
 import interfaces.PokerState;
-import server.events.Events;
-import server.events.PlayerTurnEvent;
-import server.events.PlayerUpdatedEvent;
-import server.events.PotUpdatedEvent;
+import server.events.*;
 import server.model.*;
 
 public abstract class Action implements PokerState {
@@ -32,7 +29,7 @@ public abstract class Action implements PokerState {
     }
 
 
-    protected boolean checkIfOnePlayerRemained() {
+    public boolean checkIfOnePlayerRemained() {
         return match.getRoom().getPlayers()
                 .stream()
                 .filter(playerModel -> !playerModel.hasLost())
@@ -48,7 +45,7 @@ public abstract class Action implements PokerState {
         int maxValue = room.calculateMaxTurnBet();
         MatchHandler.logger.info("Max turn bet: " + maxValue);
         match.getRoom().getPlayers().forEach(playerModel -> MatchHandler.logger.info("" + playerModel.getTurnBet()));
-        
+
 
         int callValue = maxValue - player.getTurnBet();
 
@@ -77,8 +74,10 @@ public abstract class Action implements PokerState {
         player.addAction(playerAction.getAction());
         MatchHandler.logger.fine(PLAYER_CHIPS + player.getNickname() + ": " + player.getChips());
 
-        turnModel.increasePot(playerAction.getAction().getValue());
 
+        turnModel.increasePot(playerAction.getAction().getValue());
+        if (playerAction.getAction() instanceof Fold)
+            room.sendBroadcast(new Events(new PlayerFoldedEvent(player.getNickname())));
         MatchHandler.logger.info(PLAYERS_INFO);
         room.sendBroadcast(new Events(new PlayerUpdatedEvent(player.getNickname(), player.getChips()), new PotUpdatedEvent(turnModel.getPot())));
     }
