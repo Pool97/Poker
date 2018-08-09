@@ -39,8 +39,10 @@ public class FirstAction extends Action implements PokerState {
         Room room = match.getRoom();
         Position nextPosition = room.getNextPosition(Position.BB);
 
-        while (!((nextPosition == Position.SB) && (checkIfOnePlayerRemained() || (isEquityReached())))) {
+        while (!((nextPosition == Position.SB && (checkIfOnePlayerRemained() || isEquityReached()) || (nextPosition != Position.SB && checkIfOnePlayerRemained())))) {
             PlayerModel player = room.getPlayer(nextPosition);
+            System.out.println("Persone che non hanno foldato: " + room.getPlayersInGame());
+            System.out.println(checkIfOnePlayerRemained());
             if (!player.hasFolded() && !player.isAllIn() && !player.hasLost()) {
                 doAction(player);
             }
@@ -48,8 +50,9 @@ public class FirstAction extends Action implements PokerState {
         }
 
         if (checkIfOnePlayerRemained()) {
+            System.out.println("SOno impallato qui!");
             MatchHandler.logger.info(ONE_PLAYER_ONLY);
-            match.setState(new TurnEnd(match));
+            match.setState(new Flop(match));
         } else if (isEquityReached()) {
             MatchHandler.logger.info(EQUITY_REACHED);
             match.setState(new Flop(match));

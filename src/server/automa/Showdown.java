@@ -17,16 +17,31 @@ public class Showdown implements PokerState {
     @Override
     public void goNext() {
         System.out.println("ShowDown.");
-
+        Events events = new Events();
         PotHandler pot = new PotHandler(match.getRoom().getPlayers(), match.getTurnModel().getCommunityModel());
         pot.toString();
-        String nicknameWinner = pot.evaluateTurnWinner();
+        String nicknameWinner;
+        if (match.getRoom().getPlayers()
+                .stream()
+                .filter(playerModel -> !playerModel.hasLost())
+                .filter(player -> !player.hasFolded())
+                .count() == 1) {
+            nicknameWinner = match.getRoom().getPlayers()
+                    .stream()
+                    .filter(playerModel -> !playerModel.hasLost())
+                    .filter(player -> !player.hasFolded()).findFirst().get().getNickname();
+            System.out.println(nicknameWinner);
+        } else {
+            nicknameWinner = pot.evaluateTurnWinner();
+            events.addEvent(new ShowdownEvent(pot.getPlayersHandByName()));
+        }
+        System.out.println("Il vincitore stavolta e': " + nicknameWinner);
         pot.assignPots(nicknameWinner);
 
         Room room = match.getRoom();
-        Events events = new Events();
-        room.getPlayers().forEach(player -> events.addEvent(new PlayerUpdatedEvent(player.getNickname(), player.getChips())));
-        events.addEvent(new ShowdownEvent(pot.getPlayersHandByName()));
+
+        room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> events.addEvent(new PlayerUpdatedEvent(player.getNickname(), player.getChips())));
+
         room.sendBroadcast(events);
 
         try {

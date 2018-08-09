@@ -21,7 +21,7 @@ public class NextAction extends Action implements PokerState {
         Room room = match.getRoom();
         Position nextPosition = Position.SB;
 
-        while (!((nextPosition == Position.SB) && (checkIfOnePlayerRemained() || ((isEquityReached() && roundNumber >= 1))))) {
+        while (!((nextPosition == Position.SB && roundNumber >= 1 && (checkIfOnePlayerRemained() || isEquityReached()) || (nextPosition != Position.SB && checkIfOnePlayerRemained())))) {
             PlayerModel player = room.getPlayer(nextPosition);
             if (!player.hasFolded() && !player.isAllIn()) {
                 doAction(player);
@@ -35,7 +35,7 @@ public class NextAction extends Action implements PokerState {
 
         if (checkIfOnePlayerRemained()) {
             MatchHandler.logger.info(ONE_PLAYER_ONLY);
-            match.setState(new TurnEnd(match));
+            strategy.makeTransition();
         } else if (isEquityReached()) {
             MatchHandler.logger.info(EQUITY_REACHED);
             strategy.makeTransition();

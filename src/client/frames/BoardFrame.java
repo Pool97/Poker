@@ -82,7 +82,7 @@ public class BoardFrame extends JFrame {
     }
 
     private void logAvailableActions(PlayerTurnEvent event) {
-        ClientManager.logger.info("Azioni disponibili: " + nickname + " \n");
+        ClientManager.logger.info("Azioni disponibili: " + event.getPlayerNickname() + " \n");
         event.getOptions()
                 .forEach(action -> ClientManager.logger.info("Azione: " + action.toString()));
     }
@@ -143,6 +143,11 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
+        public void process(PlayerFoldedEvent event) {
+            pokerTable.getPlayerBoardBy(event.getNickname()).setHandIndicator("FOLD");
+        }
+
+        @Override
         public void process(PotUpdatedEvent event) {
             matchBoard.setPot(event.getPot());
         }
@@ -166,6 +171,7 @@ public class BoardFrame extends JFrame {
 
         @Override
         public void process(ShowdownEvent event) {
+            System.out.println("CI SONO ENTRATO ZIO PERBACCO");
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(false));
             for (Map.Entry<String, String> entry : event.getPoints().entrySet())
                 pokerTable.getPlayerBoard().stream().filter(playerBoard -> playerBoard.getNickname().equals(entry.getKey()))

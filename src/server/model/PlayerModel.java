@@ -20,6 +20,7 @@ public class PlayerModel implements Serializable, Cloneable {
     private Position position;
     private String avatar;
     private int chips;
+    private boolean hasLost;
     private ArrayList<CardModel> cards;
     private ArrayList<PokerAction> actions;
 
@@ -115,9 +116,12 @@ public class PlayerModel implements Serializable, Cloneable {
      */
 
     public boolean hasLost() {
-        return chips <= 0;
+        return hasLost;
     }
 
+    public void setLost(boolean hasLost) {
+        this.hasLost = hasLost;
+    }
 
     @Override
     public boolean equals(Object o) {
