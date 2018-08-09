@@ -49,7 +49,7 @@ public class FirstAction extends Action implements PokerState {
 
         if (checkIfOnePlayerRemained()) {
             MatchHandler.logger.info(ONE_PLAYER_ONLY);
-            match.setState(new TurnEnd(match));
+            match.setState(new Showdown(match));
         } else if (isEquityReached()) {
             MatchHandler.logger.info(EQUITY_REACHED);
             match.setState(new Flop(match));

@@ -35,7 +35,7 @@ public class NextAction extends Action implements PokerState {
 
         if (checkIfOnePlayerRemained()) {
             MatchHandler.logger.info(ONE_PLAYER_ONLY);
-            match.setState(new TurnEnd(match));
+            match.setState(new Showdown(match));
         } else if (isEquityReached()) {
             MatchHandler.logger.info(EQUITY_REACHED);
             strategy.makeTransition();
