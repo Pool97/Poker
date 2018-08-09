@@ -39,7 +39,7 @@ public class FirstAction extends Action implements PokerState {
         Room room = match.getRoom();
         Position nextPosition = room.getNextPosition(Position.BB);
 
-        while (!((nextPosition == Position.SB) && (checkIfOnePlayerRemained() || (isEquityReached())))) {
+        while (!((nextPosition == Position.SB && (checkIfOnePlayerRemained() || isEquityReached()) || (nextPosition != Position.SB && checkIfOnePlayerRemained())))) {
             PlayerModel player = room.getPlayer(nextPosition);
             if (!player.hasFolded() && !player.isAllIn() && !player.hasLost()) {
                 doAction(player);
