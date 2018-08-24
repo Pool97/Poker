@@ -3,13 +3,19 @@ package server.model;
 import interfaces.ActionManager;
 import interfaces.PokerAction;
 
-public class RaiseOption implements PokerAction {
+public class BetOption implements PokerAction {
     private int minValue;
     private int maxValue;
+    private String actionName = "BET";
 
-    public RaiseOption(int minValue, int maxValue) {
+    public BetOption(int minValue, int maxValue) {
         this.minValue = minValue;
         this.maxValue = maxValue;
+    }
+
+    @Override
+    public void accept(ActionManager actionManager) {
+        actionManager.process(this);
     }
 
     public int getMinValue() {
@@ -21,17 +27,12 @@ public class RaiseOption implements PokerAction {
     }
 
     @Override
-    public void accept(ActionManager actionManager) {
-        actionManager.process(this);
-    }
-
-    @Override
     public int getValue() {
         return 0;
     }
 
     @Override
     public String toString() {
-        return "RAISE";
+        return "BET";
     }
 }

@@ -26,7 +26,7 @@ public class PotHandler {
     }
 
     private void sumAllBetForEachPlayer() {
-        players.forEach(player -> totalChipsForEachPlayer.put(player.getNickname(), player.getTurnBet()));
+        players.forEach(player -> totalChipsForEachPlayer.put(player.getNickname(), player.getTurnBetWithoutFittizia()));
     }
 
     private void createPots() {

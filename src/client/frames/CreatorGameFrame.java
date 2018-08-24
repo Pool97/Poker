@@ -20,15 +20,16 @@ import server.events.Events;
 public class CreatorGameFrame extends AbstractGameFrame {
 
     public CreatorGameFrame(String nickname, String avatar, int totalPlayers, String ipAddr) {
+        super(ipAddr);
         this.nickname = nickname;
 
         new Thread(new ServerThread()).start();
         clientManager = new ClientManager(ipAddr, 4040);
         clientManager.attemptToConnect();
-        new SocketReaderStart<>(clientManager.getInputStream()).execute();
+        new SocketReaderStart(clientManager.getInputStream()).execute();
         Events events = new Events(new PlayerConnectedEvent(nickname, avatar),
                 new CreatorConnectedEvent(totalPlayers));
-        new SocketWriter<>(clientManager.getOutputStream(), events).execute();
+        new SocketWriter(clientManager.getOutputStream(), events).execute();
 
         initPanel();
         createGUI();

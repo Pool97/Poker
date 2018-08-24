@@ -97,27 +97,6 @@ public class Utils {
         return null;
     }
 
-    /*private void searchForAddresses() {
-        Enumeration<NetworkInterface> interfaces = null;
-        try {
-            interfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-        while (interfaces.hasMoreElements()) {
-            NetworkInterface i = interfaces.nextElement();
-            for (Enumeration<InetAddress> addresses = i.getInetAddresses(); addresses.hasMoreElements(); ) {
-                InetAddress addr = addresses.nextElement();
-                if (addr instanceof Inet4Address) {
-                    InterfaceView interfaceView = new InterfaceView(addr.getHostAddress());
-                    interfaceView.addMouseListener(new LinuxFrame.MyMouseListener(interfaceView));
-                    interfaceView.setAlignmentX(Component.LEFT_ALIGNMENT);
-                    netContainer.add(interfaceView);
-                }
-            }
-        }
-    }*/
-
     public static String getIpAddress() {
         Enumeration<NetworkInterface> interfaces = null;
         try {

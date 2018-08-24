@@ -21,6 +21,7 @@ public class PlayerModel implements Serializable, Cloneable {
     private String avatar;
     private int chips;
     private boolean hasLost;
+    private boolean isDisconnected;
     private ArrayList<CardModel> cards;
     private ArrayList<PokerAction> actions;
 
@@ -95,6 +96,9 @@ public class PlayerModel implements Serializable, Cloneable {
         return actions.stream().mapToInt(PokerAction::getValue).sum();
     }
 
+    public int getTurnBetWithoutFittizia() {
+        return actions.stream().filter(action -> !(action instanceof Fittizia)).mapToInt(PokerAction::getValue).sum();
+    }
     /**
      * Permette di aggiungere una nuova mossa alla lista delle mosse effettuate dal player in un determinato turno.
      *
@@ -104,8 +108,9 @@ public class PlayerModel implements Serializable, Cloneable {
     public void addAction(PokerAction action) {
         if (chips == action.getValue())
             action = new AllIn(action.getValue());
-
-        chips -= action.getValue();
+        if (!(action instanceof Fittizia)) {
+            chips -= action.getValue();
+        }
         actions.add(action);
     }
 
@@ -119,8 +124,20 @@ public class PlayerModel implements Serializable, Cloneable {
         return hasLost;
     }
 
+    public boolean hasBetted() {
+        return actions.stream().anyMatch(action -> (action instanceof Bet));
+    }
+
     public void setLost(boolean hasLost) {
         this.hasLost = hasLost;
+    }
+
+    public boolean isDisconnected() {
+        return isDisconnected;
+    }
+
+    public void setDisconnected(boolean isDisconnected) {
+        this.isDisconnected = isDisconnected;
     }
 
     @Override

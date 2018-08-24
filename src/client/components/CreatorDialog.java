@@ -48,15 +48,16 @@ public class CreatorDialog extends PokerDialog {
         });
 
         addCancelButtonListener(event -> {
-            new SelectAvatarFrame(1);
+            new SelectAvatarFrame(0);
             dispose();
         });
 
         userResponse.add(confirmAction);
+
         userResponse.add(cancelAction);
         container.add(userResponse, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
-        container.requestFocusInWindow();
         add(container);
+        confirmAction.requestFocus();
     }
 
 

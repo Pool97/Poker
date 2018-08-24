@@ -35,7 +35,6 @@ public class PlayerDialog extends PokerDialog {
         attachNickname();
         container.add(ipAddress, new GBC(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
         container.add(userResponse, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
-        container.requestFocusInWindow();
         add(container);
     }
 

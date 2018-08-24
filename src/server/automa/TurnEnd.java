@@ -23,7 +23,6 @@ public class TurnEnd implements PokerState {
         events.addEvent(new PotUpdatedEvent(match.getTurnModel().getPot()));
         Room room = match.getRoom();
         match.getRoom().getPlayers().stream().filter(playerModel -> playerModel.getChips() <= 0).forEach(playerModel -> playerModel.setLost(true));
-        match.getRoom().setPlayersPositions();
         match.getRoom().getPlayers().forEach(PlayerModel::removeCards);
         match.getRoom().getPlayers().forEach(PlayerModel::removeActions);
         match.getRoom().getPlayers().stream()

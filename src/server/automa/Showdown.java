@@ -19,7 +19,6 @@ public class Showdown implements PokerState {
         System.out.println("ShowDown.");
         Events events = new Events();
         PotHandler pot = new PotHandler(match.getRoom().getPlayers(), match.getTurnModel().getCommunityModel());
-        pot.toString();
         String nicknameWinner;
         if (match.getRoom().getPlayers()
                 .stream()

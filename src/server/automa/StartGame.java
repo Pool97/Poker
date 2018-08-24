@@ -4,7 +4,6 @@ import interfaces.PokerState;
 import server.events.Events;
 import server.events.PlayerLoggedEvent;
 import server.events.RoomCreatedEvent;
-import server.model.MatchModel;
 import server.model.Room;
 
 import java.util.ArrayList;
@@ -28,46 +27,48 @@ public class StartGame implements PokerState {
     private static final String START_MATCH = "La partità può iniziare. \n";
     private static final String CONF_MATCH = "Configurazione ottimale del MatchHandler in corso... \n";
     private MatchHandler match;
-
-    /**
-     * Costruttore della classe StartGame.
-     */
+    private Room room;
 
     public StartGame(MatchHandler match) {
         this.match = match;
+        this.room = match.getRoom();
+        match.setInitialParameters(calculateStartChips());
     }
-
-    /**
-     * {@link PokerState#goNext()}
-     */
 
     @Override
     public void goNext() {
         MatchHandler.logger.info(STATE_STARTED);
         MatchHandler.logger.info(CONF_MATCH);
 
-        Room room = match.getRoom();
-        MatchModel matchModel = match.getMatchModel();
-        matchModel.setStartChips(room.getSize() * 10000);
-        room.setPlayersChips(matchModel.getStartChips());
-        room.setAvailablePositions(room.getSize());
-        matchModel.setInitialBlinds();
+        configureRoom();
+        sendEventsToPlayers();
 
+        MatchHandler.logger.info(START_MATCH);
 
-        room.setPlayersPositions();
-        room.sortByPosition();
+        match.setState(new StartTurn(match));
+    }
 
-        ArrayList<PlayerLoggedEvent> events = room.getPlayers()
+    private void configureRoom() {
+        room.setPlayersChips(calculateStartChips());
+        room.assignInitialPositions();
+        room.sortPlayersByPosition();
+    }
+
+    private void sendEventsToPlayers() {
+        room.sendBroadcast(new Events(new RoomCreatedEvent()));
+        room.sendBroadcast(preparePlayersLoggedEvents());
+    }
+
+    private int calculateStartChips() {
+        return room.getSize() * 10000;
+    }
+
+    private Events preparePlayersLoggedEvents() {
+        ArrayList<PlayerLoggedEvent> loggedEvents = room.getPlayers()
                 .stream()
                 .map(player -> new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), player.getPosition(),
                         player.getChips()))
                 .collect(Collectors.toCollection(ArrayList::new));
-
-        System.out.println(room.getPlayers().get(0).getNickname());
-
-        MatchHandler.logger.info(START_MATCH);
-        room.sendBroadcast(new Events(new RoomCreatedEvent()));
-        room.sendBroadcast(new Events(events));
-        match.setState(new StartTurn(match));
+        return new Events(loggedEvents);
     }
 }

@@ -68,4 +68,9 @@ public class EventsAdapter implements EventsManager {
     public void process(PlayerFoldedEvent event) {
 
     }
+
+    @Override
+    public void process(PlayerDisconnectedEvent event) {
+
+    }
 }

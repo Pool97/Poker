@@ -6,12 +6,13 @@ import client.events.EventsAdapter;
 import client.socket.ClientManager;
 import client.socket.SocketReader;
 import interfaces.ActionManager;
-import interfaces.Message;
 import server.events.*;
 import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Map;
 
 
@@ -71,12 +72,19 @@ public class BoardFrame extends JFrame {
 
     private void setFrameProperties() {
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                clientManager.close();
+            }
+        });
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         setVisible(true);
     }
 
     private void listenToServer() {
-        SocketReader<? extends Message> reader = new SocketReader<>(clientManager.getInputStream());
+        SocketReader reader = new SocketReader(clientManager.getInputStream());
         reader.setEventsManager(new ConcreteEventManager());
         reader.execute();
     }
@@ -170,8 +178,12 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
+        public void process(PlayerDisconnectedEvent event) {
+            pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
+        }
+
+        @Override
         public void process(ShowdownEvent event) {
-            System.out.println("CI SONO ENTRATO ZIO PERBACCO");
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(false));
             for (Map.Entry<String, String> entry : event.getPoints().entrySet())
                 pokerTable.getPlayerBoard().stream().filter(playerBoard -> playerBoard.getNickname().equals(entry.getKey()))

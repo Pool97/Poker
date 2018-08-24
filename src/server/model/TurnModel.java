@@ -64,4 +64,8 @@ public class TurnModel {
     public void addCommunityCards(CardModel... cards) {
         communityModel.addCards(cards);
     }
+
+    public void emptyCommunity() {
+        communityModel.clear();
+    }
 }

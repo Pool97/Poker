@@ -11,7 +11,7 @@ public class Turn extends Street implements PokerState {
 
     @Override
     public void goNext() {
-        NextAction nextAction = new NextAction(match);
+        NextBettingRound nextAction = new NextBettingRound(match);
         nextAction.setTransitionStrategy(() -> match.setState(new River(match)));
         match.setState(nextAction);
         try {

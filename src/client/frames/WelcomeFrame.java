@@ -33,22 +33,11 @@ public class WelcomeFrame extends JFrame {
     public WelcomeFrame() {
         setLookAndFeel();
         createGUI();
+
     }
 
     public static void main(String[] args) {
-
-        EventQueue.invokeLater(() -> {
-            try {
-                WelcomeFrame frame = new WelcomeFrame();
-                frame.setLocationRelativeTo(null);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setTitle(FRAME_TITLE);
-                frame.setVisible(true);
-                frame.setResizable(false);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        launchGame();
     }
 
     /**
@@ -85,6 +74,20 @@ public class WelcomeFrame extends JFrame {
         pack();
     }
 
+    public static void launchGame() {
+        EventQueue.invokeLater(() -> {
+            try {
+                WelcomeFrame frame = new WelcomeFrame();
+                frame.setLocationRelativeTo(null);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setTitle(FRAME_TITLE);
+                frame.setVisible(true);
+                frame.setResizable(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
     private void setCustomButton(JButton button, String text, Color color) {
         button.setText(text);
         button.setFont(new Font("helvetica", Font.BOLD, 16));

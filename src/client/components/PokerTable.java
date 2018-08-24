@@ -19,8 +19,8 @@ public class PokerTable {
         tableSides = new ArrayList<>();
 
         createTopSide();
-        createRightSide();
         createBottomSide();
+        createRightSide();
         createLeftSide();
         createCommunityCardsBoard();
     }
@@ -50,11 +50,11 @@ public class PokerTable {
     }
 
     public VerticalTableSide getRightSide() {
-        return (VerticalTableSide) tableSides.get(1);
+        return (VerticalTableSide) tableSides.get(2);
     }
 
     public HorizontalTableSide getBottomSide() {
-        return (HorizontalTableSide) tableSides.get(2);
+        return (HorizontalTableSide) tableSides.get(1);
     }
 
     public VerticalTableSide getLeftSide() {

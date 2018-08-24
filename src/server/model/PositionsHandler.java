@@ -2,27 +2,28 @@ package server.model;
 
 import java.util.ArrayList;
 
-public class PositionManager {
+public class PositionsHandler {
 
     private ArrayList<Position> availablePositions;
 
-    public PositionManager() {
+    private PositionsHandler(int quantity) {
         availablePositions = new ArrayList<>();
-    }
-
-    public void addPositions(int playersNumber) {
         availablePositions.add(Position.SB);
 
-        if (playersNumber >= 2)
+        if (quantity >= 2)
             availablePositions.add(Position.BB);
-        if (playersNumber >= 3)
+        if (quantity >= 3)
             availablePositions.add(0, Position.D);
-        if (playersNumber >= 4)
+        if (quantity >= 4)
             availablePositions.add(Position.CO);
-        if (playersNumber >= 5)
+        if (quantity >= 5)
             availablePositions.add(availablePositions.size() - 1, Position.UTG);
-        if (playersNumber >= 6)
+        if (quantity >= 6)
             availablePositions.add(availablePositions.size() - 1, Position.HJ);
+    }
+
+    public static PositionsHandler createPositions(int quantity) {
+        return new PositionsHandler(quantity);
     }
 
     public void removePosition() {
@@ -37,12 +38,7 @@ public class PositionManager {
     }
 
     public Position nextPosition(Position oldPosition) {
-        System.out.println(availablePositions.toString());
         return availablePositions.get((availablePositions.indexOf(oldPosition) + 1) % availablePositions.size());
-    }
-
-    public Position getPosition(int index) {
-        return availablePositions.get(index);
     }
 
     public ArrayList<Position> getPositions() {

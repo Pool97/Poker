@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Objects;
@@ -57,12 +59,18 @@ public class SelectAvatarFrame extends JFrame {
 
     private void setFrameProperties() {
         Utils.setLookAndFeel(Utils.DEFAULT_THEME);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle(FRAME_TITLE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
         setResizable(false);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                WelcomeFrame.launchGame();
+            }
+        });
     }
 
     private void createAvatarsContainer() {
@@ -152,6 +160,7 @@ public class SelectAvatarFrame extends JFrame {
         currentRow++;
     }
 
+
     class MyMouseListener extends MouseAdapter {
         private Avatar avatar;
 
@@ -162,11 +171,13 @@ public class SelectAvatarFrame extends JFrame {
         public void mouseClicked(MouseEvent event) {
             if (playerMode == 0)
                 dialog = new CreatorDialog(avatar);
+
             else
                 dialog = new PlayerDialog(avatar);
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
+            dialog.setFocusOnButton();
             dispose();
         }
 

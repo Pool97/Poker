@@ -51,7 +51,7 @@ public class Flop implements PokerState {
         MatchHandler.logger.info(CARDS_READY);
         room.sendBroadcast(new Events(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
 
-        NextAction nextAction = new NextAction(match);
+        NextBettingRound nextAction = new NextBettingRound(match);
         nextAction.setTransitionStrategy(() -> match.setState(new Turn(match)));
         match.setState(nextAction);
     }

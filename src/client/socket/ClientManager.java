@@ -70,4 +70,12 @@ public class ClientManager {
     public Socket getSocket() {
         return socket;
     }
+
+    public void close() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

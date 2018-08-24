@@ -13,6 +13,8 @@ public class PokerTextField extends JTextField implements FocusListener {
 
     public PokerTextField(String tooltipText) {
         this.tooltipText = tooltipText;
+        mem = "";
+        setText(tooltipText);
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.WHITE, 2, true),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         setOpaque(false);
@@ -21,18 +23,22 @@ public class PokerTextField extends JTextField implements FocusListener {
         setForeground(Color.WHITE);
         setFont(new Font("helvetica", Font.PLAIN, 20));
         setHorizontalAlignment(SwingConstants.CENTER);
+        addFocusListener(this);
     }
 
     @Override
     public void focusGained(FocusEvent e) {
-        setText("");
+        if (mem.equals(tooltipText))
+            setText("");
+        else
+            setText(mem);
     }
 
     @Override
     public void focusLost(FocusEvent e) {
-        if (getText().equals(Utils.EMPTY) || getText().equals(tooltipText)) {
-            setText(mem.toUpperCase());
-        } else {
+        if (getText().equals(Utils.EMPTY)) {
+            setText(tooltipText);
+        } else if (!getText().equals(tooltipText)) {
             mem = getText();
         }
     }

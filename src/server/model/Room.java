@@ -1,12 +1,13 @@
 package server.model;
 
-import interfaces.Message;
-import server.socket.Player;
+import server.events.Events;
+import server.events.PlayerDisconnectedEvent;
+import server.socket.EventDispatcher;
+import server.socket.PlayerController;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -19,16 +20,16 @@ import java.util.stream.Collectors;
  */
 
 public class Room {
-    private ArrayList<Player> players;
-    private PositionManager positionManager;
-    private final ExecutorService poolExecutor = Executors.newCachedThreadPool();
+    private ArrayList<PlayerController> players;
+    private PositionsHandler positionsHandler;
+    private EventDispatcher eventDispatcher;
 
     public Room() {
         players = new ArrayList<>();
-        positionManager = new PositionManager();
+        eventDispatcher = new EventDispatcher();
     }
 
-    public void addPlayer(Player player) {
+    public void addPlayer(PlayerController player) {
         players.add(player);
     }
 
@@ -36,18 +37,26 @@ public class Room {
         return players.size();
     }
 
-    public void sortByPosition() {
+    public void sortPlayersByPosition() {
         players.sort(Comparator.comparingInt(client -> client.getPlayerModel().getPosition().ordinal()));
     }
 
     public ArrayList<PlayerModel> getPlayers() {
-        return players.stream().map(Player::getPlayerModel).collect(Collectors.toCollection(ArrayList::new));
+        return players.stream().map(PlayerController::getPlayerModel).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ArrayList<PlayerController> getControllers() {
+        return players;
     }
 
     public void movePlayersPosition() {
         players.stream()
                 .filter(player -> !player.getPlayerModel().hasLost())
-                .forEach(player -> player.getPlayerModel().setPosition(positionManager.nextPosition(player.getPlayerModel().getPosition())));
+                .forEach(player -> player.getPlayerModel().setPosition(positionsHandler.nextPosition(player.getPlayerModel().getPosition())));
+    }
+
+    public void removeDisconnectedPlayers() {
+        players.removeIf(player -> player.getPlayerModel().isDisconnected());
     }
 
     public PlayerModel getPlayer(Position position) {
@@ -58,95 +67,55 @@ public class Room {
         players.forEach(client -> client.getPlayerModel().setChips(chips));
     }
 
-    public void setPlayersPositions() {
+    public void assignInitialPositions() {
+        positionsHandler = PositionsHandler.createPositions(getSize());
         for (int i = 0; i < getSize(); i++)
-            players.get(i).getPlayerModel().setPosition(positionManager.getPositions().get(i));
-    }
-
-    public void setAvailablePositions(int size) {
-        positionManager.addPositions(size);
+            players.get(i).getPlayerModel().setPosition(positionsHandler.getPositions().get(i));
     }
 
     public void removePosition() {
-        positionManager.removePosition();
+        positionsHandler.removePosition();
     }
+
     public Position getNextPosition(Position oldPosition) {
-        return positionManager.nextPosition(oldPosition);
+        return positionsHandler.nextPosition(oldPosition);
     }
 
-    public <T extends Message> T readMessage(PlayerModel playerModel) {
-        T message;
-        Player player = players.stream().filter(client -> client.getPlayerModel().equals(playerModel)).findFirst().get();
-        message = player.readMessage(poolExecutor);
-        return message;
+    public Events readMessage(PlayerModel playerModel) {
+        PlayerController player = players.stream().filter(client -> client.getPlayerModel().equals(playerModel)).findFirst().get();
+        try {
+            return eventDispatcher.receiveMessageFrom(player);
+        } catch (ExecutionException | InterruptedException e) {
+            playerModel.setLost(true);
+            playerModel.setDisconnected(true);
+            sendBroadcast(new Events(new PlayerDisconnectedEvent(playerModel.getNickname())));
+        }
+        return null;
     }
 
-    public <T extends Message> T readMessage(Player player) {
-        return player.readMessage(poolExecutor);
+    public Events readMessage(PlayerController player) {
+        try {
+            return eventDispatcher.receiveMessageFrom(player);
+        } catch (ExecutionException | InterruptedException e) {
+            player.getPlayerModel().setLost(true);
+            player.getPlayerModel().setDisconnected(true);
+            sendBroadcast(new Events(new PlayerDisconnectedEvent(player.getPlayerModel().getNickname())));
+        }
+        return null;
     }
 
-    public <T extends Message> void sendMessage(PlayerModel player, T message) {
-        Player clientSocket = players.stream().filter(client -> client.getPlayerModel().equals(player)).findFirst().orElse(null);
-        clientSocket.sendMessage(poolExecutor, message);
-    }
-
-    public <T extends Message> void sendBroadcast(T message) {
-        players.forEach(player -> player.sendMessage(poolExecutor, message));
+    public void sendBroadcast(Events message) {
+        players.stream().filter(playerController -> !playerController.getPlayerModel().isDisconnected()).forEach(player -> eventDispatcher.sendMessage(player.getTaskForSend(message)));
     }
 
     public boolean hasWinner() {
         return getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).count() == 1;
     }
 
-    public PlayerModel getWinner() {
+    public String getWinner() {
         if (hasWinner())
-            return getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).findFirst().get();
+            return getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).findFirst().get().getNickname();
         else
             return null;
-    }
-
-    public ArrayList<PlayerModel> getPlayersInGame() {
-        return getPlayers()
-                .stream()
-                .filter(playerModel -> !playerModel.hasLost())
-                .filter(player -> !player.hasFolded())
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public ArrayList<PlayerModel> getPlayersInGameWithChips() {
-        return getPlayersInGame()
-                .stream()
-                .filter(player -> !player.isAllIn())
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public int calculateMaxAllInBet() {
-        return getPlayersInGame().stream()
-                .filter(PlayerModel::isAllIn)
-                .mapToInt(PlayerModel::getTurnBet)
-                .max()
-                .orElse(0);
-    }
-
-    public int calculateMaxTurnBet() {
-        return getPlayers()
-                .stream()
-                .mapToInt(PlayerModel::getTurnBet)
-                .max()
-                .orElse(0);
-    }
-
-    public long countDistinctBets() {
-        return getPlayersInGameWithChips()
-                .stream()
-                .mapToInt(PlayerModel::getTurnBet)
-                .distinct()
-                .count();
-    }
-
-    public boolean checkIfAllInActionsAreEqualized() {
-        return getPlayersInGameWithChips()
-                .stream()
-                .anyMatch(player -> player.getTurnBet() < calculateMaxAllInBet());
     }
 }

@@ -81,7 +81,7 @@ public class ServerManager implements Runnable {
             Socket socket = serverSocket.accept();
             logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + "\n");
 
-            Player player = new Player(socket);
+            PlayerController player = new PlayerController(socket);
             Events newPlayer = room.readMessage(player);
 
             if (room.getSize() == 0) {

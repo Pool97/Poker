@@ -14,6 +14,7 @@ public class ActionBoard extends BorderPanel {
     private final static String CHECK_TEXT = "CHECK";
     private final static String CALL_TEXT = "CALL";
     private final static String RAISE_TEXT = "RAISE";
+    private final static String BET_TEXT = "BET";
     private final static String FOLD_TEXT = "FOLD";
     private final static int INSET = 20;
     private final static int WEIGHT = 33;
@@ -153,6 +154,9 @@ public class ActionBoard extends BorderPanel {
         raise.setText(RAISE_TEXT + text);
     }
 
+    public void setBetText(String text) {
+        raise.setText(BET_TEXT + text);
+    }
     public void setCallEnabled(boolean enable) {
         call.setEnabled(enable);
     }

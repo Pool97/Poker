@@ -1,5 +1,6 @@
 package server.automa;
 
+import server.model.Fittizia;
 import server.model.MatchModel;
 import server.model.PlayerModel;
 import server.model.Position;
@@ -17,9 +18,17 @@ public class BigBlind extends Blind {
         MatchModel matchModel = match.getMatchModel();
         PlayerModel playerModel = match.getRoom().getPlayer(Position.BB);
 
-        payBlindAndUpdate(playerModel, matchModel.getBigBlind());
-        increasePotAndUpdate(matchModel.getBigBlind());
+        if (playerModel.getChips() < matchModel.getBigBlind()) {
+            int payed = playerModel.getChips();
+            int deltaBlind = matchModel.getBigBlind() - payed;
+            payBlindAndUpdate(playerModel, payed);
+            playerModel.addAction(new Fittizia(deltaBlind));
+            increasePotAndUpdate(payed);
+        } else {
+            payBlindAndUpdate(playerModel, matchModel.getBigBlind());
+            increasePotAndUpdate(matchModel.getBigBlind());
+        }
 
-        match.setState(new FirstAction(match));
+        match.setState(new FirstBettingRound(match));
     }
 }

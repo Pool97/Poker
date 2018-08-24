@@ -1,14 +1,13 @@
 package server.events;
 
 import interfaces.Event;
-import interfaces.Message;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
-public class Events implements Message, Serializable {
+public class Events implements Serializable {
     private Stack<Event> events;
 
     public Events() {

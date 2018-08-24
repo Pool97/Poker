@@ -28,4 +28,6 @@ public interface EventsManager {
     void process(PlayerHasWinEvent event);
 
     void process(PlayerFoldedEvent event);
+
+    void process(PlayerDisconnectedEvent event);
 }

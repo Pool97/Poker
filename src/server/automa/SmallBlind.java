@@ -1,9 +1,6 @@
 package server.automa;
 
-import server.model.MatchModel;
-import server.model.PlayerModel;
-import server.model.Position;
-import server.model.Room;
+import server.model.*;
 
 public class SmallBlind extends Blind {
     private final static String SMALL_BLIND = "Riscuoto la puntata obbligatoria di Small Blind... \n";
@@ -22,8 +19,17 @@ public class SmallBlind extends Blind {
         MatchHandler.logger.info(SMALL_BLIND);
 
         playerModel = room.getPlayer(Position.SB);
-        payBlindAndUpdate(playerModel, matchModel.getSmallBlind());
-        increasePotAndUpdate(matchModel.getSmallBlind());
+        if (playerModel.getChips() < matchModel.getSmallBlind()) {
+            int payed = playerModel.getChips();
+            int deltaBlind = matchModel.getSmallBlind() - payed;
+            payBlindAndUpdate(playerModel, payed);
+            playerModel.addAction(new Fittizia(deltaBlind));
+            increasePotAndUpdate(payed);
+        } else {
+            payBlindAndUpdate(playerModel, matchModel.getSmallBlind());
+            increasePotAndUpdate(matchModel.getSmallBlind());
+        }
+
 
         match.setState(new BigBlind(match));
     }

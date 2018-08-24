@@ -74,6 +74,11 @@ public class MatchHandler {
         }
     }
 
+    public void setInitialParameters(int startChips) {
+        matchModel.setStartChips(startChips);
+        matchModel.setInitialBlinds();
+    }
+
     TurnModel getTurnModel() {
         return turnModel;
     }

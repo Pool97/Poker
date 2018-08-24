@@ -15,7 +15,7 @@ import server.model.Room;
  * @since 1.0
  */
 
-public class FirstAction extends Action implements PokerState {
+public class FirstBettingRound extends BettingRound implements PokerState {
     //private final static String STATE_STARTED = "Lo stato di PokerAction è avviato. \n";
     private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
@@ -28,7 +28,7 @@ public class FirstAction extends Action implements PokerState {
      * @param match Gestore dell'automa
      */
 
-    public FirstAction(MatchHandler match) {
+    public FirstBettingRound(MatchHandler match) {
         super(match);
     }
 
@@ -39,7 +39,7 @@ public class FirstAction extends Action implements PokerState {
         Room room = match.getRoom();
         Position nextPosition = room.getNextPosition(Position.BB);
 
-        while (!((nextPosition == Position.SB && (checkIfOnePlayerRemained() || isEquityReached()) || (nextPosition != Position.SB && checkIfOnePlayerRemained())))) {
+        while (!turnFinished(nextPosition)) {
             PlayerModel player = room.getPlayer(nextPosition);
             if (!player.hasFolded() && !player.isAllIn() && !player.hasLost()) {
                 doAction(player);
@@ -47,12 +47,16 @@ public class FirstAction extends Action implements PokerState {
             nextPosition = room.getNextPosition(nextPosition);
         }
 
-        if (checkIfOnePlayerRemained()) {
+        if (playersAnalyzer.countPlayersAtStake() == 1) {
             MatchHandler.logger.info(ONE_PLAYER_ONLY);
             match.setState(new Showdown(match));
-        } else if (isEquityReached()) {
-            MatchHandler.logger.info(EQUITY_REACHED);
+        } else if ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) || isMatched() || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
             match.setState(new Flop(match));
         }
+    }
+
+    private boolean turnFinished(Position nextPosition) {
+        return (nextPosition == Position.SB && isMatched())
+                || (nextPosition != Position.SB) && (playersAnalyzer.countPlayersAtStake() == 1 || ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer()) || playersAnalyzer.isAllPlayersAtStakeAllIn());
     }
 }

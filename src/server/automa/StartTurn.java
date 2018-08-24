@@ -3,6 +3,7 @@ package server.automa;
 import interfaces.PokerState;
 import server.events.BlindsUpdatedEvent;
 import server.events.Events;
+import server.events.PlayerHasWinEvent;
 import server.events.TurnStartedEvent;
 import server.model.*;
 
@@ -41,6 +42,7 @@ public class StartTurn implements PokerState {
         this.match = match;
         turnModel = match.getTurnModel();
         matchModel = match.getMatchModel();
+        room = match.getRoom();
     }
 
 
@@ -49,45 +51,51 @@ public class StartTurn implements PokerState {
         MatchHandler.logger.info(STATE_STARTED);
         MatchHandler.logger.info(CONF_TURN);
 
-        room = match.getRoom();
+        checkIfMatchEnded();
 
-        if (room.getWinner() != null) {
-
-        }
         updateMatchParameters();
+        updateRoom();
+        dealCards();
 
-        room.movePlayersPosition();
-        assignCardsToPlayers();
+        sendNewBlindsToPlayers();
 
-        sendNewBlindsValuesToPlayers();
-
-        sendTurnStartedEvents();
+        room.sendBroadcast(prepareTurnStartedEvents());
 
         match.setState(new SmallBlind(match));
+    }
+
+    private void checkIfMatchEnded() {
+        if (room.hasWinner())
+            room.sendBroadcast(new Events(new PlayerHasWinEvent(room.getWinner())));
+    }
+
+    private void updateRoom() {
+        room.removeDisconnectedPlayers();
+        room.movePlayersPosition();
+        //room.getPlayers().forEach(playerModel -> System.out.println(playerModel.getNickname() + " " + playerModel.getPosition().name()));
     }
 
     private void updateMatchParameters() {
         turnModel.createDeck();
         turnModel.resetPot();
+        turnModel.emptyCommunity();
         matchModel.increaseBlinds();
-        turnModel.getCommunityModel().clear();
+
     }
 
-    private void sendNewBlindsValuesToPlayers() {
+    private void sendNewBlindsToPlayers() {
         room.sendBroadcast(new Events(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
     }
 
-    private void sendTurnStartedEvents() {
+    private Events prepareTurnStartedEvents() {
         ArrayList<TurnStartedEvent> events = new ArrayList<>();
-        for (PlayerModel player : room.getPlayers()) {
+        for (PlayerModel player : room.getPlayers())
             events.add(new TurnStartedEvent(player.getNickname(), player.getPosition().name(),
                     player.getCards().stream().map(CardModel::getImageDirectoryPath).collect(Collectors.toCollection(ArrayList::new))));
-        }
-
-        room.sendBroadcast(new Events(events));
+        return new Events(events);
     }
 
-    private void assignCardsToPlayers() {
+    private void dealCards() {
         room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> player.addCard(turnModel.getNextCard()));
         room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> player.addCard(turnModel.getNextCard()));
     }

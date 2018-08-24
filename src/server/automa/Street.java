@@ -14,7 +14,7 @@ public abstract class Street {
 
     protected void showNextCard() {
         TurnModel turnModel = match.getTurnModel();
-        turnModel.getNextCard(); //la prima carta si scarta
+        turnModel.getNextCard();
 
         CardModel streetCard = turnModel.getNextCard();
         turnModel.addCommunityCards(streetCard);

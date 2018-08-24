@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class PokerDialog extends JDialog {
-    private final static String INSERT_NICKNAME = "NICKNAME";
+    private final static String INSERT_NICKNAME = "Inserisci nickname";
     private final static String DIALOG_TITLE = "Configurazione del match";
     protected ActionButton confirmAction;
     protected ActionButton cancelAction;
@@ -47,5 +47,9 @@ public class PokerDialog extends JDialog {
 
     public void addCancelButtonListener(ActionListener actionListener) {
         cancelAction.addActionListener(actionListener);
+    }
+
+    public void setFocusOnButton() {
+        confirmAction.requestFocusInWindow();
     }
 }

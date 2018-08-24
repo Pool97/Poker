@@ -1,10 +1,8 @@
 package client.frames;
 
 
-import client.components.ProgressBar;
 import client.events.EventsAdapter;
 import client.socket.ClientManager;
-import interfaces.Message;
 import interfaces.ServerEvent;
 import server.events.Events;
 import server.events.PlayerLoggedEvent;
@@ -34,34 +32,33 @@ public class AbstractGameFrame extends JFrame {
     private final static String OK = "Ok, ";
 
     protected String nickname;
+    protected String ipAddress;
     protected ClientManager clientManager;
     private JPanel playersList;
     private ArrayList<String> nicknames;
 
-    public AbstractGameFrame() {
+    public AbstractGameFrame(String ipAddress) {
         nicknames = new ArrayList<>();
+        this.ipAddress = ipAddress;
     }
 
     protected void initPanel() {
 
-        BorderLayout border = new BorderLayout();
         JPanel container = new JPanel();
-        container.setLayout(border);
-
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.updateValue(56);
-        container.add(progressBar);
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setBackground(new Color(251, 140, 0));
         playersList = new JPanel();
+
+        playersList.setAlignmentX(Component.CENTER_ALIGNMENT);
         playersList.setLayout(new BoxLayout(playersList, BoxLayout.Y_AXIS));
-        playersList.setVisible(true);
         playersList.setBackground(new Color(251, 140, 0));
-
-
-        JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, container, playersList);
-        splitter.setDividerLocation(0.5);
-        splitter.setResizeWeight(0.5);
-
-        add(splitter, BorderLayout.CENTER);
+        JLabel hostInfo = new JLabel("La partita verrà hostata su " + ipAddress, SwingConstants.CENTER);
+        hostInfo.setFont(new Font("helvetica", Font.BOLD, 25));
+        hostInfo.setForeground(Color.WHITE);
+        hostInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        container.add(hostInfo);
+        container.add(playersList);
+        add(container);
     }
 
     protected void createGUI() {
@@ -91,7 +88,7 @@ public class AbstractGameFrame extends JFrame {
                 nicknames.add(event.getNickname());
                 JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
                 nickname.setAlignmentX(Component.CENTER_ALIGNMENT);
-                nickname.setFont(Utils.getCustomFont(Font.BOLD, 30));
+                nickname.setFont(Utils.getCustomFont(Font.BOLD, 25));
                 nickname.setForeground(Color.WHITE);
                 playersList.add(nickname);
                 validate();
@@ -110,16 +107,7 @@ public class AbstractGameFrame extends JFrame {
         }
     }
 
-    /**
-     * Thread che permette di aggiornare la lista di Players che si sono connessi alla stanza.
-     * Lo SwingWorker è un thread a sè stante rispetto all'EDT (Event Dispatch Thread) e, nel momento
-     * in cui viene ricevuto un messaggio dal Server, permette di informare l'EDT per aggiornare
-     * opportunamente la grafica.
-     *
-     * @param <T> Tipo di messaggio ricevuto ({@link Message}).
-     */
-
-    public class SocketReaderStart<T extends Message> extends SwingWorker<Void, T> {
+    public class SocketReaderStart extends SwingWorker<Void, Events> {
         private final static String WAITING = "In attesa della creazione della stanza...";
         private ObjectInputStream inputStream;
         private EventsProcessor processor;
@@ -142,15 +130,14 @@ public class AbstractGameFrame extends JFrame {
         @SuppressWarnings("unchecked")
         @Override
         protected Void doInBackground(){
-            T messageObject;
+            Events messageObject;
             do {
                 ClientManager.logger.info(WAITING);
                 try {
-                    messageObject = (T) inputStream.readUnshared();
-                    if (messageObject instanceof Events) {
-                        publish(messageObject);
-                        Thread.sleep(800);
-                    }
+                    messageObject = (Events) inputStream.readObject();
+                    publish(messageObject);
+                    Thread.sleep(800);
+
                 } catch (IOException | ClassNotFoundException | InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -167,8 +154,8 @@ public class AbstractGameFrame extends JFrame {
          */
 
         @Override
-        protected void process(List<T> chunks) {
-            Events events = (Events) chunks.get(0);
+        protected void process(List<Events> chunks) {
+            Events events = chunks.get(0);
             events.getEvents().forEach(event -> ((ServerEvent) event).accept(processor));
         }
 

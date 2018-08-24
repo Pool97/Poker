@@ -5,12 +5,6 @@ public class MatchModel {
     private int bigBlind;
     private int startChips;
 
-    public MatchModel(int smallBlind, int bigBlind, int startChips) {
-        this.smallBlind = smallBlind;
-        this.bigBlind = bigBlind;
-        this.startChips = startChips;
-    }
-
     public MatchModel() {
         smallBlind = 0;
         bigBlind = 0;
@@ -43,7 +37,4 @@ public class MatchModel {
     public void setStartChips(int startChips) {
         this.startChips = startChips;
     }
-
-
-
 }

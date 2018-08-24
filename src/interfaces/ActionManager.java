@@ -1,9 +1,6 @@
 package interfaces;
 
-import server.model.Call;
-import server.model.Check;
-import server.model.Fold;
-import server.model.RaiseOption;
+import server.model.*;
 
 public interface ActionManager {
     void process(Call call);
@@ -13,4 +10,6 @@ public interface ActionManager {
     void process(Fold fold);
 
     void process(Check check);
+
+    void process(BetOption bet);
 }
