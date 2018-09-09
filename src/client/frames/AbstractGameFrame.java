@@ -7,7 +7,6 @@ import interfaces.ServerEvent;
 import server.events.Events;
 import server.events.PlayerLoggedEvent;
 import server.events.RoomCreatedEvent;
-import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,19 +44,26 @@ public class AbstractGameFrame extends JFrame {
     protected void initPanel() {
 
         JPanel container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-        container.setBackground(new Color(251, 140, 0));
+        container.setLayout(new BorderLayout());
+        container.setBackground(new Color(0, 117, 178));
         playersList = new JPanel();
-
+        playersList.setBackground(new Color(2, 168, 255));
         playersList.setAlignmentX(Component.CENTER_ALIGNMENT);
+        playersList.add(Box.createVerticalStrut(10));
         playersList.setLayout(new BoxLayout(playersList, BoxLayout.Y_AXIS));
-        playersList.setBackground(new Color(251, 140, 0));
-        JLabel hostInfo = new JLabel("La partita verrà hostata su " + ipAddress, SwingConstants.CENTER);
-        hostInfo.setFont(new Font("helvetica", Font.BOLD, 25));
+
+        JLabel hostInfo = new JLabel("Server IP: " + ipAddress, SwingConstants.CENTER);
+        hostInfo.setFont(new Font("helvetica", Font.BOLD, 20));
         hostInfo.setForeground(Color.WHITE);
         hostInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        container.add(hostInfo);
-        container.add(playersList);
+        JLabel playerConnected = new JLabel("Giocatori connessi", SwingConstants.CENTER);
+        playerConnected.setForeground(Color.WHITE);
+        playerConnected.setFont(new Font("helvetica", Font.BOLD, 30));
+        container.add(Box.createVerticalStrut(20));
+        container.add(playerConnected, BorderLayout.NORTH);
+        container.add(Box.createVerticalStrut(20));
+        container.add(hostInfo, BorderLayout.SOUTH);
+        container.add(playersList, BorderLayout.CENTER);
         add(container);
     }
 
@@ -88,11 +94,10 @@ public class AbstractGameFrame extends JFrame {
                 nicknames.add(event.getNickname());
                 JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
                 nickname.setAlignmentX(Component.CENTER_ALIGNMENT);
-                nickname.setFont(Utils.getCustomFont(Font.BOLD, 25));
+                nickname.setFont(new Font("helvetica", Font.BOLD, 20));
                 nickname.setForeground(Color.WHITE);
                 playersList.add(nickname);
                 validate();
-
             }
 
         }

@@ -80,17 +80,17 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
         }
 
         if (isOpacity)
-            applyOpacity((Graphics2D) g, opacity);
+            applyOpacity((Graphics2D) g.create(), opacity);
 
     }
 
     public void applyOpacity(Graphics2D g2D, float alpha) {
         g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
-        Composite oldComposite = g2D.getComposite();
-        g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        AlphaComposite composite = AlphaComposite.SrcOver;
+        g2D.setComposite(composite.derive(alpha).derive(AlphaComposite.SRC_OVER));
         g2D.setColor(Color.DARK_GRAY);
         g2D.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-        g2D.setComposite(oldComposite);
+        g2D.dispose();
     }
 
     @Override

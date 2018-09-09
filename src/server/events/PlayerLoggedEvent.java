@@ -26,8 +26,9 @@ public class PlayerLoggedEvent implements ServerEvent {
         this.chips = chips;
     }
 
-    public PlayerLoggedEvent(String nickname) {
+    public PlayerLoggedEvent(String nickname, String avatar) {
         this.nickname = nickname;
+        this.avatar = avatar;
     }
 
     public int getChips() {

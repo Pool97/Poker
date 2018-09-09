@@ -54,11 +54,14 @@ public class PlayerBoard extends BorderPanel {
         setAvatarAndCardsContainerProperties();
         createCards(isCovered);
         attachComponents();
+        //setBorder(new RoundBorder(40));
     }
 
     private void setComponentProperties() {
         setLayout(new GridBagLayout());
         setOpaque(false);
+        setBackground(new Color(255, 255, 255, 0));
+        setBorder(new RoundBorder(25));
     }
 
     private void createAvatar(String avatarDirectoryPath) {
@@ -85,6 +88,7 @@ public class PlayerBoard extends BorderPanel {
     private void setComponentProperties(JComponent component) {
         component.setFont(getCustomFont(PLAIN, 20F));
         component.setForeground(WHITE);
+        component.setOpaque(false);
     }
 
     private void createChips(int chips) {
@@ -143,16 +147,16 @@ public class PlayerBoard extends BorderPanel {
     @Override
     protected void drawBackground(Graphics2D g2D) {
         g2D.setColor(new Color(191, 54, 12));
-        g2D.fillRoundRect(8, 8, getWidth() - 12, getHeight() - 12,
-                40, 40);
+        g2D.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5,
+                30, 30);
     }
 
     @Override
     protected void drawBorder(Graphics2D g2D, Color color) {
         g2D.setStroke(new BasicStroke(6f));
         g2D.setColor(color);
-        g2D.drawRoundRect(6, 6, getWidth() - 10, getHeight() - 10,
-                40, 40);
+        //g2D.drawRoundRect(6, 6, getWidth() - 10, getHeight() - 10,
+        //40, 40);
     }
 
     public void setAvatar(String avatar) {

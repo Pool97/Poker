@@ -10,6 +10,7 @@ public abstract class BorderPanel extends JPanel {
 
     public BorderPanel() {
         borderColor = Color.WHITE;
+
     }
 
     @Override

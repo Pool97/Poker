@@ -94,7 +94,7 @@ public class ServerManager implements Runnable {
             player.setPlayerModel(playerModel);
             room.addPlayer(player);
             Events playersListEvent = new Events();
-            room.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(new PlayerLoggedEvent(playerModel1.getNickname())));
+            room.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(new PlayerLoggedEvent(playerModel1.getNickname(), playerModel1.getAvatar())));
             room.sendBroadcast(playersListEvent);
             logger.info(PLAYER_ADDED + event.getNickname());
 

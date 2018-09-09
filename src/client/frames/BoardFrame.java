@@ -106,7 +106,7 @@ public class BoardFrame extends JFrame {
         public void process(PlayerTurnEvent event) {
             logAvailableActions(event);
             PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
-            playerBoard.activateColorTransition();
+            //playerBoard.activateColorTransition();
 
             if (event.getPlayerNickname().equalsIgnoreCase(nickname))
                 event.getOptions().forEach(action -> action.accept(actionManager));

@@ -184,12 +184,10 @@ public class SelectAvatarFrame extends JFrame {
         public void mouseEntered(MouseEvent event) {
             avatar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             avatarDescriptor.setText(avatar.getName().toUpperCase());
-            avatar.setOpaque(true);
             //avatar.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2, true));
         }
 
         public void mouseExited(MouseEvent event) {
-            avatar.setOpaque(false);
             avatar.setBorder(BorderFactory.createLineBorder(TRANSPARENT, 2));
         }
     }
