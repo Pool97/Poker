@@ -68,7 +68,7 @@ public class CreatorDialog extends PokerDialog {
         cardsPanel.add(Card.createCard(true));
         cardsPanel.add(Card.createCard(true));
         cardsPanel.add(Card.createCard(true));
-        container.add(cardsPanel, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
+        container.add(cardsPanel, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 40, 20, 20)));
         container.add(userResponse, new GBC(0, 3, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
         add(container);
         confirmAction.requestFocus();
