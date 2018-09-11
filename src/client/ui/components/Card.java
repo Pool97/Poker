@@ -25,12 +25,24 @@ public class Card extends JComponent implements ComponentListener {
         addComponentListener(this);
     }
 
+    private Card(boolean isVisible, boolean isCovered, String cardBackName) {
+        this.frontImageDirectoryPath = DEFAULT_IMAGE;
+        this.backImageDirectoryPath = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + cardBackName;
+        setVisible(isVisible);
+        setCovered(isCovered);
+        addComponentListener(this);
+    }
+
     public static Card createEmptyCard() {
         return new Card(false, false);
     }
 
     public static Card createCard(boolean isCovered) {
         return new Card(true, isCovered);
+    }
+
+    public static Card createCard(boolean isCovered, String cardBackName){
+        return new Card(true, isCovered, cardBackName);
     }
 
     public boolean isImageLoaded(BufferedImage image) {

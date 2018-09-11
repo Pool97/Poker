@@ -11,6 +11,8 @@ import utils.Utils;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CreatorDialog extends PokerDialog {
     private final static String PLAYERS = " PLAYERS";
@@ -65,9 +67,12 @@ public class CreatorDialog extends PokerDialog {
         };
         cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.X_AXIS));
         cardsPanel.setOpaque(false);
-        cardsPanel.add(Card.createCard(true));
-        cardsPanel.add(Card.createCard(true));
-        cardsPanel.add(Card.createCard(true));
+        Card card1 = Card.createCard(true, "backOrangePP.png");
+        MouseListener mouseListener = new MouseListener(card1);
+        card1.addMouseListener(mouseListener);
+        cardsPanel.add(card1);
+        cardsPanel.add(Card.createCard(true, "backRedPP.png"));
+        cardsPanel.add(Card.createCard(true, "backBluePP.png"));
         container.add(cardsPanel, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 40, 20, 20)));
         container.add(userResponse, new GBC(0, 3, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
         add(container);
@@ -114,5 +119,16 @@ public class CreatorDialog extends PokerDialog {
         indicatorContainer.add(leftArrow);
         indicatorContainer.add(numPlayersIndicator);
         indicatorContainer.add(rightArrow);
+    }
+
+    class MouseListener extends MouseAdapter{
+        private Card card;
+        public MouseListener(Card card){
+            this.card = card;
+        }
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            card.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3, true));
+        }
     }
 }

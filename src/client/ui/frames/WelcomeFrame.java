@@ -47,6 +47,7 @@ public class WelcomeFrame extends JFrame {
     private void createGUI() {
 
         JPanel container = new JPanel();
+
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBackground(new Color(178, 39, 60));
         container.add(Box.createVerticalGlue());

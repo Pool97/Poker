@@ -78,14 +78,4 @@ public class EventsAdapter implements EventsManager {
     public void process(ServerClosedEvent event) {
 
     }
-
-    @Override
-    public void process(RestartMatchEvent event) {
-
-    }
-
-    @Override
-    public void process(NewMatchEvent event) {
-
-    }
 }

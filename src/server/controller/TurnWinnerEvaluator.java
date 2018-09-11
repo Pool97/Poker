@@ -18,11 +18,14 @@ public class TurnWinnerEvaluator {
     private HashMap<String, Integer> playersHand;
     private ArrayList<PokerHandsEvaluator> playerPoints;
     private HashMap<String, String> playersHandByName;
+    private ArrayList<String> winners;
+    ArrayList<Integer> index = new ArrayList<>();
 
     public TurnWinnerEvaluator(ArrayList<PlayerModel> players, CommunityModel communityCards) {
         playerPoints = new ArrayList<>();
         playersHand = new HashMap<>();
         playersHandByName = new HashMap<>();
+        winners = new ArrayList<>();
         this.communityCards = communityCards;
         this.players = players;
 
@@ -53,7 +56,7 @@ public class TurnWinnerEvaluator {
         return playersHandByName.get(nickname);
     }
 
-    ArrayList<Integer> index = new ArrayList<>();
+
 
     public ArrayList<PokerHandsEvaluator> checkWhoWin(ArrayList<CardModel> c, CardModel p1, CardModel p2){
 
@@ -492,8 +495,7 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    /*public void letsStart(){
-
+    public void letsStart(){
         ArrayList<PokerHandsEvaluator> algo = new ArrayList<>();
         PokerHandsEvaluator tmpH = playerPoints.get(0);
         int[] tmpPP = Utils.riordina(playerPoints, playerPoints.size());
@@ -524,249 +526,20 @@ public class TurnWinnerEvaluator {
                 algo.add(playerPoints.get(i));
             if(index.isEmpty())
                 pareggio(algo);
-            else
+            else {
                 System.out.println("SPLIT");
+                for(int ind : index){
+                    winners.add(players.get(ind).getNickname());
+                }
+            }
             System.out.println("PAREGGIO");
         }else{
-            showWinner(playerPoints.get(tmpWinnerIndice));
             System.out.println("VINCITORE");
+            winners.add(players.get(0).getNickname());
         }
-    }*/
+    }
 
-    /*public void showWinner(PokerHandsEvaluator algo){
-        if(algo.getPlayerPoint() == 10) {
-            System.out.println("SCALA REALE");
-            System.out.println("CARD 1: " + algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: " + algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: " + algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            System.out.println("CARD 4: " + algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-            System.out.println("CARD 5: " + algo.getFinalCards().get(4).getValue().toString() + "-" + algo.getFinalCards().get(4).getKey().toString());
-            lCheck.setText(lCheck.getText() + "SCALA REALE -> Le cinque carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)), "backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)), "backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)), "backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-            cB.gridx = 5; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)), "backRedPP.png");
-            panelButton.add(tmpCard4, cB);
-            cB.gridx = 6; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard5 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(4)), "backRedPP.png");
-            panelButton.add(tmpCard5, cB);
-        }else if(algo.getPlayerPoint() == 9){
-            System.out.println("SCALA COLORE");
-            System.out.println("CARD 1: "+ algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: "+ algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: "+ algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            System.out.println("CARD 4: "+ algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-            System.out.println("CARD 5: "+ algo.getFinalCards().get(4).getValue().toString() + "-" + algo.getFinalCards().get(4).getKey().toString());
-            lCheck.setText(lCheck.getText() + "SCALA COLORE -> Le cinque carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)),"backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)),"backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)),"backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-            cB.gridx = 5; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)),"backRedPP.png");
-            panelButton.add(tmpCard4, cB);
-            cB.gridx = 6; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard5 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(4)),"backRedPP.png");
-            panelButton.add(tmpCard5, cB);
-        }else if(algo.getPlayerPoint() == 8){
-            System.out.println("POKER");
-            System.out.println("CARD 1: "+ algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: "+ algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: "+ algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            System.out.println("CARD 4: "+ algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-            lCheck.setText(lCheck.getText() + "POKER -> Le quatro carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)),"backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)),"backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)),"backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-            cB.gridx = 5; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)),"backRedPP.png");
-            panelButton.add(tmpCard4, cB);
-        }else if(algo.getPlayerPoint() == 7) {
-            System.out.println("FULL");
-            System.out.println("CARD 1: " + algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: " + algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: " + algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            System.out.println("CARD 4: " + algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-            System.out.println("CARD 5: " + algo.getFinalCards().get(4).getValue().toString() + "-" + algo.getFinalCards().get(4).getKey().toString());
-            lCheck.setText(lCheck.getText() + "FULL -> Le cinque carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)), "backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)), "backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)), "backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-            cB.gridx = 5; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)), "backRedPP.png");
-            panelButton.add(tmpCard4, cB);
-            cB.gridx = 6; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard5 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(4)), "backRedPP.png");
-            panelButton.add(tmpCard5, cB);
-        }else if(algo.getPlayerPoint() == 6) {
-            System.out.println("COLORE");
-            System.out.println("CARD 1: " + algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: " + algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: " + algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            System.out.println("CARD 4: " + algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-            System.out.println("CARD 5: " + algo.getFinalCards().get(4).getValue().toString() + "-" + algo.getFinalCards().get(4).getKey().toString());
-            lCheck.setText(lCheck.getText() + "COLORE -> Le cinque carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)), "backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)), "backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)), "backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-            cB.gridx = 5; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)), "backRedPP.png");
-            panelButton.add(tmpCard4, cB);
-            cB.gridx = 6; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard5 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(4)), "backRedPP.png");
-            panelButton.add(tmpCard5, cB);
-        }else if(algo.getPlayerPoint() == 5){
-            System.out.println("SCALA");
-            System.out.println("CARD 1: "+ algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: "+ algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: "+ algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            System.out.println("CARD 4: "+ algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-            System.out.println("CARD 5: "+ algo.getFinalCards().get(4).getValue().toString() + "-" + algo.getFinalCards().get(4).getKey().toString());
-            lCheck.setText(lCheck.getText() + "SCALA -> Le cinque carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)),"backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)),"backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)),"backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-            cB.gridx = 5; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)),"backRedPP.png");
-            panelButton.add(tmpCard4, cB);
-            cB.gridx = 6; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard5 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(4)),"backRedPP.png");
-            panelButton.add(tmpCard5, cB);
-        } else if(algo.getPlayerPoint() == 4){
-            System.out.println("TRIS");
-            System.out.println("CARD 1: "+ algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            System.out.println("CARD 2: "+ algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-            System.out.println("CARD 3: "+ algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-            lCheck.setText(lCheck.getText() + "TRIS -> Le tre carte sono");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)),"backRedPP.png");
-            panelButton.add(tmpCard1, cB);
-            cB.gridx = 3; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)),"backRedPP.png");
-            panelButton.add(tmpCard2, cB);
-            cB.gridx = 4; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)),"backRedPP.png");
-            panelButton.add(tmpCard3, cB);
-        }else if(algo.getPlayerPoint() == 3){
-            if(algo.getFinalCards().size() >= 4) {
-                System.out.println("COPPIA 1");
-                System.out.println("CARD 1: " + algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-                System.out.println("CARD 2: " + algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-                System.out.println("COPPIA 2");
-
-                System.out.println("CARD 1: " + algo.getFinalCards().get(2).getValue().toString() + "-" + algo.getFinalCards().get(2).getKey().toString());
-                System.out.println("CARD 2: " + algo.getFinalCards().get(3).getValue().toString() + "-" + algo.getFinalCards().get(3).getKey().toString());
-                lCheck.setText(lCheck.getText() + "DOPPIA COPPIA -> Le coppie di carte sono");
-                cB.gridx = 2; // column 0
-                cB.gridy = 0; // row 0
-                CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)), "backRedPP.png");
-                panelButton.add(tmpCard1, cB);
-                cB.gridx = 3; // column 0
-                cB.gridy = 0; // row 0
-                CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)), "backRedPP.png");
-                panelButton.add(tmpCard2, cB);
-                cB.gridx = 4; // column 0
-                cB.gridy = 0; // row 0
-                CardView tmpCard3 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(2)), "backRedPP.png");
-                panelButton.add(tmpCard3, cB);
-                cB.gridx = 5; // column 0
-                cB.gridy = 0; // row 0
-                CardView tmpCard4 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(3)), "backRedPP.png");
-                panelButton.add(tmpCard4, cB);
-            }
-        }else if(algo.getPlayerPoint() == 2){
-            System.out.println("COPPIA");
-            if(!algo.getFinalCards().isEmpty()) {
-                System.out.println("CARD 1: " + algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-                System.out.println("CARD 2: " + algo.getFinalCards().get(1).getValue().toString() + "-" + algo.getFinalCards().get(1).getKey().toString());
-
-                lCheck.setText(lCheck.getText() + "COPPIA -> La coppia di carte è");
-                cB.gridx = 2; // column 0
-                cB.gridy = 0; // row 0
-                CardView tmpCard1 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)), "backRedPP.png");
-                panelButton.add(tmpCard1, cB);
-                cB.gridx = 3; // column 0
-                cB.gridy = 0; // row 0
-                CardView tmpCard2 = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(1)), "backRedPP.png");
-                panelButton.add(tmpCard2, cB);
-            }
-        }else if(algo.getPlayerPoint() == 1){
-            System.out.println("CARTA PIU ALTA");
-            System.out.println("CARD: " + algo.getFinalCards().get(0).getValue().toString() + "-" + algo.getFinalCards().get(0).getKey().toString());
-            lCheck.setText(lCheck.getText() + "CARTA PIU ALTA -> La carta piu alta è");
-            cB.gridx = 2; // column 0
-            cB.gridy = 0; // row 0
-            CardView tmpCard = new CardView(cardsSize, Utils.cardName(algo.getFinalCards().get(0)), "backRedPP.png");
-            panelButton.add(tmpCard, cB);
-        }
-    }*/
-
+    public ArrayList<String> getWinners(){
+        return winners;
+    }
 }

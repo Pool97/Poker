@@ -63,6 +63,10 @@ public class PotHandler {
         giveBackChipsInExcessToLosers(getLastPositionInPotsOf(winner));
     }
 
+    public void assignPotsTo(ArrayList<String> winners){
+
+    }
+
     private void assignWinningAmountTo(String winner) {
         players.stream()
                 .filter(player -> player.getNickname().equals(winner))

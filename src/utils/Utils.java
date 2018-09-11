@@ -172,8 +172,8 @@ public class Utils {
         return tmpCounter;
     }
 
-    public static int[] riordina(ArrayList<PokerHandsEvaluator> p) {
-        int[] tmp = new int[4];
+    public static int[] riordina(ArrayList<PokerHandsEvaluator> p, int s) {
+        int[] tmp = new int[s];
         for (int i = 0; i < p.size(); i++) {
             tmp[i] = p.get(i).getPlayerPoint();
         }

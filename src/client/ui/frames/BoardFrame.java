@@ -1,8 +1,6 @@
 package client.ui.frames;
 
 import client.events.ConcreteActionManager;
-import client.events.ConfirmNewMatchEvent;
-import client.events.CreatorRestartEvent;
 import client.events.EventsAdapter;
 import client.net.ClientManager;
 import client.net.SocketReader;
@@ -10,6 +8,7 @@ import client.net.SocketWriter;
 import client.ui.components.GameBoard;
 import client.ui.components.MatchBoard;
 import client.ui.components.PlayerBoard;
+import client.ui.dialogs.WinnerDialog;
 import client.ui.table.PokerTable;
 import client.ui.userboard.ActionBoard;
 import interfaces.ActionManager;
@@ -109,20 +108,6 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(ServerClosedEvent event) {
             clientManager.close();
-            WelcomeFrame.launchGame();
-            dispose();
-        }
-
-        @Override
-        public void process(RestartMatchEvent event) {
-            int result = JOptionPane.showConfirmDialog(null, "Vuoi rifare una nuova partita?", "New Match", JOptionPane.YES_NO_OPTION);
-            SocketWriter socketWriter;
-            if (result == JOptionPane.YES_OPTION) {
-                socketWriter = new SocketWriter(clientManager.getOutputStream(), new EventsContainer(new CreatorRestartEvent(true)));
-            } else {
-                socketWriter = new SocketWriter(clientManager.getOutputStream(), new EventsContainer(new CreatorRestartEvent(false)));
-            }
-            socketWriter.execute();
         }
 
         @Override
@@ -156,16 +141,25 @@ public class BoardFrame extends JFrame {
         public void process(PlayerHasWinEvent event) {
             pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
             if (nickname.equals(event.getNickname())) {
-                JOptionPane.showMessageDialog(null, "Hai vinto mentekatto!!xDxD");
+                WinnerDialog dialog = new WinnerDialog("Hai vinto mentekatto", "Complimenti Player!! " +
+                        event.getNickname());
+                dialog.pack();
+                dialog.setLocationRelativeTo(null);
+                dialog.setVisible(true);
+                dispose();
             }
         }
 
         @Override
         public void process(PlayerHasLostEvent event) {
             if (nickname.equals(event.getNickname())) {
-                JOptionPane.showMessageDialog(null, "Hai perso mentekatto!!xDxD");
+                WinnerDialog dialog = new WinnerDialog("Hai Perso mentekatto", "Brutto pezzente hai perso Player!! " +
+                        event.getNickname());
+                dialog.pack();
+                dialog.setLocationRelativeTo(null);
+                dialog.setVisible(true);
+                dispose();
             }
-
             pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
         }
 
@@ -217,21 +211,6 @@ public class BoardFrame extends JFrame {
             pokerTable.getCommunityCardsBoard().hideAllCards();
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(true));
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setHandIndicator(Utils.EMPTY));
-        }
-
-        @Override
-        public void process(NewMatchEvent event) {
-            int result = JOptionPane.showConfirmDialog(null, "Vuoi rifare una nuova partita se il creator accetta?", "New Match", JOptionPane.YES_NO_OPTION);
-            SocketWriter newMatch;
-            if (result == JOptionPane.NO_OPTION) {
-                clientManager.close();
-                WelcomeFrame.launchGame();
-                dispose();
-            } else {
-                newMatch = new SocketWriter(clientManager.getOutputStream(), new EventsContainer(new ConfirmNewMatchEvent(true)));
-                newMatch.execute();
-                JOptionPane.showMessageDialog(null, "Resta in attesa allora shish!");
-            }
         }
     }
 }

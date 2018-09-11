@@ -5,6 +5,10 @@ import server.controller.*;
 import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.ShowdownEvent;
+import server.model.PlayerModel;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Showdown implements PokerState {
     private MatchHandler match;
@@ -19,6 +23,7 @@ public class Showdown implements PokerState {
     public void goNext() {
         System.out.println("ShowDown.");
         EventsContainer eventsContainer = new EventsContainer();
+
         TurnWinnerEvaluator evaluator = new TurnWinnerEvaluator(room.getPlayers(), match.getTurnModel().getCommunityModel());
         PotHandler pot = new PotHandler(room.getPlayers());
 
@@ -28,7 +33,15 @@ public class Showdown implements PokerState {
         if (analyzer.getPlayersAtStake().size() == 1) {
             nicknameWinner = analyzer.getPlayersAtStake().stream().findFirst().get().getNickname();
         } else {
-            nicknameWinner = evaluator.evaluateTurnWinner();
+            ArrayList<PlayerModel> inGamePlayers = room.getPlayers().stream()
+                    .filter(playerModel -> !playerModel.hasFolded())
+                    .collect(Collectors.toCollection(ArrayList::new));
+            for(PlayerModel player : inGamePlayers){
+                evaluator.checkWhoWin(match.getTurnModel().getCommunityModel().getCommunityCards(), player.getCards().get(0), player.getCards().get(1));
+            }
+            evaluator.letsStart();
+            //nicknameWinner = evaluator.evaluateTurnWinner();
+            nicknameWinner = evaluator.getWinners().get(0);
             eventsContainer.addEvent(new ShowdownEvent());
         }
 
