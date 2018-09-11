@@ -1,5 +1,6 @@
 package utils;
 
+import server.algo.PokerHandsEvaluator;
 import server.model.cards.CardModel;
 import server.model.cards.CardRank;
 
@@ -14,6 +15,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.stream.Collectors;
@@ -55,7 +57,7 @@ public class Utils {
         try {
             System.out.println(filename);
             BufferedImage originalImage = ImageIO.read(new File(filename));
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_HEIGHT, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
+            scaledImage = Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_HEIGHT, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -157,4 +159,80 @@ public class Utils {
         }
         return finalCards.size() / 2;
     }
+
+    public static int couplesNumber(ArrayList<CardModel> cards) {
+        int tmpCounter = 0;
+        for (int i = 1; i < cards.size(); i++) {
+            if (i != cards.size() - 1 && cards.get(i).getValue().equals(cards.get(i - 1).getValue()) && cards.get(i).getValue().equals(cards.get(i + 1).getValue()))
+                tmpCounter = 3;
+            else if (cards.get(i).getValue().equals(cards.get(i - 1).getValue()) && tmpCounter != 3)
+                tmpCounter++;
+
+        }
+        return tmpCounter;
+    }
+
+    public static int[] riordina(ArrayList<PokerHandsEvaluator> p) {
+        int[] tmp = new int[4];
+        for (int i = 0; i < p.size(); i++) {
+            tmp[i] = p.get(i).getPlayerPoint();
+        }
+
+        Arrays.sort(tmp);
+        return tmp;
+    }
+
+    public static ArrayList<CardModel> getCouples(ArrayList<CardModel> cards) {
+        ArrayList<CardModel> tmp = new ArrayList<>();
+        int k = 0;
+        int n = cards.size();
+        for (int i = 0; i < n; i++) {
+            if (i != n - 1) {
+                if (cards.get(i).getValue() == cards.get(i + 1).getValue()) {
+                    tmp.add(cards.get(i));
+                    tmp.add(cards.get(i + 1));
+                    k++;
+                }
+            }
+
+        }
+        return tmp;
+    }
+
+    public static ArrayList<CardModel> getTris(ArrayList<CardModel> cards) {
+        ArrayList<CardModel> tmp = new ArrayList<>();
+        int k = 0;
+        int n = cards.size();
+        for (int i = 0; i < n; i++) {
+            if (i != n - 1) {
+                if (cards.get(i).getValue() == cards.get(i + 1).getValue()) {
+                    if (tmp.size() == 2)
+                        tmp.add(cards.get(i + 1));
+                    else {
+                        tmp.add(cards.get(i));
+                        tmp.add(cards.get(i + 1));
+                    }
+
+                    k++;
+                }
+            }
+
+        }
+        return tmp;
+    }
+
+    public static ArrayList<CardModel> removeCard(ArrayList<CardModel> cards, CardModel card) {
+        ArrayList<CardModel> tmp = new ArrayList<>();
+        int k = 0;
+        int n = cards.size();
+        for (int i = 0; i < n; i++) {
+            if (cards.get(i).getValue() != card.getValue()) {
+                tmp.add(cards.get(i));
+                k++;
+            }
+        }
+
+        return tmp;
+    }
+
 }

@@ -45,6 +45,18 @@ public class PokerHandsEvaluator {
         return maxPlayerHand.getPoint();
     }
 
+    public void setPlayerPoint(int v) {
+        maxPlayerHand.setPoint(v);
+    }
+
+    public void setFinalCards(ArrayList<CardModel> finalCards) {
+        this.finalCards = finalCards;
+    }
+
+    public void setCardsToExamine(ArrayList<CardModel> c) {
+        cardsToExamine = c;
+    }
+
     public String getPlayerPointName() {
         return maxPlayerHand.toString();
     }

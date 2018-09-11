@@ -10,4 +10,8 @@ public abstract class PokerHand implements Algorithm {
     public int getPoint() {
         return point;
     }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
 }

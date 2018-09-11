@@ -17,7 +17,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Objects;
 
-import static utils.Utils.*;
+import static utils.Utils.DEFAULT_FONT;
+import static utils.Utils.TRANSPARENT;
 
 public class SelectAvatarFrame extends JFrame {
     private final static String FRAME_TITLE = "Scelta dell'Avatar";
@@ -130,7 +131,7 @@ public class SelectAvatarFrame extends JFrame {
     }
 
     private void attachAvatars() {
-        File avatarDirectory = new File(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_FOLDER);
+        File avatarDirectory = new File("res/" + AVATARS_FOLDER);
         int currentColumn = 0;
         currentRow++;
 

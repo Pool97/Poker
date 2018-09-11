@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
-import static utils.Utils.*;
+import static utils.Utils.EMPTY;
 
 public class Avatar extends JComponent implements MouseListener, ComponentListener {
     private BufferedImage image;
@@ -41,7 +41,7 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
     }
 
     public void setDirectoryPath(String avatarName) {
-        directoryPath = System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + AVATARS_DIRECTORY + "/" + avatarName;
+        directoryPath = "res/" + AVATARS_DIRECTORY + "/" + avatarName;
     }
 
     public void loadImage() {

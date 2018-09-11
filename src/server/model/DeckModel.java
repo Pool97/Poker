@@ -11,14 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-/**
- * Classe che è incaricata di gestire la logica del deck di Poker. Tra i possibili metodi possiamo trovare
- * la creazione del Deck, la distribuzione delle carte.
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- */
-
 public class DeckModel {
     private Stack<CardModel> deck;
 
@@ -30,11 +22,7 @@ public class DeckModel {
         return orderedDeck;
     }
 
-    /**
-     * Permette la creazione di un Deck di carte da Poker e il suo mescolamento.
-     */
-
-    public void createAndShuffle() {
+    public void shuffle() {
         deck = new Stack<>();
         List<Pair<Integer, Integer>> deckShuffled = createDeck();
         Collections.shuffle(deckShuffled);

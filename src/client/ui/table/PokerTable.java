@@ -86,6 +86,9 @@ public class PokerTable {
                 .get();
     }
 
+    public boolean isPlayerPresent(String playerName) {
+        return playerBoards.stream().anyMatch(playerBoard -> playerBoard.getNickname().equalsIgnoreCase(playerName));
+    }
     public void updatePlayerProperties(PlayerUpdatedEvent event) {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
         board.setChipIndicator(event.getChips());

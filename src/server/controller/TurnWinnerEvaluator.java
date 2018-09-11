@@ -14,9 +14,11 @@ public class TurnWinnerEvaluator {
     private ArrayList<PlayerModel> players;
     private CommunityModel communityCards;
     private HashMap<String, Integer> playersHand;
+    private ArrayList<PokerHandsEvaluator> playerPoints;
     private HashMap<String, String> playersHandByName;
 
     public TurnWinnerEvaluator(ArrayList<PlayerModel> players, CommunityModel communityCards) {
+        playerPoints = new ArrayList<>();
         playersHand = new HashMap<>();
         playersHandByName = new HashMap<>();
         this.communityCards = communityCards;
@@ -24,6 +26,10 @@ public class TurnWinnerEvaluator {
 
     }
 
+    /*public void evaluateTurnWinner(){
+        players.forEach(player -> checkWhoWin(communityCards.getCommunityCards(), player.getCards().get(0), player.getCards().get(1)));
+        letsStart();
+    }*/
     public String evaluateTurnWinner() {
         ArrayList<PlayerModel> inGamePlayers = players.stream()
                 .filter(playerModel -> !playerModel.hasFolded())
@@ -44,4 +50,6 @@ public class TurnWinnerEvaluator {
     public String getPlayerHandByName(String nickname) {
         return playersHandByName.get(nickname);
     }
+
+
 }

@@ -11,15 +11,6 @@ import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-/**
- * Classe che permette di modellizzare il funzionamento di una stanza da gioco.
- * Si occupa della comunicazione con i Players e di effettuare tutte le modifiche necessarie ai Model dei Players.
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
-
 public class Room {
     private ArrayList<PlayerController> players;
     private ArrayList<PlayerController> lostPlayers;
@@ -57,12 +48,6 @@ public class Room {
 
     public ArrayList<PlayerModel> getPlayers() {
         return players.stream().map(PlayerController::getPlayerModel).collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public PlayerController getRoomCreator() {
-        if (players.stream().anyMatch(playerController -> playerController.getPlayerModel().isCreator()))
-            return players.stream().filter(playerController -> playerController.getPlayerModel().isCreator()).findFirst().get();
-        return lostPlayers.stream().filter(playerController -> playerController.getPlayerModel().isCreator()).findFirst().get();
     }
 
     public ArrayList<PlayerController> getControllers() {

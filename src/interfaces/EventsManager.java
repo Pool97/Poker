@@ -34,4 +34,6 @@ public interface EventsManager {
     void process(ServerClosedEvent event);
 
     void process(RestartMatchEvent event);
+
+    void process(NewMatchEvent event);
 }

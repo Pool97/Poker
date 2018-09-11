@@ -2,6 +2,7 @@ package client.ui.dialogs;
 
 
 import client.ui.components.Avatar;
+import client.ui.components.Card;
 import client.ui.frames.CreatorGameFrame;
 import client.ui.frames.SelectAvatarFrame;
 import utils.GBC;
@@ -56,7 +57,19 @@ public class CreatorDialog extends PokerDialog {
         userResponse.add(confirmAction);
 
         userResponse.add(cancelAction);
-        container.add(userResponse, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
+        JPanel cardsPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+            }
+        };
+        cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.X_AXIS));
+        cardsPanel.setOpaque(false);
+        cardsPanel.add(Card.createCard(true));
+        cardsPanel.add(Card.createCard(true));
+        cardsPanel.add(Card.createCard(true));
+        container.add(cardsPanel, new GBC(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
+        container.add(userResponse, new GBC(0, 3, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20)));
         add(container);
         confirmAction.requestFocus();
     }

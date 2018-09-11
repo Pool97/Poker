@@ -65,7 +65,6 @@ public class StartGame implements PokerState {
     }
 
     private EventsContainer preparePlayersLoggedEvents() {
-        System.out.println("SONO ENTRATO DI NUOVO BASTARDO");
         ArrayList<PlayerLoggedEvent> loggedEvents = room.getPlayers()
                 .stream()
                 .map(player -> new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), player.getPosition(),

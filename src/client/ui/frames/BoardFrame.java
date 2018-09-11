@@ -1,6 +1,7 @@
 package client.ui.frames;
 
 import client.events.ConcreteActionManager;
+import client.events.ConfirmNewMatchEvent;
 import client.events.CreatorRestartEvent;
 import client.events.EventsAdapter;
 import client.net.ClientManager;
@@ -141,6 +142,7 @@ public class BoardFrame extends JFrame {
 
         @Override
         public void process(PlayerLoggedEvent event) {
+            System.out.println("STAMPA BASTARDONE");
             PlayerBoard playerBoardLogged;
             playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition().name(), true, event.getChips(), event.getAvatar());
             if (event.getNickname().equalsIgnoreCase(nickname)) {
@@ -156,7 +158,6 @@ public class BoardFrame extends JFrame {
             if (nickname.equals(event.getNickname())) {
                 JOptionPane.showMessageDialog(null, "Hai vinto mentekatto!!xDxD");
             }
-
         }
 
         @Override
@@ -202,7 +203,8 @@ public class BoardFrame extends JFrame {
 
         @Override
         public void process(PlayerDisconnectedEvent event) {
-            pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
+            if (pokerTable.isPlayerPresent(event.getNickname()))
+                pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
         }
 
         @Override
@@ -215,6 +217,21 @@ public class BoardFrame extends JFrame {
             pokerTable.getCommunityCardsBoard().hideAllCards();
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(true));
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setHandIndicator(Utils.EMPTY));
+        }
+
+        @Override
+        public void process(NewMatchEvent event) {
+            int result = JOptionPane.showConfirmDialog(null, "Vuoi rifare una nuova partita se il creator accetta?", "New Match", JOptionPane.YES_NO_OPTION);
+            SocketWriter newMatch;
+            if (result == JOptionPane.NO_OPTION) {
+                clientManager.close();
+                WelcomeFrame.launchGame();
+                dispose();
+            } else {
+                newMatch = new SocketWriter(clientManager.getOutputStream(), new EventsContainer(new ConfirmNewMatchEvent(true)));
+                newMatch.execute();
+                JOptionPane.showMessageDialog(null, "Resta in attesa allora shish!");
+            }
         }
     }
 }

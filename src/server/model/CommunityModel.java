@@ -24,6 +24,9 @@ public class CommunityModel {
         return communityCards.get(index);
     }
 
+    public ArrayList<CardModel> getCommunityCards() {
+        return communityCards;
+    }
     public void clear() {
         communityCards.clear();
     }

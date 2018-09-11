@@ -19,7 +19,7 @@ public class TurnModel {
     public TurnModel() {
         pot = 0;
         deckModel = new DeckModel();
-        deckModel.createAndShuffle();
+        deckModel.shuffle();
         communityModel = new CommunityModel();
 
     }
@@ -37,7 +37,7 @@ public class TurnModel {
     }
 
     public void createDeck() {
-        deckModel.createAndShuffle();
+        deckModel.shuffle();
     }
 
     public CardModel getNextCard() {
