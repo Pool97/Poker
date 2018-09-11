@@ -2,6 +2,9 @@ package server.model;
 
 
 import javafx.util.Pair;
+import server.model.cards.CardModel;
+import server.model.cards.CardRank;
+import server.model.cards.CardSuit;
 
 import java.util.ArrayList;
 import java.util.Collections;

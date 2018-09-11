@@ -15,10 +15,12 @@ import interfaces.ServerEvent;
 public class PlayerUpdatedEvent implements ServerEvent {
     private String nickname;
     private int chips;
+    private String action;
 
-    public PlayerUpdatedEvent(String nickname, int chips) {
+    public PlayerUpdatedEvent(String nickname, int chips, String action) {
         this.nickname = nickname;
         this.chips = chips;
+        this.action = action;
     }
 
     public String getNickname() {
@@ -27,6 +29,10 @@ public class PlayerUpdatedEvent implements ServerEvent {
 
     public int getChips() {
         return chips;
+    }
+
+    public String getAction() {
+        return action;
     }
 
     @Override

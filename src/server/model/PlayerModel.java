@@ -1,19 +1,16 @@
 package server.model;
 
 import interfaces.PokerAction;
+import server.model.actions.AllIn;
+import server.model.actions.Bet;
+import server.model.actions.DeadMoney;
+import server.model.actions.Fold;
+import server.model.cards.CardModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
-
-/**
- * Model di un generico PlayerBoard di Poker.
- * Permette di gestire la logica del PlayerBoard.
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
+import java.util.stream.Stream;
 
 public class PlayerModel implements Serializable, Cloneable {
     private String nickname;
@@ -22,6 +19,7 @@ public class PlayerModel implements Serializable, Cloneable {
     private int chips;
     private boolean hasLost;
     private boolean isDisconnected;
+    private boolean isCreator;
     private ArrayList<CardModel> cards;
     private ArrayList<PokerAction> actions;
 
@@ -86,39 +84,26 @@ public class PlayerModel implements Serializable, Cloneable {
                 .anyMatch(action -> action instanceof Fold);
     }
 
-    /**
-     * Permette di calcolare e restituire la somma totale delle scommesse effettuate nel turno dal PlayerBoard.
-     *
-     * @return Somma totale delle scommesse effettuare nel turno.
-     */
+    public Stream<CardModel> cardsStream() {
+        return cards.stream();
+    }
 
     public int getTurnBet() {
         return actions.stream().mapToInt(PokerAction::getValue).sum();
     }
 
-    public int getTurnBetWithoutFittizia() {
-        return actions.stream().filter(action -> !(action instanceof Fittizia)).mapToInt(PokerAction::getValue).sum();
+    public int getTurnBetWithoutDeadMoney() {
+        return actions.stream().filter(action -> !(action instanceof DeadMoney)).mapToInt(PokerAction::getValue).sum();
     }
-    /**
-     * Permette di aggiungere una nuova mossa alla lista delle mosse effettuate dal player in un determinato turno.
-     *
-     * @param action Nuova mossa effettuata
-     */
 
     public void addAction(PokerAction action) {
         if (chips == action.getValue())
             action = new AllIn(action.getValue());
-        if (!(action instanceof Fittizia)) {
+        if (!(action instanceof DeadMoney)) {
             chips -= action.getValue();
         }
         actions.add(action);
     }
-
-    /**
-     * Permette di stabilire se il giocatore è ancora in partita oppure se è stato sconfitto.
-     * La condizione di sconfitta è data dall'azzeramento del suo chip stack alla fine di un turno.
-     * @return True se è stato sconfitto, false se è ancora in gioco.
-     */
 
     public boolean hasLost() {
         return hasLost;
@@ -138,6 +123,14 @@ public class PlayerModel implements Serializable, Cloneable {
 
     public void setDisconnected(boolean isDisconnected) {
         this.isDisconnected = isDisconnected;
+    }
+
+    public boolean isCreator() {
+        return isCreator;
+    }
+
+    public void setCreator(boolean isCreator) {
+        this.isCreator = isCreator;
     }
 
     @Override

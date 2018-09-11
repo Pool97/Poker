@@ -1,47 +1,43 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.events.Events;
+import server.controller.*;
+import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.ShowdownEvent;
-import server.model.PotHandler;
-import server.model.Room;
 
 public class Showdown implements PokerState {
     private MatchHandler match;
+    private Room room;
 
     public Showdown(MatchHandler match) {
         this.match = match;
+        this.room = match.getRoom();
     }
 
     @Override
     public void goNext() {
         System.out.println("ShowDown.");
-        Events events = new Events();
-        PotHandler pot = new PotHandler(match.getRoom().getPlayers(), match.getTurnModel().getCommunityModel());
+        EventsContainer eventsContainer = new EventsContainer();
+        TurnWinnerEvaluator evaluator = new TurnWinnerEvaluator(room.getPlayers(), match.getTurnModel().getCommunityModel());
+        PotHandler pot = new PotHandler(room.getPlayers());
+
         String nicknameWinner;
-        if (match.getRoom().getPlayers()
-                .stream()
-                .filter(playerModel -> !playerModel.hasLost())
-                .filter(player -> !player.hasFolded())
-                .count() == 1) {
-            nicknameWinner = match.getRoom().getPlayers()
-                    .stream()
-                    .filter(playerModel -> !playerModel.hasLost())
-                    .filter(player -> !player.hasFolded()).findFirst().get().getNickname();
-            System.out.println("Il vincitore stavolta e': " + nicknameWinner);
+
+        PlayersStateAnalyzer analyzer = new PlayersStateAnalyzer(room.getControllers());
+        if (analyzer.getPlayersAtStake().size() == 1) {
+            nicknameWinner = analyzer.getPlayersAtStake().stream().findFirst().get().getNickname();
         } else {
-            nicknameWinner = pot.evaluateTurnWinner();
-            events.addEvent(new ShowdownEvent(pot.getPlayersHandByName()));
+            nicknameWinner = evaluator.evaluateTurnWinner();
+            eventsContainer.addEvent(new ShowdownEvent());
         }
 
-        pot.assignPots(nicknameWinner);
+        pot.assignPotsTo(nicknameWinner);
 
-        Room room = match.getRoom();
+        room.getPlayers().forEach(player -> eventsContainer.addEvent(new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()))));
 
-        room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> events.addEvent(new PlayerUpdatedEvent(player.getNickname(), player.getChips())));
-
-        room.sendBroadcast(events);
+        room.sendBroadcast(eventsContainer);
+        room.sendBroadcastToLostPlayers(eventsContainer);
 
         try {
             Thread.sleep(5000);

@@ -30,4 +30,8 @@ public interface EventsManager {
     void process(PlayerFoldedEvent event);
 
     void process(PlayerDisconnectedEvent event);
+
+    void process(ServerClosedEvent event);
+
+    void process(RestartMatchEvent event);
 }

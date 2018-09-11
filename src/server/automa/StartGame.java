@@ -1,10 +1,11 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.events.Events;
+import server.controller.MatchHandler;
+import server.controller.Room;
+import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
 import server.events.RoomCreatedEvent;
-import server.model.Room;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class StartGame implements PokerState {
     }
 
     private void sendEventsToPlayers() {
-        room.sendBroadcast(new Events(new RoomCreatedEvent()));
+        room.sendBroadcast(new EventsContainer(new RoomCreatedEvent()));
         room.sendBroadcast(preparePlayersLoggedEvents());
     }
 
@@ -63,12 +64,13 @@ public class StartGame implements PokerState {
         return room.getSize() * 10000;
     }
 
-    private Events preparePlayersLoggedEvents() {
+    private EventsContainer preparePlayersLoggedEvents() {
+        System.out.println("SONO ENTRATO DI NUOVO BASTARDO");
         ArrayList<PlayerLoggedEvent> loggedEvents = room.getPlayers()
                 .stream()
                 .map(player -> new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), player.getPosition(),
                         player.getChips()))
                 .collect(Collectors.toCollection(ArrayList::new));
-        return new Events(loggedEvents);
+        return new EventsContainer(loggedEvents);
     }
 }

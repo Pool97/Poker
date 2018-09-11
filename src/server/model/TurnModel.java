@@ -1,5 +1,7 @@
 package server.model;
 
+import server.model.cards.CardModel;
+
 /**
  * Il Model fondamentale del gioco.
  * Permette di tenere traccia di tutti i cambiamenti avvenuti nel MatchHandler, dal suo inizio alla sua fine.
@@ -14,10 +16,6 @@ public class TurnModel {
     private DeckModel deckModel;
     private CommunityModel communityModel;
 
-    /**
-     * Costruttore vuoto della classe TurnModel.
-     */
-
     public TurnModel() {
         pot = 0;
         deckModel = new DeckModel();
@@ -30,24 +28,13 @@ public class TurnModel {
         return pot;
     }
 
-    /**
-     * Permette di resettare a zero il pot.
-     * Solitamente questa azione avviene alla fine di ogni turno, quando il pot finale viene riscosso dal PlayerBoard che si è aggiudicato il turno.
-     */
-
     public void resetPot() {
         pot = 0;
     }
 
-    /**
-     * Permette di incrementare il pot di una quantità fornita in ingresso al metodo.
-     *
-     * @param quantity Valore da aggiungere al pot
-     */
     public int increasePot(int quantity) {
         return pot += quantity;
     }
-
 
     public void createDeck() {
         deckModel.createAndShuffle();

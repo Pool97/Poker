@@ -73,4 +73,14 @@ public class EventsAdapter implements EventsManager {
     public void process(PlayerDisconnectedEvent event) {
 
     }
+
+    @Override
+    public void process(ServerClosedEvent event) {
+
+    }
+
+    @Override
+    public void process(RestartMatchEvent event) {
+
+    }
 }

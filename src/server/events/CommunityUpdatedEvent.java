@@ -2,7 +2,7 @@ package server.events;
 
 import interfaces.EventsManager;
 import interfaces.ServerEvent;
-import server.model.CardModel;
+import server.model.cards.CardModel;
 
 import java.util.Stack;
 

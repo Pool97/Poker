@@ -1,6 +1,6 @@
 package interfaces;
 
-import server.model.*;
+import server.model.actions.*;
 
 public interface ActionManager {
     void process(Call call);

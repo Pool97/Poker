@@ -1,8 +1,8 @@
 package server.algo;
 
-import server.model.CardModel;
-import server.model.CardRank;
-import server.model.CardSuit;
+import server.model.cards.CardModel;
+import server.model.cards.CardRank;
+import server.model.cards.CardSuit;
 
 import java.util.ArrayList;
 

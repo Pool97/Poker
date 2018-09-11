@@ -1,11 +1,12 @@
 package server.automa;
 
 import interfaces.PokerState;
+import server.controller.MatchHandler;
+import server.controller.Room;
 import server.events.CommunityUpdatedEvent;
-import server.events.Events;
-import server.model.CardModel;
-import server.model.Room;
+import server.events.EventsContainer;
 import server.model.TurnModel;
+import server.model.cards.CardModel;
 
 /**
  * Flop è lo stato dell'automa che rappresenta l'omonima fase del Poker. In questo stato vengono aggiunte tre carte
@@ -49,7 +50,7 @@ public class Flop implements PokerState {
         turnModel.addCommunityCards(firstCard, secondCard, thirdCard);
 
         MatchHandler.logger.info(CARDS_READY);
-        room.sendBroadcast(new Events(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
+        room.sendBroadcast(new EventsContainer(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
 
         NextBettingRound nextAction = new NextBettingRound(match);
         nextAction.setTransitionStrategy(() -> match.setState(new Turn(match)));

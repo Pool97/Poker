@@ -1,9 +1,10 @@
 package server.automa;
 
 import interfaces.PokerState;
+import server.controller.MatchHandler;
+import server.controller.Room;
 import server.model.PlayerModel;
 import server.model.Position;
-import server.model.Room;
 
 /**
  * PokerAction è lo stato che gestisce un giro di puntate in un determinato turno. È bene ricordare che nel corso di un
@@ -16,17 +17,9 @@ import server.model.Room;
  */
 
 public class FirstBettingRound extends BettingRound implements PokerState {
-    //private final static String STATE_STARTED = "Lo stato di PokerAction è avviato. \n";
     private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
-
-
-    /**
-     * Costruttore della classe PokerAction
-     *
-     * @param match Gestore dell'automa
-     */
 
     public FirstBettingRound(MatchHandler match) {
         super(match);
@@ -34,14 +27,13 @@ public class FirstBettingRound extends BettingRound implements PokerState {
 
     @Override
     public void goNext() {
-        //MatchHandler.logger.info(STATE_STARTED);
         MatchHandler.logger.info(START_ACTIONS);
         Room room = match.getRoom();
         Position nextPosition = room.getNextPosition(Position.BB);
 
         while (!turnFinished(nextPosition)) {
             PlayerModel player = room.getPlayer(nextPosition);
-            if (!player.hasFolded() && !player.isAllIn() && !player.hasLost()) {
+            if (!player.hasFolded() && !player.isAllIn()) {
                 doAction(player);
             }
             nextPosition = room.getNextPosition(nextPosition);
@@ -55,8 +47,10 @@ public class FirstBettingRound extends BettingRound implements PokerState {
         }
     }
 
-    private boolean turnFinished(Position nextPosition) {
+    protected boolean turnFinished(Position nextPosition) {
         return (nextPosition == Position.SB && isMatched())
-                || (nextPosition != Position.SB) && (playersAnalyzer.countPlayersAtStake() == 1 || ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer()) || playersAnalyzer.isAllPlayersAtStakeAllIn());
+                || (nextPosition != Position.SB) && (playersAnalyzer.countPlayersAtStake() == 1 ||
+                ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer())
+                || playersAnalyzer.isAllPlayersAtStakeAllIn());
     }
 }

@@ -1,9 +1,16 @@
 package server.automa;
 
 import client.events.ActionPerformedEvent;
+import interfaces.BettingManager;
 import interfaces.PokerState;
-import server.events.*;
-import server.model.*;
+import server.controller.MatchHandler;
+import server.controller.PlayersStateAnalyzer;
+import server.controller.TurnActionsAnalyzer;
+import server.events.EventsContainer;
+import server.events.PlayerTurnEvent;
+import server.model.PlayerModel;
+import server.model.Position;
+import server.model.actions.ActionBuilderFacade;
 
 public abstract class BettingRound implements PokerState {
     private final static String ACTION_PERFORMED = "Puntata effettuata da: ";
@@ -23,25 +30,18 @@ public abstract class BettingRound implements PokerState {
     }
 
     protected void doAction(PlayerModel player) {
-        Room room = match.getRoom();
-        TurnModel turnModel = match.getTurnModel();
-
         prepareActionsFor(player);
         assignActionsTo(player);
 
         sendPossibleActions();
 
         ActionPerformedEvent playerAction = readActionFrom(player);
+
         if (playerAction != null) {
             player.addAction(playerAction.getAction());
-
             updatePotBy(playerAction.getAction().getValue());
-
-            if (playerAction.getAction() instanceof Fold)
-                room.sendBroadcast(new Events(new PlayerFoldedEvent(player.getNickname())));
-            else {
-                room.sendBroadcast(new Events(new PlayerUpdatedEvent(player.getNickname(), player.getChips()), new PotUpdatedEvent(turnModel.getPot())));
-            }
+            BettingManager bettingManager = new ConcreteBettingManager(match, player);
+            playerAction.getAction().process(bettingManager);
         }
     }
 
@@ -55,12 +55,14 @@ public abstract class BettingRound implements PokerState {
     }
 
     private void sendPossibleActions() {
-        match.getRoom().sendBroadcast(new Events(optionsEvent));
+        match.getRoom().sendBroadcast(new EventsContainer(optionsEvent));
     }
 
+    protected abstract boolean turnFinished(Position nextPosition);
+
     private ActionPerformedEvent readActionFrom(PlayerModel player) {
-        Events actionEvent = match.getRoom().readMessage(player);
-        if (actionEvent != null) {
+        EventsContainer actionEvent = match.getRoom().readMessage(player);
+        if (!actionEvent.isEmpty()) {
             return (ActionPerformedEvent) actionEvent.getEvent();
         }
         return null;

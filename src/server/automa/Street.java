@@ -1,9 +1,10 @@
 package server.automa;
 
+import server.controller.MatchHandler;
 import server.events.CommunityUpdatedEvent;
-import server.events.Events;
-import server.model.CardModel;
+import server.events.EventsContainer;
 import server.model.TurnModel;
+import server.model.cards.CardModel;
 
 public abstract class Street {
     protected MatchHandler match;
@@ -19,6 +20,6 @@ public abstract class Street {
         CardModel streetCard = turnModel.getNextCard();
         turnModel.addCommunityCards(streetCard);
 
-        match.getRoom().sendBroadcast(new Events(new CommunityUpdatedEvent(streetCard)));
+        match.getRoom().sendBroadcast(new EventsContainer(new CommunityUpdatedEvent(streetCard)));
     }
 }

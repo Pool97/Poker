@@ -1,32 +1,18 @@
 package server.automa;
 
 import interfaces.PokerState;
+import server.controller.MatchHandler;
+import server.controller.Room;
 import server.events.BlindsUpdatedEvent;
-import server.events.Events;
+import server.events.EventsContainer;
 import server.events.PlayerHasWinEvent;
 import server.events.TurnStartedEvent;
-import server.model.*;
+import server.model.MatchModel;
+import server.model.PlayerModel;
+import server.model.TurnModel;
+import server.model.cards.CardModel;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-
-/**
- * StartTurn è il secondo stato dell'automa.
- * Esso può iniziare per via di due transizioni:
- * - Transizione da StartGame: StartTurn rappresenta il primo turno della partita di Poker.
- * - Transizione da Showdown: StartTurn rappresenta un nuovo turno della partita di Poker, subito
- * dopo la conclusione del precedente, conclusosi con lo stato di Showdown.
- * <p>
- * In questo stato devono essere compiute le seguenti azioni:
- * - creazione e mescolamento del mazzo di carte;
- * - riazzeramento del pot (per evitare di continuare a utilizzare il pot del turno precedente)
- * - incremento dei bui
- * - Informare tutti i players dell'aggiornamento del valore dei bui
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
 
 public class StartTurn implements PokerState {
     private final static String STATE_STARTED = "Lo stato di StartTurn è avviato. \n";
@@ -45,28 +31,25 @@ public class StartTurn implements PokerState {
         room = match.getRoom();
     }
 
-
     @Override
     public void goNext() {
         MatchHandler.logger.info(STATE_STARTED);
         MatchHandler.logger.info(CONF_TURN);
 
-        checkIfMatchEnded();
+        if (room.hasWinner()) {
+            room.sendBroadcast(new EventsContainer(new PlayerHasWinEvent(room.getWinner())));
+            room.sendBroadcastToLostPlayers(new EventsContainer(new PlayerHasWinEvent(room.getWinner())));
+            match.setState(new RestartMatch(match));
+        } else {
+            updateMatchParameters();
+            updateRoom();
+            dealCards();
+            sendNewBlindsToPlayers();
 
-        updateMatchParameters();
-        updateRoom();
-        dealCards();
+            room.sendBroadcast(prepareTurnStartedEvents());
 
-        sendNewBlindsToPlayers();
-
-        room.sendBroadcast(prepareTurnStartedEvents());
-
-        match.setState(new SmallBlind(match));
-    }
-
-    private void checkIfMatchEnded() {
-        if (room.hasWinner())
-            room.sendBroadcast(new Events(new PlayerHasWinEvent(room.getWinner())));
+            match.setState(new SmallBlind(match));
+        }
     }
 
     private void updateRoom() {
@@ -84,19 +67,21 @@ public class StartTurn implements PokerState {
     }
 
     private void sendNewBlindsToPlayers() {
-        room.sendBroadcast(new Events(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
+        room.sendBroadcast(new EventsContainer(new BlindsUpdatedEvent(matchModel.getSmallBlind(), matchModel.getBigBlind())));
     }
 
-    private Events prepareTurnStartedEvents() {
+    private EventsContainer prepareTurnStartedEvents() {
         ArrayList<TurnStartedEvent> events = new ArrayList<>();
-        for (PlayerModel player : room.getPlayers())
-            events.add(new TurnStartedEvent(player.getNickname(), player.getPosition().name(),
-                    player.getCards().stream().map(CardModel::getImageDirectoryPath).collect(Collectors.toCollection(ArrayList::new))));
-        return new Events(events);
+        for (PlayerModel player : room.getPlayers()) {
+            TurnStartedEvent event = new TurnStartedEvent(player.getNickname(), player.getPosition().name());
+            player.cardsStream().map(CardModel::getImageDirectoryPath).forEach(event::addCardPath);
+            events.add(event);
+        }
+        return new EventsContainer(events);
     }
 
     private void dealCards() {
-        room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> player.addCard(turnModel.getNextCard()));
-        room.getPlayers().stream().filter(playerModel -> !playerModel.hasLost()).forEach(player -> player.addCard(turnModel.getNextCard()));
+        room.getPlayers().forEach(player -> player.addCard(turnModel.getNextCard()));
+        room.getPlayers().forEach(player -> player.addCard(turnModel.getNextCard()));
     }
 }

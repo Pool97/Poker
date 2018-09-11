@@ -2,9 +2,10 @@ package server.automa;
 
 import interfaces.PokerState;
 import interfaces.TransitionStrategy;
+import server.controller.MatchHandler;
+import server.controller.Room;
 import server.model.PlayerModel;
 import server.model.Position;
-import server.model.Room;
 
 public class NextBettingRound extends BettingRound implements PokerState {
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
@@ -21,7 +22,7 @@ public class NextBettingRound extends BettingRound implements PokerState {
         Room room = match.getRoom();
         Position nextPosition = Position.SB;
 
-        while (!turnFinishedOtherVersion(nextPosition, roundNumber)) {
+        while (!turnFinished(nextPosition)) {
             PlayerModel player = room.getPlayer(nextPosition);
             if (!player.hasFolded() && !player.isAllIn()) {
                 doAction(player);
@@ -35,14 +36,13 @@ public class NextBettingRound extends BettingRound implements PokerState {
             MatchHandler.logger.info(ONE_PLAYER_ONLY);
             match.setState(new Showdown(match));
         } else if (isMatched() || (playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
-            System.out.println("Dio bambinisissmo");
             MatchHandler.logger.info(EQUITY_REACHED);
             strategy.makeTransition();
         }
     }
 
-
-    public boolean turnFinishedOtherVersion(Position nextPosition, int roundNumber) {
+    @Override
+    protected boolean turnFinished(Position nextPosition) {
         return (nextPosition == Position.SB && ((isMatched() && roundNumber >= 1) || playersAnalyzer.countPlayersAtStake() == 1 || ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer()) || playersAnalyzer.isAllPlayersAtStakeAllIn()))
                 || (nextPosition != Position.SB) && (playersAnalyzer.countPlayersAtStake() == 1 || ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer()) || playersAnalyzer.isAllPlayersAtStakeAllIn());
     }

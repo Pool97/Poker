@@ -10,10 +10,10 @@ public class TurnStartedEvent implements ServerEvent {
     private String turnPosition;
     private ArrayList<String> frontImageCards;
 
-    public TurnStartedEvent(String nickname, String turnPosition, ArrayList<String> frontImageCards) {
+    public TurnStartedEvent(String nickname, String turnPosition) {
         this.nickname = nickname;
         this.turnPosition = turnPosition;
-        this.frontImageCards = frontImageCards;
+        this.frontImageCards = new ArrayList<>();
     }
 
     public String getNickname() {
@@ -36,9 +36,10 @@ public class TurnStartedEvent implements ServerEvent {
         return frontImageCards;
     }
 
-    public void setFrontImageCards(ArrayList<String> frontImageCards) {
-        this.frontImageCards = frontImageCards;
+    public void addCardPath(String cardPath) {
+        frontImageCards.add(cardPath);
     }
+
 
     @Override
     public void accept(EventsManager processor) {

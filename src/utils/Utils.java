@@ -1,7 +1,7 @@
 package utils;
 
-import server.model.CardModel;
-import server.model.CardRank;
+import server.model.cards.CardModel;
+import server.model.cards.CardRank;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -9,7 +9,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -26,13 +29,6 @@ public class Utils {
     public static String[] EXTENSIONS = new String[]{"gif", "png", "bmp"};
     public final static String DEFAULT_THEME = "Nimbus";
     public final static String DEFAULT_FONT = "helvetica";
-    private static int c1;
-    private static int c2;
-    private static int c3;
-    private static int c4;
-    private static int c5;
-    private static int pl1;
-    private static int pl2;
 
     /**
      * Permette di assegnare la versione riscalata dell'immagine originale.
@@ -46,7 +42,7 @@ public class Utils {
 
         try {
             BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + filename));
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int)scaleSize.getWidth(), (int)scaleSize.getHeight(), Scalr.OP_DARKER);
+            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_HEIGHT, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,7 +55,7 @@ public class Utils {
         try {
             System.out.println(filename);
             BufferedImage originalImage = ImageIO.read(new File(filename));
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.BEST_FIT_BOTH, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
+            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_HEIGHT, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,25 +74,6 @@ public class Utils {
         return derivedFont;
     }
 
-    public static <T> T askForAChoice(T[] list, String message) {
-        JComboBox<T> comboBox = new JComboBox<>(list);
-        JOptionPane.showMessageDialog(null, comboBox, message, JOptionPane.QUESTION_MESSAGE);
-        return (T) comboBox.getSelectedItem();
-    }
-
-    public static boolean isLinux() {
-        return System.getProperty("os.name").equals("Linux");
-    }
-
-    public static String getHostAddress() {
-        try {
-            return Inet4Address.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static String getIpAddress() {
         Enumeration<NetworkInterface> interfaces = null;
         try {
@@ -109,7 +86,7 @@ public class Utils {
             NetworkInterface i = interfaces.nextElement();
             for (Enumeration<InetAddress> addresses = i.getInetAddresses(); addresses.hasMoreElements(); ) {
                 InetAddress addr = addresses.nextElement();
-                if (addr instanceof Inet4Address) {
+                if ((addr instanceof Inet4Address) && !addr.isLoopbackAddress()) {
                     return addr.getHostAddress();
                 }
             }

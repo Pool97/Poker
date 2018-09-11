@@ -1,9 +1,10 @@
 package server.automa;
 
-import server.model.Fittizia;
+import server.controller.MatchHandler;
 import server.model.MatchModel;
 import server.model.PlayerModel;
 import server.model.Position;
+import server.model.actions.DeadMoney;
 
 public class BigBlind extends Blind {
     private final static String BIG_BLIND = "Riscuoto la puntata obligatoria di Big Blind \n";
@@ -18,16 +19,19 @@ public class BigBlind extends Blind {
         MatchModel matchModel = match.getMatchModel();
         PlayerModel playerModel = match.getRoom().getPlayer(Position.BB);
 
+        int payedAmount;
+
         if (playerModel.getChips() < matchModel.getBigBlind()) {
-            int payed = playerModel.getChips();
-            int deltaBlind = matchModel.getBigBlind() - payed;
-            payBlindAndUpdate(playerModel, payed);
-            playerModel.addAction(new Fittizia(deltaBlind));
-            increasePotAndUpdate(payed);
+            int available = playerModel.getChips();
+            int notPayed = matchModel.getBigBlind() - available;
+            payedAmount = available;
+            playerModel.addAction(new DeadMoney(notPayed));
         } else {
-            payBlindAndUpdate(playerModel, matchModel.getBigBlind());
-            increasePotAndUpdate(matchModel.getBigBlind());
+            payedAmount = matchModel.getBigBlind();
         }
+
+        payBlindAndUpdate(playerModel, payedAmount);
+        increasePotAndUpdate(payedAmount);
 
         match.setState(new FirstBettingRound(match));
     }

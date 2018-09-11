@@ -1,6 +1,6 @@
 package interfaces;
 
-import client.components.PlayerBoard;
+import client.ui.components.PlayerBoard;
 
 public interface TableSide {
     boolean hasAvailableSeat();

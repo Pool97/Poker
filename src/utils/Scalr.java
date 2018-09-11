@@ -37,7 +37,7 @@ import java.awt.image.*;
  * <p/>
  * This class also implements an optimized version of the incremental scaling
  * algorithm presented by Chris Campbell in his <a href="http://today.java
- * .net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html">Perils of
+ * .controller/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html">Perils of
  * Image.getScaledInstance()</a> article in order to give the best-looking image
  * resize results (e.g. generating thumbnails that aren't blurry or jagged).
  * <p>
@@ -2003,7 +2003,7 @@ public class Scalr {
 	 * otherwise) to convert any inbound image from a poorly supported image
 	 * type into the 2 most well-supported image types in Java2D (
 	 * {@link BufferedImage#TYPE_INT_RGB} or {@link BufferedImage#TYPE_INT_ARGB}
-     * ) in order to ensure all subsequent client.components operations are performed as
+     * ) in order to ensure all subsequent client.ui.components operations are performed as
 	 * efficiently and correctly as possible.
 	 * <p/>
 	 * When using Java2D to work with image types that are not well supported,
@@ -2122,7 +2122,7 @@ public class Scalr {
 				interpolationHintValue);
 		resultGraphics.drawImage(src, 0, 0, targetWidth, targetHeight, null);
 
-        // Just to be clean, explicitly dispose our temporary client.components object
+        // Just to be clean, explicitly dispose our temporary client.ui.components object
 		resultGraphics.dispose();
 
 		// Return the scaled image to the caller.

@@ -1,6 +1,11 @@
 package server.automa;
 
-import server.model.*;
+import server.controller.MatchHandler;
+import server.controller.Room;
+import server.model.MatchModel;
+import server.model.PlayerModel;
+import server.model.Position;
+import server.model.actions.DeadMoney;
 
 public class SmallBlind extends Blind {
     private final static String SMALL_BLIND = "Riscuoto la puntata obbligatoria di Small Blind... \n";
@@ -23,13 +28,12 @@ public class SmallBlind extends Blind {
             int payed = playerModel.getChips();
             int deltaBlind = matchModel.getSmallBlind() - payed;
             payBlindAndUpdate(playerModel, payed);
-            playerModel.addAction(new Fittizia(deltaBlind));
+            playerModel.addAction(new DeadMoney(deltaBlind));
             increasePotAndUpdate(payed);
         } else {
             payBlindAndUpdate(playerModel, matchModel.getSmallBlind());
             increasePotAndUpdate(matchModel.getSmallBlind());
         }
-
 
         match.setState(new BigBlind(match));
     }

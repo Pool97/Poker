@@ -1,11 +1,12 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.events.Events;
+import server.controller.MatchHandler;
+import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.PotUpdatedEvent;
-import server.model.Call;
 import server.model.PlayerModel;
+import server.model.actions.Call;
 
 /**
  * Questo è lo stato dell'automa che si occupa di riscuotere le puntate obbligatorie del turno, ossia lo Small Blind e
@@ -29,12 +30,12 @@ public abstract class Blind implements PokerState {
 
     protected void payBlindAndUpdate(PlayerModel player, int value) {
         player.addAction(new Call(value));
-        PlayerUpdatedEvent event = new PlayerUpdatedEvent(player.getNickname(), player.getChips());
-        match.getRoom().sendBroadcast(new Events(event));
+        PlayerUpdatedEvent event = new PlayerUpdatedEvent(player.getNickname(), player.getChips(), "PAY " + value);
+        match.getRoom().sendBroadcast(new EventsContainer(event));
     }
 
     protected void increasePotAndUpdate(int quantity) {
         int potIncreased = match.getTurnModel().increasePot(quantity);
-        match.getRoom().sendBroadcast(new Events(new PotUpdatedEvent(potIncreased)));
+        match.getRoom().sendBroadcast(new EventsContainer(new PotUpdatedEvent(potIncreased)));
     }
 }
