@@ -35,7 +35,7 @@ public class ConcreteActionManager implements ActionManager {
     @Override
     public void process(RaiseOption raiseOption) {
         actionBoard.setRaiseEnabled(true);
-
+        actionBoard.setRaiseText("");
         actionBoard.setExtremeSliderValues(raiseOption.getMinValue(), raiseOption.getMaxValue());
         actionBoard.addRaiseListener(eventG -> {
             SocketWriter called = new SocketWriter(clientManager.getOutputStream(),

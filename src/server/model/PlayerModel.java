@@ -101,6 +101,7 @@ public class PlayerModel implements Serializable, Cloneable {
             action = new AllIn(action.getValue());
         if (!(action instanceof DeadMoney)) {
             chips -= action.getValue();
+            System.out.println("SONO ENTRATO QUI PERBACCO");
         }
         actions.add(action);
     }

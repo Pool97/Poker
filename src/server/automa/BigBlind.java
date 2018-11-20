@@ -27,6 +27,7 @@ public class BigBlind extends Blind {
             payedAmount = available;
             playerModel.addAction(new DeadMoney(notPayed));
         } else {
+            System.out.println("SONO ENTRATO QUI STAVOLTA");
             payedAmount = matchModel.getBigBlind();
         }
 
