@@ -8,39 +8,34 @@ import server.model.TurnModel;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
-public class MatchHandler {
+public class Context implements Runnable {
     private MatchModel matchModel;
     private TurnModel turnModel;
-    private Room room;
+    public CountDownLatch countDownLatch;
     private PokerState currentState;
-    public CountDownLatch stop;
+    private Room room;
 
-    public static final Logger logger = Logger.getLogger(MatchHandler.class.getName());
+    public static final Logger logger = Logger.getLogger(Context.class.getName());
 
-    public MatchHandler(CountDownLatch stopServer) {
+    public Context(Room room){
         matchModel = new MatchModel();
         turnModel = new TurnModel();
-        room = new Room();
-        this.stop = stopServer;
+        this.room = room;
     }
 
     public void setState(PokerState state) {
         this.currentState = state;
     }
 
-    public void start() {
-        currentState.goNext();
+    public void startGame() {
+        setState(new StartGame(this));
     }
-
-    public void startServer() {
-        CountDownLatch roomCreationSignal = new CountDownLatch(1);
-        ServerManager serverManager = new ServerManager(room, roomCreationSignal);
-        new Thread(serverManager).start();
-        try {
-            roomCreationSignal.await();
-            setState(new StartGame(this));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    @Override
+    public void run() {
+        countDownLatch = new CountDownLatch(1);
+        startGame();
+        while (countDownLatch.getCount() > 0) {
+            currentState.goNext();
         }
     }
 

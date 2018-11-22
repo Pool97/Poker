@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.events.CommunityUpdatedEvent;
 import server.events.EventsContainer;
@@ -22,9 +22,9 @@ public class Flop implements PokerState {
     private final static String STATE_STARTED = "Lo stato di Flop è avviato. \n";
     private final static String CARDS_GEN = "Generazione delle tre carte per la Community... \n";
     private final static String CARDS_READY = "Generazione completata. Informo i Players... \n";
-    private MatchHandler match;
+    private Context match;
 
-    public Flop(MatchHandler match) {
+    public Flop(Context match) {
         this.match = match;
     }
 
@@ -36,12 +36,12 @@ public class Flop implements PokerState {
     @SuppressWarnings("unchecked")
     @Override
     public void goNext() {
-        MatchHandler.logger.info(STATE_STARTED);
+        Context.logger.info(STATE_STARTED);
         TurnModel turnModel = match.getTurnModel();
         Room room = match.getRoom();
         turnModel.getNextCard();
 
-        MatchHandler.logger.info(CARDS_GEN);
+        Context.logger.info(CARDS_GEN);
 
         CardModel firstCard = turnModel.getNextCard();
         CardModel secondCard = turnModel.getNextCard();
@@ -49,7 +49,7 @@ public class Flop implements PokerState {
 
         turnModel.addCommunityCards(firstCard, secondCard, thirdCard);
 
-        MatchHandler.logger.info(CARDS_READY);
+        Context.logger.info(CARDS_READY);
         room.sendBroadcast(new EventsContainer(new CommunityUpdatedEvent(firstCard, secondCard, thirdCard)));
 
         NextBettingRound nextAction = new NextBettingRound(match);

@@ -1,11 +1,11 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 
 public class Turn extends Street implements PokerState {
 
-    public Turn(MatchHandler match) {
+    public Turn(Context match) {
         super(match);
         showNextCard();
     }

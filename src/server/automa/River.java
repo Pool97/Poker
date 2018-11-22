@@ -1,11 +1,11 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 
 public class River extends Street implements PokerState {
 
-    public River(MatchHandler match) {
+    public River(Context match) {
         super(match);
         showNextCard();
     }

@@ -1,7 +1,6 @@
 package client.events;
 
-import client.net.ClientManager;
-import client.net.SocketWriter;
+import client.net.Client;
 import client.ui.userboard.ActionBoard;
 import interfaces.ActionManager;
 import server.events.EventsContainer;
@@ -9,11 +8,10 @@ import server.model.actions.*;
 
 public class ConcreteActionManager implements ActionManager {
     public ActionBoard actionBoard;
-    private ClientManager clientManager;
 
-    public ConcreteActionManager(ClientManager clientManager, ActionBoard actionBoard) {
+    public ConcreteActionManager(ActionBoard actionBoard) {
         this.actionBoard = actionBoard;
-        this.clientManager = clientManager;
+
     }
 
     @Override
@@ -21,9 +19,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setCallEnabled(true);
         actionBoard.setCallText(" " + call.getValue() + "$");
         actionBoard.addCallListener(eventG -> {
-            SocketWriter called = new SocketWriter(clientManager.getOutputStream(),
-                    new EventsContainer(new ActionPerformedEvent(call)));
-            called.execute();
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(call)));
             actionBoard.setCallText("");
             actionBoard.repaint();
             actionBoard.validate();
@@ -38,9 +34,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setRaiseText("");
         actionBoard.setExtremeSliderValues(raiseOption.getMinValue(), raiseOption.getMaxValue());
         actionBoard.addRaiseListener(eventG -> {
-            SocketWriter called = new SocketWriter(clientManager.getOutputStream(),
-                    new EventsContainer(new ActionPerformedEvent(new Raise(actionBoard.getSliderValue()))));
-            called.execute();
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new Raise(actionBoard.getSliderValue()))));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
         });
@@ -51,9 +45,7 @@ public class ConcreteActionManager implements ActionManager {
     public void process(Fold fold) {
         actionBoard.setFoldEnabled(true);
         actionBoard.addFoldListener(eventG -> {
-            SocketWriter called = new SocketWriter(clientManager.getOutputStream(),
-                    new EventsContainer(new ActionPerformedEvent(fold)));
-            called.execute();
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(fold)));
             actionBoard.setActionButtonsEnabled(false);
             actionBoard.setCallText("");
         });
@@ -63,9 +55,7 @@ public class ConcreteActionManager implements ActionManager {
     public void process(Check check) {
         actionBoard.setCheckEnabled(true);
         actionBoard.addCheckListener(eventG -> {
-            SocketWriter called = new SocketWriter(clientManager.getOutputStream(),
-                    new EventsContainer(new ActionPerformedEvent(new Check())));
-            called.execute();
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new Check())));
             actionBoard.setActionButtonsEnabled(false);
         });
     }
@@ -76,9 +66,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setBetText("");
         actionBoard.setExtremeSliderValues(bet.getMinValue(), bet.getMaxValue());
         actionBoard.addRaiseListener(eventG -> {
-            SocketWriter called = new SocketWriter(clientManager.getOutputStream(),
-                    new EventsContainer(new ActionPerformedEvent(new Bet(actionBoard.getSliderValue()))));
-            called.execute();
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new Bet(actionBoard.getSliderValue()))));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
             actionBoard.setRaiseText("");

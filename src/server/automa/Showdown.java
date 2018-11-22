@@ -7,10 +7,10 @@ import server.events.PlayerUpdatedEvent;
 import server.events.ShowdownEvent;
 
 public class Showdown implements PokerState {
-    private MatchHandler match;
+    private Context match;
     private Room room;
 
-    public Showdown(MatchHandler match) {
+    public Showdown(Context match) {
         this.match = match;
         this.room = match.getRoom();
     }

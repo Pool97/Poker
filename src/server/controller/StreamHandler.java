@@ -26,7 +26,7 @@ public class StreamHandler {
             outStream.flush();
             inStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            MatchHandler.logger.info(STREAM_CREATION_ERROR);
+            Context.logger.info(STREAM_CREATION_ERROR);
             e.printStackTrace();
             Thread.currentThread().interrupt();
         }
@@ -37,7 +37,7 @@ public class StreamHandler {
             outStream.writeObject(message);
             outStream.flush();
         } catch (IOException e) {
-            MatchHandler.logger.info(STREAM_ERROR);
+            Context.logger.info(STREAM_ERROR);
             e.printStackTrace();
             Thread.currentThread().interrupt();
         }

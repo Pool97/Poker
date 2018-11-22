@@ -2,7 +2,7 @@ package server.automa;
 
 import interfaces.PokerState;
 import interfaces.TransitionStrategy;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.model.PlayerModel;
 import server.model.Position;
@@ -13,7 +13,7 @@ public class NextBettingRound extends BettingRound implements PokerState {
     private TransitionStrategy strategy;
     private int roundNumber;
 
-    public NextBettingRound(MatchHandler match) {
+    public NextBettingRound(Context match) {
         super(match);
     }
 
@@ -33,10 +33,10 @@ public class NextBettingRound extends BettingRound implements PokerState {
         }
 
         if (playersAnalyzer.countPlayersAtStake() == 1) {
-            MatchHandler.logger.info(ONE_PLAYER_ONLY);
+            Context.logger.info(ONE_PLAYER_ONLY);
             match.setState(new Showdown(match));
         } else if (isMatched() || (playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
-            MatchHandler.logger.info(EQUITY_REACHED);
+            Context.logger.info(EQUITY_REACHED);
             strategy.makeTransition();
         }
     }

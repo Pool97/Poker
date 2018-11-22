@@ -3,8 +3,9 @@ package client.ui.dialogs;
 
 import client.ui.components.Avatar;
 import client.ui.components.Card;
-import client.ui.frames.CreatorGameFrame;
+import client.ui.frames.Lobby;
 import client.ui.frames.SelectAvatarFrame;
+import server.controller.ServerManager;
 import utils.GBC;
 import utils.Utils;
 
@@ -47,7 +48,8 @@ public class CreatorDialog extends PokerDialog {
         userResponse.setBackground(bgColor);
 
         addConfirmButtonListener(event -> {
-            new CreatorGameFrame(nicknameField.getText(), avatar.getName() + ".png", Integer.parseInt(numPlayersIndicator.getText().substring(0, 1)), Utils.getIpAddress());
+            new Thread(new ServerManager(Integer.parseInt(numPlayersIndicator.getText().substring(0,1)))).start();
+            new Lobby(nicknameField.getText(), avatar.getName() + ".png", Utils.getIpAddress());
             dispose();
         });
 

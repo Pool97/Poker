@@ -1,6 +1,5 @@
 package server.controller;
 
-import client.events.CreatorConnectedEvent;
 import client.events.PlayerConnectedEvent;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
@@ -9,7 +8,6 @@ import server.model.PlayerModel;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,41 +35,23 @@ public class ServerManager implements Runnable {
     private final static Logger logger = Logger.getLogger(ServerManager.class.getName());
     private int totalPlayers;
     private ServerSocket serverSocket;
-    private CountDownLatch roomCreationSignal;
     private Room room;
 
-    /**
-     * Costruttore vuoto di ServerManager.
-     * Viene istanziato il ServerSocket e costruita la stanza necessaria per accogliere i Players che
-     * si collegano al Server.
-     */
-
-    public ServerManager(Room room, CountDownLatch roomCreationSignal) {
+    public ServerManager(int totalPlayers) {
         try {
             serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
-            this.roomCreationSignal = roomCreationSignal;
-            this.room = room;
+            room = new Room();
+            this.totalPlayers = totalPlayers;
         } catch (IOException e) {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
         }
     }
-
-    /**
-     * {@link Runnable#run()}
-     */
 
     public void run() {
         do
             listen();
         while (true);
     }
-
-    /**
-     * Permette di aggiungere alla stanza ogni Players che si collega.
-     * Il primo Client deve essere necessariamente  PlayerBoard che deve puntare attualmente il creatore della stanza, che
-     * fornisce la dimensione che dovrà avere la stanza (equivalentemente fornisce il numero di giocatori iniziali
-     * della partita).
-     */
 
     private void listen() {
         logger.info(SERVER_INFO + LISTEN_FOR_CLIENTS_INFO);
@@ -82,11 +62,6 @@ public class ServerManager implements Runnable {
 
             PlayerController player = new PlayerController(socket);
             EventsContainer newPlayer = room.readMessage(player);
-
-            if (room.getSize() == 0) {
-                totalPlayers = ((CreatorConnectedEvent) newPlayer.getEvent()).getTotalPlayers();
-                logger.info(SERVER_INFO + WAITING_FOR_INFO + (totalPlayers - 1) + PLAYERS);
-            }
 
             PlayerConnectedEvent event = (PlayerConnectedEvent) newPlayer.getEvent();
             PlayerModel playerModel = new PlayerModel(event.getNickname(), event.getAvatar());
@@ -99,7 +74,7 @@ public class ServerManager implements Runnable {
             logger.info(PLAYER_ADDED + event.getNickname());
 
             if (room.getSize() == totalPlayers) {
-                roomCreationSignal.countDown();
+                new Thread(new Context(room)).start();
             }
 
         } catch (IOException e) {

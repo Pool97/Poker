@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.model.PlayerModel;
 import server.model.Position;
@@ -21,13 +21,13 @@ public class FirstBettingRound extends BettingRound implements PokerState {
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
 
-    public FirstBettingRound(MatchHandler match) {
+    public FirstBettingRound(Context match) {
         super(match);
     }
 
     @Override
     public void goNext() {
-        MatchHandler.logger.info(START_ACTIONS);
+        Context.logger.info(START_ACTIONS);
         Room room = match.getRoom();
         Position nextPosition = room.getNextPosition(Position.BB);
 
@@ -40,7 +40,7 @@ public class FirstBettingRound extends BettingRound implements PokerState {
         }
 
         if (playersAnalyzer.countPlayersAtStake() == 1) {
-            MatchHandler.logger.info(ONE_PLAYER_ONLY);
+            Context.logger.info(ONE_PLAYER_ONLY);
             match.setState(new Showdown(match));
         } else if ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) || isMatched() || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
             match.setState(new Flop(match));

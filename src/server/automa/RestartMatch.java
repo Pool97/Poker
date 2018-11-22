@@ -1,15 +1,15 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.events.EventsContainer;
 import server.events.ServerClosedEvent;
 
 public class RestartMatch implements PokerState {
-    private MatchHandler match;
+    private Context match;
 
-    public RestartMatch(MatchHandler match) {
+    public RestartMatch(Context match) {
         this.match = match;
     }
 
@@ -18,6 +18,6 @@ public class RestartMatch implements PokerState {
         Room room = match.getRoom();
         room.sendBroadcastToLostPlayers(new EventsContainer(new ServerClosedEvent()));
         room.sendBroadcast(new EventsContainer(new ServerClosedEvent()));
-        match.stop.countDown();
+        match.countDownLatch.countDown();
     }
 }

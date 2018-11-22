@@ -5,18 +5,6 @@ import client.ui.userboard.ActionButton;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * È la schermata iniziale del gioco. Vengono proposte le seguenti opzioni all'utente:
- * <p>
- * - Crea una stanza: permette di creare una stanza nella rete locale in cui risiedono i giocatori;
- * - Connettiti: permette di connettersi a una determinata stanza;
- * - About us: scopri qualcosa su di noi!
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
-
 public class WelcomeFrame extends JFrame {
     private final static String FRAME_TITLE = "Benvenuto in Poker Texas!";
     private final static String ROOM_CREATION_OPTION = "Crea una stanza";
@@ -25,24 +13,14 @@ public class WelcomeFrame extends JFrame {
     private final static String ROOM_CREATION_INFO = "La stanza verrà hostata sulla porta 4040. Invia questi dati agli altri utenti.";
     private final static String MESSAGE_DIALOG_ROOM = "Creazione della stanza";
 
-    /**
-     * Costruttore vuoto.
-     * Invoca i metodi necessari per generare l'interfaccia grafica.
-     */
-
     public WelcomeFrame() {
         setLookAndFeel();
         createGUI();
-
     }
 
     public static void main(String[] args) {
         launchGame();
     }
-
-    /**
-     * Permette di creare l'interfaccia grafica per l'utente.
-     */
 
     private void createGUI() {
 
@@ -99,10 +77,6 @@ public class WelcomeFrame extends JFrame {
         //button.setBackground(color);
     }
 
-    /**
-     * Permette di impostare il tema del programma.
-     */
-
     private void setLookAndFeel() {
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -112,7 +86,7 @@ public class WelcomeFrame extends JFrame {
                 }
             }
         } catch (Exception e) {
-            // If Nimbus is not available, you can set the GUI to another look and feel.
+
         }
 
 

@@ -1,6 +1,6 @@
 package server.automa;
 
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.model.MatchModel;
 import server.model.PlayerModel;
 import server.model.Position;
@@ -9,13 +9,13 @@ import server.model.actions.DeadMoney;
 public class BigBlind extends Blind {
     private final static String BIG_BLIND = "Riscuoto la puntata obligatoria di Big Blind \n";
 
-    public BigBlind(MatchHandler match) {
+    public BigBlind(Context match) {
         super(match);
     }
 
     @Override
     public void goNext() {
-        MatchHandler.logger.info(BIG_BLIND);
+        Context.logger.info(BIG_BLIND);
         MatchModel matchModel = match.getMatchModel();
         PlayerModel playerModel = match.getRoom().getPlayer(Position.BB);
 
@@ -27,7 +27,6 @@ public class BigBlind extends Blind {
             payedAmount = available;
             playerModel.addAction(new DeadMoney(notPayed));
         } else {
-            System.out.println("SONO ENTRATO QUI STAVOLTA");
             payedAmount = matchModel.getBigBlind();
         }
 

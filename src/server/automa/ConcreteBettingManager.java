@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.BettingManager;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.events.EventsContainer;
 import server.events.PlayerFoldedEvent;
 import server.events.PlayerUpdatedEvent;
@@ -10,10 +10,10 @@ import server.model.PlayerModel;
 import server.model.actions.*;
 
 public class ConcreteBettingManager implements BettingManager {
-    private MatchHandler match;
+    private Context match;
     private PlayerModel player;
 
-    public ConcreteBettingManager(MatchHandler match, PlayerModel player) {
+    public ConcreteBettingManager(Context match, PlayerModel player) {
         this.match = match;
         this.player = player;
     }

@@ -1,6 +1,6 @@
 package server.automa;
 
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.model.MatchModel;
 import server.model.PlayerModel;
@@ -10,7 +10,7 @@ import server.model.actions.DeadMoney;
 public class SmallBlind extends Blind {
     private final static String SMALL_BLIND = "Riscuoto la puntata obbligatoria di Small Blind... \n";
 
-    public SmallBlind(MatchHandler match) {
+    public SmallBlind(Context match) {
         super(match);
     }
 
@@ -21,7 +21,7 @@ public class SmallBlind extends Blind {
         Room room = match.getRoom();
         PlayerModel playerModel;
 
-        MatchHandler.logger.info(SMALL_BLIND);
+        Context.logger.info(SMALL_BLIND);
 
         playerModel = room.getPlayer(Position.SB);
         if (playerModel.getChips() < matchModel.getSmallBlind()) {

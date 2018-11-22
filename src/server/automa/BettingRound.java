@@ -3,7 +3,7 @@ package server.automa;
 import client.events.ActionPerformedEvent;
 import interfaces.BettingManager;
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.PlayersStateAnalyzer;
 import server.controller.TurnActionsAnalyzer;
 import server.events.EventsContainer;
@@ -18,12 +18,12 @@ public abstract class BettingRound implements PokerState {
     private final static String PLAYER_OPTIONS = "Propongo al player le opzioni disponibili per la puntata... \n";
     private final static String PLAYERS_INFO = "Informo tutti i players della puntata effettuata... \n";
 
-    protected MatchHandler match;
+    protected Context match;
     private PlayerTurnEvent optionsEvent;
     protected PlayersStateAnalyzer playersAnalyzer;
     protected TurnActionsAnalyzer actionsAnalyzer;
 
-    public BettingRound(MatchHandler match) {
+    public BettingRound(Context match) {
         this.match = match;
         playersAnalyzer = new PlayersStateAnalyzer(match.getRoom().getControllers());
         actionsAnalyzer = new TurnActionsAnalyzer();

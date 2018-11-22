@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.PotUpdatedEvent;
@@ -20,10 +20,10 @@ import server.model.actions.Call;
  */
 
 public abstract class Blind implements PokerState {
-    protected MatchHandler match;
+    protected Context match;
 
 
-    public Blind(MatchHandler match) {
+    public Blind(Context match) {
         this.match = match;
     }
 

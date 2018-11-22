@@ -2,9 +2,8 @@ package client.ui.frames;
 
 import client.events.ConcreteActionManager;
 import client.events.EventsAdapter;
-import client.net.ClientManager;
-import client.net.SocketReader;
-import client.net.SocketWriter;
+import client.net.Client;
+import client.net.ReadServerMessagesTask;
 import client.ui.components.GameBoard;
 import client.ui.components.MatchBoard;
 import client.ui.components.PlayerBoard;
@@ -26,13 +25,9 @@ public class BoardFrame extends JFrame {
     private PokerTable pokerTable;
     private ActionBoard actionBoard;
     private MatchBoard matchBoard;
-    private ClientManager clientManager;
-    private String nickname;
 
-    public BoardFrame(ClientManager manager, String nickname) {
-        this.clientManager = manager;
-        this.nickname = nickname;
-        System.out.println("Sono io: " + nickname);
+    public BoardFrame() {
+
         createBoard();
         createPokerTable();
         createUserBoard();
@@ -78,7 +73,7 @@ public class BoardFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                clientManager.close();
+                Client.getInstance().close();
             }
         });
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -87,27 +82,27 @@ public class BoardFrame extends JFrame {
     }
 
     private void listenToServer() {
-        SocketReader reader = new SocketReader(clientManager.getInputStream());
+        ReadServerMessagesTask reader = new ReadServerMessagesTask();
         reader.setEventsManager(new ConcreteEventManager());
         reader.execute();
     }
 
     private void logAvailableActions(PlayerTurnEvent event) {
-        ClientManager.logger.info("Azioni disponibili: " + event.getPlayerNickname() + " \n");
+        Client.logger.info("Azioni disponibili: " + event.getPlayerNickname() + " \n");
         event.getOptions()
-                .forEach(action -> ClientManager.logger.info("Azione: " + action.toString()));
+                .forEach(action -> Client.logger.info("Azione: " + action.toString()));
     }
 
     class ConcreteEventManager extends EventsAdapter {
         private ActionManager actionManager;
 
         public ConcreteEventManager() {
-            actionManager = new ConcreteActionManager(clientManager, actionBoard);
+            actionManager = new ConcreteActionManager(actionBoard);
         }
 
         @Override
         public void process(ServerClosedEvent event) {
-            clientManager.close();
+            Client.getInstance().close();
         }
 
         @Override
@@ -115,7 +110,7 @@ public class BoardFrame extends JFrame {
             logAvailableActions(event);
             //PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
             //playerBoard.activateColorTransition();
-            if (event.getPlayerNickname().equalsIgnoreCase(nickname))
+            if (event.getPlayerNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
                 event.getOptions().forEach(action -> action.accept(actionManager));
         }
 
@@ -127,10 +122,9 @@ public class BoardFrame extends JFrame {
 
         @Override
         public void process(PlayerLoggedEvent event) {
-            System.out.println("STAMPA BASTARDONE");
             PlayerBoard playerBoardLogged;
             playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition().name(), true, event.getChips(), event.getAvatar());
-            if (event.getNickname().equalsIgnoreCase(nickname)) {
+            if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname())) {
                 playerBoardLogged.setNicknameColor(Color.YELLOW);
             }
             pokerTable.sit(playerBoardLogged);
@@ -140,7 +134,7 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(PlayerHasWinEvent event) {
             pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
-            if (nickname.equals(event.getNickname())) {
+            if (Client.getInstance().getNickname().equals(event.getNickname())) {
                 WinnerDialog dialog = new WinnerDialog("Hai vinto mentekatto", "Complimenti Player!! " +
                         event.getNickname());
                 dialog.pack();
@@ -152,7 +146,7 @@ public class BoardFrame extends JFrame {
 
         @Override
         public void process(PlayerHasLostEvent event) {
-            if (nickname.equals(event.getNickname())) {
+            if (Client.getInstance().getNickname().equals(event.getNickname())) {
                 WinnerDialog dialog = new WinnerDialog("Hai Perso mentekatto", "Brutto pezzente hai perso Player!! " +
                         event.getNickname());
                 dialog.pack();
@@ -190,7 +184,7 @@ public class BoardFrame extends JFrame {
             playerBoard.setPosition(event.getTurnPosition());
             playerBoard.assignNewCards(event.getFrontImageCards().get(0), event.getFrontImageCards().get(1));
 
-            if (event.getNickname().equalsIgnoreCase(nickname))
+            if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
                 playerBoard.coverCards(false);
 
         }

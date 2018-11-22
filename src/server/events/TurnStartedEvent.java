@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class TurnStartedEvent implements ServerEvent {
     private String nickname;
     private String turnPosition;
+    private boolean cardsCovered;
     private ArrayList<String> frontImageCards;
 
     public TurnStartedEvent(String nickname, String turnPosition) {
@@ -40,6 +41,13 @@ public class TurnStartedEvent implements ServerEvent {
         frontImageCards.add(cardPath);
     }
 
+    public void setCardsCovered(boolean cardsCovered){
+        this.cardsCovered = cardsCovered;
+    }
+
+    public boolean areCardsCovered(){
+        return cardsCovered;
+    }
 
     @Override
     public void accept(EventsManager processor) {

@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.events.EventsContainer;
 import server.events.PlayerHasLostEvent;
@@ -10,9 +10,9 @@ import server.events.TurnEndedEvent;
 import server.model.PlayerModel;
 
 public class TurnEnd implements PokerState {
-    private MatchHandler match;
+    private Context match;
 
-    public TurnEnd(MatchHandler match) {
+    public TurnEnd(Context match) {
         this.match = match;
     }
 

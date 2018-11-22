@@ -1,15 +1,15 @@
 package server.automa;
 
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.events.CommunityUpdatedEvent;
 import server.events.EventsContainer;
 import server.model.TurnModel;
 import server.model.cards.CardModel;
 
 public abstract class Street {
-    protected MatchHandler match;
+    protected Context match;
 
-    public Street(MatchHandler match) {
+    public Street(Context match) {
         this.match = match;
     }
 

@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
@@ -27,10 +27,10 @@ public class StartGame implements PokerState {
     private static final String STATE_STARTED = "Lo stato di StartGame è avviato.\n";
     private static final String START_MATCH = "La partità può iniziare. \n";
     private static final String CONF_MATCH = "Configurazione ottimale del MatchHandler in corso... \n";
-    private MatchHandler match;
+    private Context match;
     private Room room;
 
-    public StartGame(MatchHandler match) {
+    public StartGame(Context match) {
         this.match = match;
         this.room = match.getRoom();
         match.setInitialParameters(calculateStartChips());
@@ -38,13 +38,13 @@ public class StartGame implements PokerState {
 
     @Override
     public void goNext() {
-        MatchHandler.logger.info(STATE_STARTED);
-        MatchHandler.logger.info(CONF_MATCH);
+        Context.logger.info(STATE_STARTED);
+        Context.logger.info(CONF_MATCH);
 
         configureRoom();
         sendEventsToPlayers();
 
-        MatchHandler.logger.info(START_MATCH);
+        Context.logger.info(START_MATCH);
 
         match.setState(new StartTurn(match));
     }

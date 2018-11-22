@@ -1,5 +1,7 @@
 package client.net;
 
+import server.events.EventsContainer;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,35 +16,41 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 
-public class ClientManager {
+public class Client {
+    private static Client istanza = null;
     private String serverName;
     private int serverPort;
-    public final static Logger logger = Logger.getLogger(ClientManager.class.getName());
+    public final static Logger logger = Logger.getLogger(Client.class.getName());
+    private String nickname;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private Socket socket;
+
     private final static String CLIENT_INFO = "CLIENT -> ";
     private final static String CONNECTING_INFO = " STA CERCANDO DI STABILIRE UNA CONNESSIONE VERSO IL SERVER \n";
     private final static String CONNECTION_ESTABLISHED_INFO = " CONNESSIONE AVVENUTA VERSO IL SERVER ";
     private final static String PORT_INFO = " ALLA PORTA ";
     private final static String SERVICE_INTERRUPTED = " STO INTERROMPENDO IL SERVIZIO PER UN ERRORE I/O \n";
 
-    /**
-     * Costruttore della classe ClientManager.
-     *
-     * @param serverName Nome del Server a cui connettersi
-     * @param serverPort Porta del Server a cui connettersi
-     */
+    public static Client getInstance() {
+        if(istanza == null)
+            istanza = new Client();
+        return istanza;
+    }
 
-    public ClientManager(String serverName, int serverPort) {
+    public void setParameters(String serverName, int serverPort){
         this.serverName = serverName;
         this.serverPort = serverPort;
     }
 
-    /**
-     * Permette di effettuare un tentativo di connessione al Server, i cui dati sono stati specificati
-     * in fase di costruzione di questo oggetto.
-     */
+    public void setNickname(String nickname){
+        if(this.nickname == null)
+            this.nickname = nickname;
+    }
+
+    public String getNickname(){
+        return nickname;
+    }
 
     public void attemptToConnect() {
         logger.info(CLIENT_INFO + CONNECTING_INFO);
@@ -59,16 +67,26 @@ public class ClientManager {
         }
     }
 
-    public ObjectInputStream getInputStream() {
-        return inputStream;
+    public Object readMessage(){
+        try {
+            return inputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public ObjectOutputStream getOutputStream() {
-        return outputStream;
-    }
-
-    public Socket getSocket() {
-        return socket;
+    public Object writeMessage(EventsContainer message){
+        try {
+            outputStream.writeObject(message);
+            outputStream.flush();
+        }
+         catch (IOException e) {
+            //Client.logger.finer(WRITE_ERROR);
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
+        return null;
     }
 
     public void close() {

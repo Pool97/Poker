@@ -5,29 +5,24 @@ import interfaces.ServerEvent;
 import server.events.EventsContainer;
 
 import javax.swing.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.List;
 
-public class SocketReader extends SwingWorker<Void, EventsContainer> {
-    private ObjectInputStream inputStream;
+public class ReadServerMessagesTask extends SwingWorker<Void, EventsContainer> {
     private final static String WAITING_FOR_SERVER = "In attesa di un messaggio dal Server...";
     private EventsManager eventsManager;
 
-    public SocketReader(ObjectInputStream inputStream) {
-        this.inputStream = inputStream;
+    public ReadServerMessagesTask() {
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Void doInBackground() throws IOException, ClassNotFoundException, InterruptedException {
+    protected Void doInBackground() throws InterruptedException {
         EventsContainer eventsContainer;
         do {
-            ClientManager.logger.info(WAITING_FOR_SERVER);
-            eventsContainer = (EventsContainer) inputStream.readObject();
+            Client.logger.info(WAITING_FOR_SERVER);
+            eventsContainer = (EventsContainer) Client.getInstance().readMessage();
             publish(eventsContainer);
             Thread.sleep(1500);
-
         } while (true);
     }
 

@@ -1,7 +1,7 @@
 package server.automa;
 
 import interfaces.PokerState;
-import server.controller.MatchHandler;
+import server.controller.Context;
 import server.controller.Room;
 import server.events.BlindsUpdatedEvent;
 import server.events.EventsContainer;
@@ -18,13 +18,13 @@ public class StartTurn implements PokerState {
     private final static String STATE_STARTED = "Lo stato di StartTurn è avviato. \n";
     private final static String CONF_TURN = "Configurazione dei parametri del turno in corso... \n";
 
-    private MatchHandler match;
+    private Context match;
     private TurnModel turnModel;
     private MatchModel matchModel;
     private Room room;
 
 
-    public StartTurn(MatchHandler match) {
+    public StartTurn(Context match) {
         this.match = match;
         turnModel = match.getTurnModel();
         matchModel = match.getMatchModel();
@@ -33,8 +33,8 @@ public class StartTurn implements PokerState {
 
     @Override
     public void goNext() {
-        MatchHandler.logger.info(STATE_STARTED);
-        MatchHandler.logger.info(CONF_TURN);
+        Context.logger.info(STATE_STARTED);
+        Context.logger.info(CONF_TURN);
 
         if (room.hasWinner()) {
             room.sendBroadcast(new EventsContainer(new PlayerHasWinEvent(room.getWinner())));

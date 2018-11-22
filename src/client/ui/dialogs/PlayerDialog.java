@@ -2,7 +2,7 @@ package client.ui.dialogs;
 
 import client.ui.components.Avatar;
 import client.ui.components.PokerTextField;
-import client.ui.frames.GameFrame;
+import client.ui.frames.Lobby;
 import client.ui.frames.SelectAvatarFrame;
 import utils.GBC;
 
@@ -22,7 +22,7 @@ public class PlayerDialog extends PokerDialog {
         JPanel userResponse = new JPanel();
 
         addConfirmButtonListener(event -> {
-            new GameFrame(nicknameField.getText(), avatar.getName() + ".png", ipAddress.getText());
+            new Lobby(nicknameField.getText(), avatar.getName() + ".png", ipAddress.getText());
             dispose();
         });
 

@@ -55,7 +55,9 @@ public class SelectAvatarFrame extends JFrame {
         attachAvatarDescriptor();
         attachAvatarDescriptorContainer();
 
+        System.out.println(System.currentTimeMillis());
         attachAvatars();
+        System.out.println(System.currentTimeMillis());
     }
 
     private void setFrameProperties() {
