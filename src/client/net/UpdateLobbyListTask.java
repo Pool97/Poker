@@ -1,6 +1,7 @@
 package client.net;
 
 import client.events.EventsAdapter;
+import client.ui.components.Avatar;
 import client.ui.frames.BoardFrame;
 import client.ui.frames.Lobby;
 import interfaces.ServerEvent;
@@ -69,11 +70,12 @@ class EventsProcessor extends EventsAdapter {
     public void process(PlayerLoggedEvent event) {
         if (!playerLogged.contains(event.getNickname())) {
             playerLogged.add(event.getNickname());
-            JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
-            nickname.setAlignmentX(Component.CENTER_ALIGNMENT);
-            nickname.setFont(new Font("helvetica", Font.BOLD, 20));
-            nickname.setForeground(Color.WHITE);
-            playerList.add(nickname);
+            Avatar avatar = new Avatar(event.getAvatar());
+            //JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
+            //nickname.setAlignmentX(Component.CENTER_ALIGNMENT);
+            //nickname.setFont(new Font("helvetica", Font.BOLD, 20));
+            //nickname.setForeground(Color.WHITE);
+            playerList.add(avatar);
         }
     }
 

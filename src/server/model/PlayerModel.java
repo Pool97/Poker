@@ -1,6 +1,8 @@
 package server.model;
 
-import interfaces.PokerAction;
+import interfaces.*;
+import interfaces.Observable;
+import server.events.EventsContainer;
 import server.model.actions.AllIn;
 import server.model.actions.Bet;
 import server.model.actions.DeadMoney;
@@ -8,11 +10,12 @@ import server.model.actions.Fold;
 import server.model.cards.CardModel;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
+import interfaces.Observer;
+import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
-public class PlayerModel implements Serializable, Cloneable {
+public class PlayerModel implements Serializable, Cloneable, Observable {
     private String nickname;
     private Position position;
     private String avatar;
@@ -20,18 +23,58 @@ public class PlayerModel implements Serializable, Cloneable {
     private boolean hasLost;
     private boolean isDisconnected;
     private boolean isCreator;
+    private Set<Observer> observers;
     private ArrayList<CardModel> cards;
     private ArrayList<PokerAction> actions;
+    private BlockingQueue<EventsContainer> readQueue;
+    private BlockingQueue<EventsContainer> writeQueue;
 
-    public PlayerModel(String nickname, String avatar) {
+    public PlayerModel(String nickname, String avatar, BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue) {
         this.nickname = nickname;
         this.avatar = avatar;
+        this.readQueue = readQueue;
+        this.writeQueue = writeQueue;
         actions = new ArrayList<>();
         cards = new ArrayList<>();
+        observers = new HashSet<>();
+
+    }
+
+    public PlayerModel(BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue){
+        this.readQueue = readQueue;
+        this.writeQueue = writeQueue;
+        actions = new ArrayList<>();
+        cards = new ArrayList<>();
+        observers = new HashSet<>();
+    }
+    public EventsContainer readMessage(){
+        try {
+            return readQueue.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void sendMessage(EventsContainer event){
+        try {
+            writeQueue.put(event);
+            notifyObservers();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public String getAvatar() {
@@ -159,5 +202,20 @@ public class PlayerModel implements Serializable, Cloneable {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void register(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void unregister(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        observers.forEach(Observer::update);
     }
 }

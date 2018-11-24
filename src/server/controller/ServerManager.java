@@ -3,22 +3,19 @@ package server.controller;
 import client.events.PlayerConnectedEvent;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
+import server.model.automa.Context;
+import server.model.Dealer;
 import server.model.PlayerModel;
+import server.model.Table;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-/**
- * Classe che permette di gestire il collegamento iniziale dei Players al Server.
- *
- * @author Nipuna Perera
- * @author Roberto Poletti
- * @since 1.0
- */
 
 public class ServerManager implements Runnable {
     private final static String SERVER_INFO = "SERVER -> ";
@@ -27,24 +24,29 @@ public class ServerManager implements Runnable {
     private final static String LISTEN_FOR_CLIENTS_INFO = "IN ATTESA DI CONNESSIONI... \n";
     private final static String CLIENT_CONNECTED_INFO = "CONNESSO CON";
     private final static String SERVER_ERROR = "I/O ERROR. ";
-    private final static String WAITING_FOR_INFO = "IN ATTESA DI ALTRI ";
-    private final static String PLAYERS = " GIOCATORI \n";
     private final static String SERVER_SHUTDOWN_INFO = "STO TERMINANDO IL SERVER...\n";
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";
 
     private final static Logger logger = Logger.getLogger(ServerManager.class.getName());
     private int totalPlayers;
     private ServerSocket serverSocket;
-    private Room room;
+    private Table table;
 
     public ServerManager(int totalPlayers) {
         try {
             serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
-            room = new Room();
+            initializeModelComponents();
             this.totalPlayers = totalPlayers;
         } catch (IOException e) {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
         }
+    }
+
+    private void initializeModelComponents(){
+        table = new Table();
+        Dealer dealer = new Dealer();
+        dealer.setTable(table);
+        table.setDealer(dealer);
     }
 
     public void run() {
@@ -53,35 +55,62 @@ public class ServerManager implements Runnable {
         while (true);
     }
 
-    private void listen() {
+    private void listen(){
         logger.info(SERVER_INFO + LISTEN_FOR_CLIENTS_INFO);
-
         try {
             Socket socket = serverSocket.accept();
+
             logger.info(SERVER_INFO + CLIENT_CONNECTED_INFO + socket.getInetAddress() + "\n");
 
-            PlayerController player = new PlayerController(socket);
-            EventsContainer newPlayer = room.readMessage(player);
+            handleClient(socket);
 
-            PlayerConnectedEvent event = (PlayerConnectedEvent) newPlayer.getEvent();
-            PlayerModel playerModel = new PlayerModel(event.getNickname(), event.getAvatar());
-            playerModel.setCreator(room.getSize() == 0);
-            player.setPlayerModel(playerModel);
-            room.addPlayer(player);
-            EventsContainer playersListEvent = new EventsContainer();
-            room.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(new PlayerLoggedEvent(playerModel1.getNickname(), playerModel1.getAvatar())));
-            room.sendBroadcast(playersListEvent);
-            logger.info(PLAYER_ADDED + event.getNickname());
+            updateLobbyList();
 
-            if (room.getSize() == totalPlayers) {
-                new Thread(new Context(room)).start();
-            }
+            if (isMatchReadyToStart())
+                new Thread(new Context(table)).start();
 
         } catch (IOException e) {
             e.printStackTrace();
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void handleClient(Socket socket){
+        BlockingQueue<EventsContainer> queue1 = new ArrayBlockingQueue<>(20);
+        BlockingQueue<EventsContainer> queue2 = new ArrayBlockingQueue<>(20);
+
+        ClientSocket client = new ClientSocket(socket, queue1, queue2);
+        PlayerModel model = new PlayerModel(queue2, queue1);
+        model.register(client);
+
+        table.sit(model);
+
+        new Thread(client).start();
+
+        initializePlayerModel(model);
+    }
+
+    private void initializePlayerModel(PlayerModel model){
+        EventsContainer newPlayerConnected = table.readMessage(model);
+        PlayerConnectedEvent event = (PlayerConnectedEvent) newPlayerConnected.getEvent();
+
+        logger.info(PLAYER_ADDED + event.getNickname());
+
+        model.setNickname(event.getNickname());
+        model.setAvatar(event.getAvatar());
+        model.setCreator(table.getSize() == 0);
+    }
+
+    private void updateLobbyList(){
+        EventsContainer playersListEvent = new EventsContainer();
+        table.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(
+                new PlayerLoggedEvent(playerModel1.getNickname(), playerModel1.getAvatar())));
+        table.sendBroadcast(playersListEvent);
+    }
+
+    public boolean isMatchReadyToStart(){
+        return table.getSize() == totalPlayers;
     }
 }
 

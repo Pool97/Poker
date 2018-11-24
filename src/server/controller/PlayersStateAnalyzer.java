@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class PlayersStateAnalyzer {
-    private ArrayList<PlayerController> players;
+    private ArrayList<PlayerModel> players;
 
-    public PlayersStateAnalyzer(ArrayList<PlayerController> players) {
+    public PlayersStateAnalyzer(ArrayList<PlayerModel> players) {
         this.players = players;
     }
 
@@ -30,7 +30,7 @@ public class PlayersStateAnalyzer {
 
 
     public ArrayList<PlayerModel> getPlayers() {
-        return players.stream().map(PlayerController::getPlayerModel).collect(Collectors.toCollection(ArrayList::new));
+        return players;
     }
 
     public ArrayList<PlayerModel> getPlayersAtStake() {

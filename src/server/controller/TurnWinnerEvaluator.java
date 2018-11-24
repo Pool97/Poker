@@ -1,6 +1,6 @@
 package server.controller;
 
-import server.algo.PokerHandsEvaluator;
+import server.algorithm.PokerHandsEvaluator;
 import server.model.CommunityModel;
 import server.model.PlayerModel;
 import server.model.cards.CardModel;
@@ -89,8 +89,8 @@ public class TurnWinnerEvaluator {
             tmpAlgo.add(algo.get(i).getCardsToExamine());
             System.out.println("FIRSTDECK  "+i+": " + tmpAlgo.get(i).get(0).getValue()+" "+ tmpAlgo.get(i).get(1).getValue());
         }
-        /*tmpCardsPlayer1 = algo.get(0).getCardsToExamine();
-        tmpCardsPlayer2= algo.get(1).getCardsToExamine();*/
+        /*tmpCardsPlayer1 = algorithm.get(0).getCardsToExamine();
+        tmpCardsPlayer2= algorithm.get(1).getCardsToExamine();*/
 
         for(int i = 0; i < tmpAlgo.size(); i++){
             Utils.sortCards(tmpAlgo.get(i), true);
@@ -123,7 +123,7 @@ public class TurnWinnerEvaluator {
         ArrayList<CardModel> tmpfinalFirstCard = new ArrayList<>();
         for(int i = 0; i < tmpAlgo.size(); i++){
             System.out.println("OUT: "+Utils.getCouples(tmpAlgo.get(i)).size());
-            //System.out.println(algo.get(i).getFinalCards().get(0).getValue());
+            //System.out.println(algorithm.get(i).getFinalCards().get(0).getValue());
             if(algo.get(i).getPlayerPoint() == 7){
                 countFull++;
                 tmpfinalFirstCard.add(algo.get(i).getFinalCards().get(0));

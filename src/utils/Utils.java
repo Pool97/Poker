@@ -1,6 +1,6 @@
 package utils;
 
-import server.algo.PokerHandsEvaluator;
+import server.algorithm.PokerHandsEvaluator;
 import server.model.cards.CardModel;
 import server.model.cards.CardRank;
 
