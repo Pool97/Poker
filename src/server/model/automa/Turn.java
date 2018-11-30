@@ -6,17 +6,14 @@ import server.events.EventsContainer;
 
 public class Turn extends Street implements PokerState {
 
-    public Turn() {
-        super();
-        showNextCard();
-        table.sendBroadcast(new EventsContainer(new CommunityUpdatedEvent(table.getCommunityModel().getCard(3))));
-    }
-
     @Override
-    public void goNext(Context context) {
+    public void goNext(Game game) {
+        dealer.burnCard();
+
+        game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard())));
         NextBettingRound nextAction = new NextBettingRound();
-        nextAction.setTransitionStrategy(() -> context.setState(new River()));
-        context.setState(nextAction);
+        nextAction.setTransitionStrategy(() -> game.setState(new River()));
+        game.setState(nextAction);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

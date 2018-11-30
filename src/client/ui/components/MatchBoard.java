@@ -12,7 +12,7 @@ import static utils.Utils.TRANSPARENT;
 public class MatchBoard extends BorderPanel {
     private final static String SMALL_BLIND_DESCR = "Small Blind";
     private final static String BIG_BLIND_DESCR = "Big Blind";
-    private final static String POT_DESCR = "Pot";
+    private final static String POT_DESCR = "SidePot";
     private final static int INITIAL_VALUE = 0;
     private EntryPanel smallBlind;
     private EntryPanel bigBlind;

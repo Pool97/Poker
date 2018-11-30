@@ -32,32 +32,25 @@ public class Utils {
     public final static String DEFAULT_THEME = "Nimbus";
     public final static String DEFAULT_FONT = "helvetica";
 
-    /**
-     * Permette di assegnare la versione riscalata dell'immagine originale.
-     * @param filename Nome del file relativo all'immagine da caricare.
-     * @param scaleSize Dimensione dell'immagine riscalata.
-     * @return Immagine riscalata.
-     */
-
-    public static BufferedImage loadImage(String filename, Dimension scaleSize){
-        BufferedImage scaledImage = null;
+    public static Image loadImage(String filename, Dimension scaleSize){
+        Image scaledImage = null;
 
         try {
             BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + filename));
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_TO_HEIGHT, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
+            scaledImage = originalImage.getScaledInstance(scaleSize.width, scaleSize.height, Image.SCALE_SMOOTH);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return scaledImage;
     }
 
-    public static BufferedImage loadImageByPath(String filename, Dimension scaleSize) {
-        BufferedImage scaledImage = null;
+    public static Image loadImageByPath(String filename, Dimension scaleSize) {
+        Image scaledImage = null;
 
         try {
             System.out.println(filename);
             BufferedImage originalImage = ImageIO.read(new File(filename));
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_HEIGHT, (int) scaleSize.getWidth(), (int) scaleSize.getHeight(), Scalr.OP_DARKER);
+            scaledImage = originalImage.getScaledInstance(scaleSize.width, scaleSize.height, Image.SCALE_SMOOTH);
         } catch (IOException e) {
             e.printStackTrace();
         }

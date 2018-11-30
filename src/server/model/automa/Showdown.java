@@ -1,7 +1,7 @@
 package server.model.automa;
 
-import server.controller.PlayersStateAnalyzer;
-import server.controller.TurnWinnerEvaluator;
+import server.model.PlayersStateAnalyzer;
+import server.model.TurnWinnerEvaluator;
 import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.ShowdownEvent;
@@ -12,10 +12,10 @@ public class Showdown extends AbstractPokerState{
     }
 
     @Override
-    public void goNext(Context context) {
+    public void goNext(Game game) {
         System.out.println("ShowDown.");
         EventsContainer eventsContainer = new EventsContainer();
-        TurnWinnerEvaluator evaluator = new TurnWinnerEvaluator(table.getPlayers(), table.getCommunityModel());
+        TurnWinnerEvaluator evaluator = new TurnWinnerEvaluator(table.getPlayers(), dealer.getCommunityModel());
 
         String nicknameWinner;
 
@@ -31,8 +31,7 @@ public class Showdown extends AbstractPokerState{
 
         table.getPlayers().forEach(player -> eventsContainer.addEvent(new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()))));
 
-        table.sendBroadcast(eventsContainer);
-        table.sendBroadcastToLostPlayers(eventsContainer);
+        game.sendMessage(eventsContainer);
 
         try {
             Thread.sleep(10000);
@@ -40,6 +39,6 @@ public class Showdown extends AbstractPokerState{
             e.printStackTrace();
         }
 
-        context.setState(new TurnEnd());
+        game.setState(new TurnEnd());
     }
 }

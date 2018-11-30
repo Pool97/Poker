@@ -1,68 +1,32 @@
 package server.model;
 
-import interfaces.*;
-import interfaces.Observable;
-import server.events.EventsContainer;
-import server.model.actions.AllIn;
-import server.model.actions.Bet;
-import server.model.actions.DeadMoney;
-import server.model.actions.Fold;
 import server.model.cards.CardModel;
 
 import java.io.Serializable;
-import java.util.*;
-import interfaces.Observer;
-import java.util.concurrent.BlockingQueue;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Objects;
 
-public class PlayerModel implements Serializable, Cloneable, Observable {
+public class PlayerModel implements Serializable, Cloneable{
     private String nickname;
     private Position position;
     private String avatar;
     private int chips;
+    private boolean isAllIn;
+    private boolean hasFolded;
     private boolean hasLost;
     private boolean isDisconnected;
     private boolean isCreator;
-    private Set<Observer> observers;
-    private ArrayList<CardModel> cards;
-    private ArrayList<PokerAction> actions;
-    private BlockingQueue<EventsContainer> readQueue;
-    private BlockingQueue<EventsContainer> writeQueue;
+    private Hand hand;
 
-    public PlayerModel(String nickname, String avatar, BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue) {
+    public PlayerModel(String nickname, String avatar) {
         this.nickname = nickname;
         this.avatar = avatar;
-        this.readQueue = readQueue;
-        this.writeQueue = writeQueue;
-        actions = new ArrayList<>();
-        cards = new ArrayList<>();
-        observers = new HashSet<>();
+        hand = new Hand();
 
     }
 
-    public PlayerModel(BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue){
-        this.readQueue = readQueue;
-        this.writeQueue = writeQueue;
-        actions = new ArrayList<>();
-        cards = new ArrayList<>();
-        observers = new HashSet<>();
-    }
-    public EventsContainer readMessage(){
-        try {
-            return readQueue.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void sendMessage(EventsContainer event){
-        try {
-            writeQueue.put(event);
-            notifyObservers();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public PlayerModel(){
+        hand = new Hand();
     }
 
     public String getNickname() {
@@ -100,61 +64,36 @@ public class PlayerModel implements Serializable, Cloneable, Observable {
         this.position = position;
     }
 
-    public void addCard(CardModel card) {
-        cards.add(card);
+    public void receiveCards(CardModel first, CardModel second) {
+        hand.addCards(first, second);
     }
 
     public ArrayList<CardModel> getCards() {
-        return cards;
+        return hand.getHand();
     }
 
-    public void removeCards() {
-        cards.clear();
+    public void giveBackCards() {
+        hand.giveBackCards();
     }
 
-    public void removeActions() {
-        actions.clear();
+    public void setAllIn(boolean isAllIn){
+        this.isAllIn = isAllIn;
     }
 
     public boolean isAllIn() {
-        return actions
-                .stream()
-                .anyMatch(action -> action instanceof AllIn);
+        return isAllIn;
+    }
+
+    public void setFolded(boolean hasFolded){
+        this.hasFolded = hasFolded;
     }
 
     public boolean hasFolded() {
-        return actions.stream()
-                .anyMatch(action -> action instanceof Fold);
-    }
-
-    public Stream<CardModel> cardsStream() {
-        return cards.stream();
-    }
-
-    public int getTurnBet() {
-        return actions.stream().mapToInt(PokerAction::getValue).sum();
-    }
-
-    public int getTurnBetWithoutDeadMoney() {
-        return actions.stream().filter(action -> !(action instanceof DeadMoney)).mapToInt(PokerAction::getValue).sum();
-    }
-
-    public void addAction(PokerAction action) {
-        if (chips == action.getValue())
-            action = new AllIn(action.getValue());
-        if (!(action instanceof DeadMoney)) {
-            chips -= action.getValue();
-            System.out.println("SONO ENTRATO QUI PERBACCO");
-        }
-        actions.add(action);
+        return hasFolded;
     }
 
     public boolean hasLost() {
         return hasLost;
-    }
-
-    public boolean hasBetted() {
-        return actions.stream().anyMatch(action -> (action instanceof Bet));
     }
 
     public void setLost(boolean hasLost) {
@@ -175,6 +114,10 @@ public class PlayerModel implements Serializable, Cloneable, Observable {
 
     public void setCreator(boolean isCreator) {
         this.isCreator = isCreator;
+    }
+
+    public void decreaseChips(int value){
+        chips = chips - value;
     }
 
     @Override
@@ -202,20 +145,5 @@ public class PlayerModel implements Serializable, Cloneable, Observable {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public void register(Observer observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void unregister(Observer observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers() {
-        observers.forEach(Observer::update);
     }
 }

@@ -10,43 +10,45 @@ import server.model.Table;
 import server.model.actions.*;
 
 public class ConcreteBettingManager implements BettingManager {
-    private Table table;
+    private Game game;
     private PlayerModel player;
+    private Table table;
 
-    public ConcreteBettingManager(Table table, PlayerModel player) {
+    public ConcreteBettingManager(Game game, Table table, PlayerModel player) {
         this.player = player;
+        this.game = game;
         this.table = table;
     }
 
     @Override
     public void process(Fold fold) {
-        table.sendBroadcast(new EventsContainer(new PlayerFoldedEvent(player.getNickname())));
+        game.sendMessage(new EventsContainer(new PlayerFoldedEvent(player.getNickname())));
     }
 
     @Override
     public void process(Check check) {
-        table.sendBroadcast(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(),
-                player.getChips(), check.getClass().getSimpleName()), new PotUpdatedEvent(table.getPot())));
+        game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(),
+                player.getChips(), check.getClass().getSimpleName()), new PotUpdatedEvent(table.getPotValue())));
     }
 
     @Override
     public void process(Raise raise) {
         String value = Integer.toString(raise.getValue());
-        table.sendBroadcast(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
-                raise.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPot())));
+        game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
+                raise.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
     }
 
     @Override
     public void process(Call call) {
         String value = Integer.toString(call.getValue());
-        table.sendBroadcast(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
-                call.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPot())));
+        game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
+                call.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
     }
 
     @Override
     public void process(Bet bet) {
         String value = Integer.toString(bet.getValue());
-        table.sendBroadcast(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
-                bet.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPot())));
+        game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
+                bet.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
     }
 }

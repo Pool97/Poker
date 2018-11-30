@@ -1,7 +1,7 @@
 package server.model.automa;
 
 import server.events.EventsContainer;
-import server.events.PlayerHasLostEvent;
+import server.events.MatchLostEvent;
 import server.events.PotUpdatedEvent;
 import server.events.TurnEndedEvent;
 import server.model.PlayerModel;
@@ -12,29 +12,31 @@ public class TurnEnd extends AbstractPokerState{
     }
 
     @Override
-    public void goNext(Context context) {
+    public void goNext(Game game) {
         System.out.println("TurnEnd.");
+
         EventsContainer eventsContainer = new EventsContainer();
-        table.resetPot();
-        eventsContainer.addEvent(new PotUpdatedEvent(table.getPot()));
+        eventsContainer.addEvent(new PotUpdatedEvent(dealer.getPotValue()));
         table.getPlayers().stream().filter(playerModel -> playerModel.getChips() <= 0).forEach(playerModel -> playerModel.setLost(true));
-        table.getPlayers().forEach(PlayerModel::removeCards);
-        table.getPlayers().forEach(PlayerModel::removeActions);
+        table.getPlayers().forEach(PlayerModel::giveBackCards);
         table.getPlayers().stream()
                 .filter(PlayerModel::hasLost)
-                .forEach(playerModel -> eventsContainer.addEvent(new PlayerHasLostEvent(playerModel.getNickname())));
+                .forEach(playerModel -> eventsContainer.addEvent(new MatchLostEvent(playerModel.getNickname(),
+                        table.currentNumberOfPlayers() + 1, playerModel.isCreator())));
         table.getPlayers().stream().filter(PlayerModel::hasLost).forEach(playerModel -> table.removePosition());
+
         eventsContainer.addEvent(new TurnEndedEvent());
-        table.sendBroadcast(eventsContainer);
+
+        game.sendMessage(eventsContainer);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        dealer.emptyCommunity();
         table.refreshLists();
-        context.setState(new StartTurn());
-
-
+        game.setState(new StartTurn());
     }
 
 }

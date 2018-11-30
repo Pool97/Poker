@@ -1,11 +1,11 @@
 package server.model;
 
-public class GameType {
+public class BettingStructure {
     private int smallBlind;
     private int bigBlind;
     private int startChips;
 
-    public GameType() {
+    public BettingStructure() {
         smallBlind = 0;
         bigBlind = 0;
     }

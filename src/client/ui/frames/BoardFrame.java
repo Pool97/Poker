@@ -7,6 +7,7 @@ import client.net.ReadServerMessagesTask;
 import client.ui.components.GameBoard;
 import client.ui.components.MatchBoard;
 import client.ui.components.PlayerBoard;
+import client.ui.dialogs.LoserDialog;
 import client.ui.dialogs.WinnerDialog;
 import client.ui.table.PokerTable;
 import client.ui.userboard.ActionBoard;
@@ -145,14 +146,13 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerHasLostEvent event) {
+        public void process(MatchLostEvent event) {
             if (Client.getInstance().getNickname().equals(event.getNickname())) {
-                WinnerDialog dialog = new WinnerDialog("Hai Perso mentekatto", "Brutto pezzente hai perso Player!! " +
-                        event.getNickname());
+                LoserDialog dialog = new LoserDialog("Hai perso!", "Ti sei classificato: " + event.getRankPosition() + "°. " +
+                        "Vuoi continuare a seguire il match?", event.isCreator());
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
-                dispose();
             }
             pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
         }

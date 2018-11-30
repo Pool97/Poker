@@ -10,9 +10,8 @@ public class RestartMatch extends AbstractPokerState {
     }
 
     @Override
-    public void goNext(Context context) {
-        table.sendBroadcastToLostPlayers(new EventsContainer(new ServerClosedEvent()));
-        table.sendBroadcast(new EventsContainer(new ServerClosedEvent()));
-        context.countDownLatch.countDown();
+    public void goNext(Game game) {
+        game.sendMessage(new EventsContainer(new ServerClosedEvent()));
+        game.stop();
     }
 }

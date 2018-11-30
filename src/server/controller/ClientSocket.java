@@ -2,7 +2,7 @@ package server.controller;
 
 import interfaces.Observer;
 import server.events.EventsContainer;
-import server.model.automa.Context;
+import server.model.automa.Game;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -33,7 +33,7 @@ public class ClientSocket implements Runnable, Observer {
             outStream.flush();
             inStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            Context.logger.info(STREAM_CREATION_ERROR);
+            Game.logger.info(STREAM_CREATION_ERROR);
             e.printStackTrace();
             Thread.currentThread().interrupt();
         }
@@ -44,7 +44,7 @@ public class ClientSocket implements Runnable, Observer {
             outStream.writeObject(message);
             outStream.flush();
         } catch (IOException e) {
-            Context.logger.info(STREAM_ERROR);
+            Game.logger.info(STREAM_ERROR);
             e.printStackTrace();
             Thread.currentThread().interrupt();
         }

@@ -2,37 +2,44 @@ package server.model;
 
 import server.model.cards.CardModel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Dealer {
     private DeckModel deck;
     private Table table;
-    private PotHandler potHandler;
-    private GameType gameType;
+    private PotList potList;
+    private BettingStructure bettingStructure;
+    private CommunityModel communityModel;
 
     public Dealer(){
         deck = new DeckModel();
-        deck.shuffle();
-        gameType = new GameType();
+        communityModel = new CommunityModel();
+        potList = new PotList();
+        bettingStructure = new BettingStructure();
     }
 
     public void shuffleCards(){
-        deck.shuffle();
+        deck = new DeckModel();
     }
 
-    public CardModel getNextCard() {
-        return deck.nextCard();
+    public CardModel dealCard(){
+        return deck.next();
     }
 
-    public void dealCards(){
-        table.getPlayers().forEach(player -> player.addCard(getNextCard()));
-        table.getPlayers().forEach(player -> player.addCard(getNextCard()));
+    public CardModel dealCommunityCard(){
+        CardModel card = dealCard();
+        communityModel.addCard(card);
+        return card;
     }
 
-    public void dealCommunityCard(){
-        table.showCommunityCards(getNextCard());
+    public void emptyCommunity() {
+        communityModel.clear();
     }
 
     public void burnCard(){
-        getNextCard();
+        dealCard();
     }
 
     public void setTable(Table table){
@@ -40,35 +47,89 @@ public class Dealer {
     }
 
     public void givePotTo(String winner){
-        potHandler = new PotHandler(table.getPlayers());
-        potHandler.assignPotsTo(winner);
+        table.getPlayerByName(winner).addChips(potList.totalValue());
+        potList.removePots();
+    }
+
+    public void giveChipsToPotWinners(){
+        List<String> activePlayers = Arrays.asList("Prova", "Prova2", "Prova3");
     }
 
     public void setStartChips(int startChips){
-        gameType.setStartChips(startChips);
+        bettingStructure.setStartChips(startChips);
     }
 
     public void setInitialBlinds(){
-        gameType.setInitialBlinds();
+        bettingStructure.setInitialBlinds();
     }
 
-    public void collectSmallBlind(){
-        //TODO
+    public void collectForcedBetFrom(PlayerModel player){
+        if(player.getPosition() == Position.SB){
+            if(player.getChips() < bettingStructure.getSmallBlind()) {
+                potList.addWagerFor(player.getNickname(), player.getChips());
+                player.decreaseChips(player.getChips());
+            }else{
+                potList.addWagerFor(player.getNickname(), bettingStructure.getSmallBlind());
+                player.decreaseChips(bettingStructure.getSmallBlind());
+            }
+        }else{
+            if(player.getChips() < bettingStructure.getBigBlind()) {
+                potList.addWagerFor(player.getNickname(), player.getChips());
+                player.decreaseChips(player.getChips());
+            }else{
+                potList.addWagerFor(player.getNickname(), bettingStructure.getBigBlind());
+                player.decreaseChips(bettingStructure.getBigBlind());
+            }
+        }
+
+        potList.descr();
     }
 
-    public void collectBigBlind(){
-        //TODO
+    public void collectAction(PlayerModel player, int value){
+        if(value > 0) {
+            player.decreaseChips(value);
+            potList.addWagerFor(player.getNickname(), value);
+            potList.descr();
+        }
     }
 
-    public void collectActionChips(){
-        //TODO
+    public boolean isBetPossible(ArrayList<PlayerModel> players){
+        return potList.countDistinctBetsOf(players) <= 1;
+    }
+
+    public int getPotMatchingValue(String nickname){
+        return potList.maxBetAmong(table.getPlayers(), bettingStructure.getBigBlind()) - potList.getTurnBetOf(nickname);
     }
 
     public void dealStartingChips(){
-        table.getPlayers().forEach(player -> player.setChips(table.getSize() * 10000));
+        table.getPlayers().forEach(player -> player.setChips(table.currentNumberOfPlayers() * 10000));
     }
 
-    public GameType getGameType(){
-        return gameType;
+    public void increaseBlinds(){
+        bettingStructure.increaseBlinds();
+    }
+
+    public int getTurnBetOf(String nickname){
+        return potList.getTurnBetOf(nickname);
+    }
+
+    public int maxBetAmong(ArrayList<PlayerModel> players){
+        return potList.maxBetAmong(players, 0);
+    }
+
+    public int getPotValue(){
+        return potList.totalValue();
+    }
+
+    public int getBigBlind(){
+        return bettingStructure.getBigBlind();
+    }
+
+    public int getSmallBlind(){
+        return bettingStructure.getSmallBlind();
+    }
+
+    public CommunityModel getCommunityModel(){
+        return communityModel;
     }
 }

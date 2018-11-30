@@ -1,23 +1,17 @@
 package server.model;
 
-import server.events.EventsContainer;
-import server.model.cards.CardModel;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Table {
-    public ArrayList<PlayerModel> players;
-    private ArrayList<PlayerModel> lostPlayers;
+    private ArrayList<PlayerModel> players;
+    private ArrayList<PlayerModel> spectators;
     private PositionsHandler positionsHandler;
-    private CommunityModel community;
-    private int pot;
     private Dealer dealer;
 
     public Table(){
         players = new ArrayList<>();
-        lostPlayers = new ArrayList<>();
-        community = new CommunityModel();
+        spectators = new ArrayList<>();
     }
 
     public void sit(PlayerModel player) {
@@ -25,12 +19,12 @@ public class Table {
     }
 
     public void refreshLists() {
-        players.stream().filter(PlayerModel::hasLost).forEach(player -> lostPlayers.add(player));
+        players.stream().filter(PlayerModel::hasLost).forEach(player -> spectators.add(player));
         players.removeIf(PlayerModel::hasLost);
         removeDisconnectedPlayers();
     }
 
-    public int getSize() {
+    public int currentNumberOfPlayers() {
         return players.size();
     }
 
@@ -54,13 +48,9 @@ public class Table {
         return getPlayers().stream().filter(player -> player.getPosition() == position).findFirst().get();
     }
 
-    public void setPlayersChips(int chips) {
-        players.forEach(client -> client.setChips(chips));
-    }
-
     public void assignInitialPositions() {
-        positionsHandler = PositionsHandler.createPositions(getSize());
-        for (int i = 0; i < getSize(); i++)
+        positionsHandler = PositionsHandler.createPositions(currentNumberOfPlayers());
+        for (int i = 0; i < currentNumberOfPlayers(); i++)
             players.get(i).setPosition(positionsHandler.getPositions().get(i));
     }
 
@@ -72,48 +62,12 @@ public class Table {
         return positionsHandler.nextPosition(oldPosition);
     }
 
-    public EventsContainer readMessage(PlayerModel playerModel){
-        return players.stream().filter(player -> player.equals(playerModel)).findFirst().get().readMessage();
-    }
-
-    public void sendBroadcast(EventsContainer message) {
-        players.stream().filter(player -> !player.isDisconnected()).forEach(player -> player.sendMessage(message));
-    }
-
-    public void sendBroadcastToLostPlayers(EventsContainer message) {
-        lostPlayers.stream().filter(player -> !player.isDisconnected()).forEach(player -> player.sendMessage(message));
-    }
-
     public boolean hasWinner() {
         return getPlayers().size() == 1;
     }
 
     public String getWinner() {
         return getPlayers().stream().findFirst().get().getNickname();
-    }
-
-    public CommunityModel getCommunityModel() {
-        return community;
-    }
-
-    public void showCommunityCards(CardModel... cards) {
-        community.addCards(cards);
-    }
-
-    public void emptyCommunity() {
-        community.clear();
-    }
-
-    public int getPot() {
-        return pot;
-    }
-
-    public void resetPot() {
-        pot = 0;
-    }
-
-    public int increasePot(int quantity) {
-        return pot += quantity;
     }
 
     public void setDealer(Dealer dealer){
@@ -124,4 +78,19 @@ public class Table {
         return dealer;
     }
 
+    public int getSpectatorsNumber(){
+        return spectators.size();
+    }
+
+    public ArrayList<PlayerModel> getSpectators(){
+        return spectators;
+    }
+
+    public PlayerModel getPlayerByName(String nickname){
+       return players.stream().filter(player -> nickname.equals(player.getNickname())).findFirst().get();
+    }
+
+    public int getPotValue(){
+        return dealer.getPotValue();
+    }
 }

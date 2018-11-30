@@ -1,6 +1,6 @@
 package interfaces;
 
-import server.model.automa.Context;
+import server.model.automa.Game;
 
 /**
  * Interfaccia che espone quali metodi deve implementare una classe che
@@ -8,5 +8,5 @@ import server.model.automa.Context;
  */
 
 public interface PokerState {
-    void goNext(Context context);
+    void goNext(Game game);
 }

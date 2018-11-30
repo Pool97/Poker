@@ -4,7 +4,6 @@ import server.events.BlindsUpdatedEvent;
 import server.events.EventsContainer;
 import server.events.PlayerHasWinEvent;
 import server.events.TurnStartedEvent;
-import server.model.GameType;
 import server.model.PlayerModel;
 import server.model.cards.CardModel;
 
@@ -13,56 +12,44 @@ import java.util.ArrayList;
 public class StartTurn extends AbstractPokerState {
     private final static String STATE_STARTED = "Lo stato di StartTurn è avviato. \n";
     private final static String CONF_TURN = "Configurazione dei parametri del turno in corso... \n";
-    private GameType gameType;
-
 
     public StartTurn() {
         super();
-        gameType = dealer.getGameType();
     }
 
     @Override
-    public void goNext(Context context) {
-        Context.logger.info(STATE_STARTED);
-        Context.logger.info(CONF_TURN);
+    public void goNext(Game game) {
+        Game.logger.info(STATE_STARTED);
+        Game.logger.info(CONF_TURN);
 
         if (table.hasWinner()) {
-            table.sendBroadcast(new EventsContainer(new PlayerHasWinEvent(table.getWinner())));
-            table.sendBroadcastToLostPlayers(new EventsContainer(new PlayerHasWinEvent(table.getWinner())));
-            context.setState(new RestartMatch());
+
+            game.sendMessage(new EventsContainer(new PlayerHasWinEvent(table.getWinner())));
+            game.setState(new RestartMatch());
+
         } else {
-            updateMatchParameters();
-            updateRoom();
-            dealer.dealCards();
-            sendNewBlindsToPlayers();
 
-            table.sendBroadcast(prepareTurnStartedEvents());
+            dealer.shuffleCards();
+            dealer.increaseBlinds();
+            game.sendMessage(new EventsContainer(new BlindsUpdatedEvent(dealer.getSmallBlind(), dealer.getBigBlind())));
 
-            context.setState(new SmallBlind());
+            table.removeDisconnectedPlayers();
+            table.movePlayersPosition();
+
+            table.getPlayers()
+                    .forEach(playerModel -> playerModel.receiveCards(dealer.dealCard(), dealer.dealCard()));
+
+            game.sendMessage(prepareTurnStartedEvents());
+
+            game.setState(new ForcedBets());
         }
-    }
-
-    private void updateRoom() {
-        table.removeDisconnectedPlayers();
-        table.movePlayersPosition();
-    }
-
-    private void updateMatchParameters() {
-        dealer.shuffleCards();
-        table.resetPot();
-        table.emptyCommunity();
-        gameType.increaseBlinds();
-    }
-
-    private void sendNewBlindsToPlayers() {
-        table.sendBroadcast(new EventsContainer(new BlindsUpdatedEvent(gameType.getSmallBlind(), gameType.getBigBlind())));
     }
 
     private EventsContainer prepareTurnStartedEvents() {
         ArrayList<TurnStartedEvent> events = new ArrayList<>();
         for (PlayerModel player : table.getPlayers()) {
             TurnStartedEvent event = new TurnStartedEvent(player.getNickname(), player.getPosition().name());
-            player.cardsStream().map(CardModel::getImageDirectoryPath).forEach(event::addCardPath);
+            player.getCards().stream().map(CardModel::getImageDirectoryPath).forEach(event::addCardPath);
             events.add(event);
         }
         return new EventsContainer(events);

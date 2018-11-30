@@ -3,7 +3,7 @@ package server.controller;
 import client.events.PlayerConnectedEvent;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
-import server.model.automa.Context;
+import server.model.automa.Game;
 import server.model.Dealer;
 import server.model.PlayerModel;
 import server.model.Table;
@@ -31,11 +31,13 @@ public class ServerManager implements Runnable {
     private int totalPlayers;
     private ServerSocket serverSocket;
     private Table table;
+    private Game game;
 
     public ServerManager(int totalPlayers) {
         try {
             serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
             initializeModelComponents();
+            game = new Game(table);
             this.totalPlayers = totalPlayers;
         } catch (IOException e) {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
@@ -67,7 +69,7 @@ public class ServerManager implements Runnable {
             updateLobbyList();
 
             if (isMatchReadyToStart())
-                new Thread(new Context(table)).start();
+                new Thread(game).start();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,36 +83,45 @@ public class ServerManager implements Runnable {
         BlockingQueue<EventsContainer> queue2 = new ArrayBlockingQueue<>(20);
 
         ClientSocket client = new ClientSocket(socket, queue1, queue2);
-        PlayerModel model = new PlayerModel(queue2, queue1);
-        model.register(client);
+        PlayerModel model = new PlayerModel();
 
         table.sit(model);
 
         new Thread(client).start();
 
-        initializePlayerModel(model);
+        initializePlayerModel(model, queue2);
+
+        ConcreteReceiver receiver = new ConcreteReceiver(model.getNickname(), queue2, queue1);
+        game.register(receiver);
+        receiver.register(client);
     }
 
-    private void initializePlayerModel(PlayerModel model){
-        EventsContainer newPlayerConnected = table.readMessage(model);
+    private void initializePlayerModel(PlayerModel model, BlockingQueue<EventsContainer> queue2){
+        EventsContainer newPlayerConnected = null;
+        try {
+            newPlayerConnected = queue2.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         PlayerConnectedEvent event = (PlayerConnectedEvent) newPlayerConnected.getEvent();
 
         logger.info(PLAYER_ADDED + event.getNickname());
 
         model.setNickname(event.getNickname());
         model.setAvatar(event.getAvatar());
-        model.setCreator(table.getSize() == 0);
+        model.setCreator(table.currentNumberOfPlayers() == 0);
     }
 
     private void updateLobbyList(){
         EventsContainer playersListEvent = new EventsContainer();
         table.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(
                 new PlayerLoggedEvent(playerModel1.getNickname(), playerModel1.getAvatar())));
-        table.sendBroadcast(playersListEvent);
+        game.sendMessage(playersListEvent);
     }
 
     public boolean isMatchReadyToStart(){
-        return table.getSize() == totalPlayers;
+        return table.currentNumberOfPlayers() == totalPlayers;
     }
 }
 

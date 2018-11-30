@@ -23,23 +23,23 @@ public class FirstBettingRound extends BettingRound {
     }
 
     @Override
-    public void goNext(Context context) {
-        Context.logger.info(START_ACTIONS);
+    public void goNext(Game game) {
+        Game.logger.info(START_ACTIONS);
         Position nextPosition = table.getNextPosition(Position.BB);
 
         while (!turnFinished(nextPosition)) {
             PlayerModel player = table.getPlayer(nextPosition);
             if (!player.hasFolded() && !player.isAllIn()) {
-                doAction(player);
+                doAction(player, game);
             }
             nextPosition = table.getNextPosition(nextPosition);
         }
 
         if (playersAnalyzer.countPlayersAtStake() == 1) {
-            Context.logger.info(ONE_PLAYER_ONLY);
-            context.setState(new Showdown());
+            Game.logger.info(ONE_PLAYER_ONLY);
+            game.setState(new Showdown());
         } else if ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) || isMatched() || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
-            context.setState(new Flop());
+            game.setState(new Flop());
         }
     }
 

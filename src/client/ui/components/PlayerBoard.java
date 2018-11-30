@@ -32,6 +32,7 @@ public class PlayerBoard extends BorderPanel {
     private Color currentColor;
 
     public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
+        setVisible(false);
         cards = new ArrayList<>();
         setComponentProperties();
 
@@ -54,6 +55,7 @@ public class PlayerBoard extends BorderPanel {
         createCards(isCovered);
         attachComponents();
         setOpaque(false);
+        setVisible(true);
         //setBorder(new RoundBorder(40));
     }
 

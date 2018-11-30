@@ -4,7 +4,7 @@ import interfaces.EventsManager;
 import interfaces.ServerEvent;
 
 /**
- * Evento generato dal Server ogni qualvolta viene aggiornato il valore del Pot.
+ * Evento generato dal Server ogni qualvolta viene aggiornato il valore del SidePot.
  *
  * @author Roberto Poletti
  * @author Nipuna Perera

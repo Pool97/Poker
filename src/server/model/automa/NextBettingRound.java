@@ -15,13 +15,13 @@ public class NextBettingRound extends BettingRound{
     }
 
     @Override
-    public void goNext(Context context) {
+    public void goNext(Game game) {
         Position nextPosition = Position.SB;
 
         while (!turnFinished(nextPosition)) {
             PlayerModel player = table.getPlayer(nextPosition);
             if (!player.hasFolded() && !player.isAllIn()) {
-                doAction(player);
+                doAction(player, game);
             }
             nextPosition = table.getNextPosition(nextPosition);
             if (nextPosition == Position.SB)
@@ -29,11 +29,11 @@ public class NextBettingRound extends BettingRound{
         }
 
         if (playersAnalyzer.countPlayersAtStake() == 1) {
-            Context.logger.info(ONE_PLAYER_ONLY);
-            context.setState(new Showdown());
+            Game.logger.info(ONE_PLAYER_ONLY);
+            game.setState(new Showdown());
         } else if (isMatched() || (playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0)
                 || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
-            Context.logger.info(EQUITY_REACHED);
+            Game.logger.info(EQUITY_REACHED);
             strategy.makeTransition();
         }
     }

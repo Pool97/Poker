@@ -1,4 +1,4 @@
-package server.controller;
+package server.model;
 
 import server.model.PlayerModel;
 

@@ -13,10 +13,11 @@ import java.awt.image.BufferedImage;
 import static utils.Utils.EMPTY;
 
 public class Avatar extends JComponent implements MouseListener, ComponentListener {
-    private BufferedImage image;
+    private Image image;
     private String directoryPath;
     private boolean isOpacity;
-
+    private boolean isMinimum;
+    private int dimension;
     private static final String AVATARS_DIRECTORY = "avatars";
     private float opacity;
     private static final String IMAGE_EXTENSION = ".png";
@@ -44,11 +45,17 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
         directoryPath = "res/" + AVATARS_DIRECTORY + "/" + avatarName;
     }
 
-    public void loadImage() {
-        image = Utils.loadImageByPath(directoryPath, new Dimension(getWidth() - 6, getHeight() - 6));
+    public void setMinimumSize(boolean isMinimum){
+        this.isMinimum = isMinimum;
     }
 
-    public boolean isImageLoaded(BufferedImage image) {
+    public void loadImage() {
+        System.out.println(getWidth() + " " + getHeight());
+        dimension = Math.min(getWidth(), getHeight());
+        image = Utils.loadImageByPath(directoryPath, new Dimension(dimension-2 , dimension-3));
+    }
+
+    public boolean isImageLoaded(Image image) {
         return image != null;
     }
 
@@ -58,11 +65,17 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
 
     @Override
     public Dimension getMaximumSize() {
+        if(isMinimum){
+            return new Dimension(70, 70);
+        }
         return new Dimension(100, 100);
     }
 
     @Override
     public Dimension getPreferredSize() {
+        if(isMinimum){
+            return getMinimumSize();
+        }
         return getMaximumSize();
     }
 
@@ -74,9 +87,8 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
         g2D.setColor(Color.WHITE);
         g2D.setStroke(new BasicStroke(2));
         if (isImageLoaded(image)) {
-            int minimum = Math.min(getWidth(), getHeight());
-            g.drawImage(image, 3, 3, null);
-            g.drawOval(2, 2, minimum - 4, minimum - 3);
+            g.drawImage(image, 0, 1, null);
+            g.drawOval(1, 1, dimension-3, dimension-3);
         }
 
         if (isOpacity)

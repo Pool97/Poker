@@ -25,7 +25,6 @@ public class Lobby extends JFrame{
         initPanel();
         new UpdateLobbyListTask(this, playersList).execute();
         Client.getInstance().writeMessage(new EventsContainer(new PlayerConnectedEvent(nickname, avatar)));
-
         createGUI();
     }
 
@@ -43,9 +42,9 @@ public class Lobby extends JFrame{
         hostInfo.setFont(new Font("helvetica", Font.BOLD, 20));
         hostInfo.setForeground(Color.WHITE);
         hostInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel playerConnected = new JLabel("Giocatori connessi", SwingConstants.CENTER);
+        JLabel playerConnected = new JLabel("Main Event", SwingConstants.CENTER);
         playerConnected.setForeground(Color.WHITE);
-        playerConnected.setFont(new Font("helvetica", Font.BOLD, 30));
+        playerConnected.setFont(new Font("helvetica", Font.BOLD, 40));
         container.add(Box.createVerticalStrut(20));
         container.add(playerConnected, BorderLayout.NORTH);
         container.add(Box.createVerticalStrut(20));

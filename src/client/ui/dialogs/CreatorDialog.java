@@ -89,7 +89,7 @@ public class CreatorDialog extends PokerDialog {
     private void setLabelProperties() {
         numPlayersIndicator.setForeground(Color.WHITE);
         numPlayersIndicator.setBackground(Color.WHITE);
-        numPlayersIndicator.setFont(new Font("helvetica", Font.BOLD, 26));
+        numPlayersIndicator.setFont(new Font("helvetica", Font.BOLD, 30));
         numPlayersIndicator.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
     }
 

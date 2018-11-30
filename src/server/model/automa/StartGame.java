@@ -7,6 +7,7 @@ import server.model.Dealer;
 import server.model.Table;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class StartGame extends AbstractPokerState {
@@ -19,29 +20,32 @@ public class StartGame extends AbstractPokerState {
     }
 
     @Override
-    public void goNext(Context context) {
-        Context.logger.info(STATE_STARTED);
-        Context.logger.info(CONF_MATCH);
-        dealer.setStartChips(table.getSize() * 10000);
+    public void goNext(Game game) {
+        Game.logger.info(STATE_STARTED);
+        Game.logger.info(CONF_MATCH);
+        dealer.setStartChips(table.currentNumberOfPlayers() * 10000);
         dealer.setInitialBlinds();
 
         configureRoom();
-        sendEventsToPlayers();
 
-        Context.logger.info(START_MATCH);
+        game.sendMessage(new EventsContainer(new RoomCreatedEvent()));
+        game.sendMessage(preparePlayersLoggedEvents());
 
-        context.setState(new StartTurn());
+        Game.logger.info(START_MATCH);
+
+        game.setState(new StartTurn());
+
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void configureRoom() {
         dealer.dealStartingChips();
         table.assignInitialPositions();
         table.sortPlayersByPosition();
-    }
-
-    private void sendEventsToPlayers() {
-        table.sendBroadcast(new EventsContainer(new RoomCreatedEvent()));
-        table.sendBroadcast(preparePlayersLoggedEvents());
     }
 
     private EventsContainer preparePlayersLoggedEvents() {

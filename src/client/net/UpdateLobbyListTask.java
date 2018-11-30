@@ -8,6 +8,7 @@ import interfaces.ServerEvent;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
 import server.events.RoomCreatedEvent;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,12 +71,20 @@ class EventsProcessor extends EventsAdapter {
     public void process(PlayerLoggedEvent event) {
         if (!playerLogged.contains(event.getNickname())) {
             playerLogged.add(event.getNickname());
+            JPanel tuple = new JPanel();
+            tuple.add(Box.createHorizontalGlue());
+            tuple.setLayout(new BoxLayout(tuple, BoxLayout.X_AXIS));
+            tuple.setBackground(Utils.TRANSPARENT);
+            tuple.setOpaque(false);
             Avatar avatar = new Avatar(event.getAvatar());
-            //JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
-            //nickname.setAlignmentX(Component.CENTER_ALIGNMENT);
-            //nickname.setFont(new Font("helvetica", Font.BOLD, 20));
-            //nickname.setForeground(Color.WHITE);
-            playerList.add(avatar);
+            avatar.setMinimumSize(true);
+            tuple.add(avatar);
+            JLabel nickname = new JLabel(event.getNickname(), SwingConstants.LEFT);
+            nickname.setFont(new Font("helvetica", Font.BOLD, 25));
+            nickname.setForeground(Color.WHITE);
+            tuple.add(nickname);
+            tuple.add(Box.createHorizontalGlue());
+            playerList.add(tuple);
         }
     }
 

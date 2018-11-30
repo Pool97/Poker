@@ -1,37 +1,42 @@
 package server.model;
 
 
-import javafx.util.Pair;
 import server.model.cards.CardModel;
 import server.model.cards.CardRank;
 import server.model.cards.CardSuit;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
-public class DeckModel {
-    private Stack<CardModel> deck;
+public class DeckModel implements Iterator<CardModel>{
+    private ArrayList<CardModel> cardsList;
+    private int index = 0;
 
-    private static List<Pair<Integer, Integer>> createDeck(){
-        List<Pair<Integer, Integer>> orderedDeck = new ArrayList<>();
+    public DeckModel(){
+        cardsList = new ArrayList<>();
+        createCardsList();
+        shuffle();
+    }
+
+    private void createCardsList(){
         for (int i = 0; i < 13; ++i)
             for (int j = 0; j < 4; ++j)
-                orderedDeck.add(new Pair<>(j, i));
-        return orderedDeck;
+                cardsList.add(new CardModel(CardSuit.values()[j], CardRank.values()[i]));
     }
 
-    public void shuffle() {
-        deck = new Stack<>();
-        List<Pair<Integer, Integer>> deckShuffled = createDeck();
-        Collections.shuffle(deckShuffled);
-        for (Pair<Integer, Integer> pair : deckShuffled) {
-            deck.push(new CardModel(CardSuit.values()[pair.getKey()], CardRank.values()[pair.getValue()]));
-        }
+    public void shuffle(){
+        Collections.shuffle(cardsList);
+        index = 0;
     }
 
-    public CardModel nextCard() {
-        return deck.pop();
+    @Override
+    public boolean hasNext() {
+        return index < cardsList.size();
+    }
+
+    @Override
+    public CardModel next() {
+        CardModel cardModel = cardsList.get(index);
+        index++;
+        return cardModel;
     }
 }

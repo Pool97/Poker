@@ -15,7 +15,7 @@ public class Card extends JComponent implements ComponentListener {
     private String frontImageDirectoryPath;
     private String backImageDirectoryPath;
     private boolean isCovered;
-    private BufferedImage image;
+    private Image image;
 
     private Card(boolean isVisible, boolean isCovered) {
         this.frontImageDirectoryPath = DEFAULT_IMAGE;
@@ -45,12 +45,13 @@ public class Card extends JComponent implements ComponentListener {
         return new Card(true, isCovered, cardBackName);
     }
 
-    public boolean isImageLoaded(BufferedImage image) {
+    public boolean isImageLoaded(Image image) {
         return image != null;
     }
 
     public void loadImage() {
-        image = Utils.loadImageByPath(getDirectoryPathImageToLoad(), getSize());
+        if(getSize().width != 0 && getSize().height != 0)
+            image = Utils.loadImageByPath(getDirectoryPathImageToLoad(), getSize());
     }
 
     public String getDirectoryPathImageToLoad() {
@@ -77,7 +78,7 @@ public class Card extends JComponent implements ComponentListener {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension(80, 80);
+        return new Dimension(60, 80);
     }
 
     @Override
@@ -87,7 +88,7 @@ public class Card extends JComponent implements ComponentListener {
 
     @Override
     public Dimension getMaximumSize() {
-        return new Dimension(100, 100);
+        return new Dimension(80, 100);
     }
 
     @Override

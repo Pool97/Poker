@@ -13,13 +13,6 @@ public class CardModel implements Serializable {
         setImageDirectoryPath();
     }
 
-    public boolean equals(CardModel o) {
-        if (o == null)
-            return false;
-        return key == o.key && value == o.value;
-    }
-
-
     private void setImageDirectoryPath() {
         imageDirectoryPath = "/res/" + "cards/" +
                 getValue().name().toLowerCase().concat("_") + key.name().toLowerCase().concat(".png");

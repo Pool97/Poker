@@ -6,15 +6,10 @@ import server.events.EventsContainer;
 
 public class River extends Street implements PokerState {
 
-    public River() {
-        super();
-        showNextCard();
-        table.sendBroadcast(new EventsContainer(new CommunityUpdatedEvent(table.getCommunityModel().getCard(4))));
-    }
-
     @Override
-    public void goNext(Context context) {
-        Showdown turnEnd = new Showdown();
-        context.setState(turnEnd);
+    public void goNext(Game game) {
+        dealer.burnCard();
+        game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard())));
+        game.setState(new Showdown());
     }
 }
