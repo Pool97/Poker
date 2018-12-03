@@ -129,8 +129,15 @@ public class ActionBoard extends BorderPanel {
         return raiseSlider.getValue();
     }
 
-    public void setExtremeSliderValues(int minValue, int maxValue) {
-        raiseSlider.regenerateSlider(minValue, maxValue);
+    public void setMinSlider(int minValue){
+        raiseSlider.setMinimumValue(minValue);
+    }
+
+    public void setMaxSlider(int maxValue){
+        raiseSlider.setMaximumValue(maxValue);
+    }
+    public void refreshSlider() {
+        raiseSlider.regenerateSlider();
     }
 
 
@@ -152,7 +159,7 @@ public class ActionBoard extends BorderPanel {
     }
 
     public void setRaiseText(String text) {
-        raise.setText(RAISE_TEXT + text);
+        raise.setText(text);
     }
 
     public void setBetText(String text) {

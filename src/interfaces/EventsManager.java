@@ -3,7 +3,7 @@ package interfaces;
 import server.events.*;
 
 public interface EventsManager {
-    void process(PlayerTurnEvent event);
+    void process(PlayerRoundEvent event);
 
     void process(BlindsUpdatedEvent event);
 

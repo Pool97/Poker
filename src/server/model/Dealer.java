@@ -7,12 +7,14 @@ import server.model.cards.DeckModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Dealer {
     private DeckModel deck;
     private Table table;
     private PotList potList;
     private CommunityModel communityModel;
+    private Map.Entry<String, Integer> minimumLegalRaise;
 
     public Dealer(){
         deck = new DeckModel();
@@ -49,6 +51,14 @@ public class Dealer {
     public void givePotTo(String winner){
         table.getPlayerByName(winner).addChips(potList.totalValue());
         potList.removePots();
+    }
+
+    public void setMinimumLegalRaise(Map.Entry<String, Integer> minimumLegalRaise){
+        this.minimumLegalRaise = minimumLegalRaise;
+    }
+
+    public Map.Entry<String, Integer> getMinimumLegalRaise(){
+        return minimumLegalRaise;
     }
 
     public void giveChipsToPotWinners(){

@@ -7,21 +7,18 @@ import interfaces.ServerEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PlayerTurnEvent implements Serializable, ServerEvent {
+public class PlayerRoundEvent implements Serializable, ServerEvent {
     private String player;
     private ArrayList<PokerAction> optionsAvailable;
 
-    public PlayerTurnEvent() {
-        optionsAvailable = new ArrayList<>();
-    }
-
-    public PlayerTurnEvent(String player) {
+    public PlayerRoundEvent(String player) {
         this.player = player;
         optionsAvailable = new ArrayList<>();
     }
 
     public void addOption(PokerAction option) {
-        optionsAvailable.add(option);
+        if(!optionsAvailable.contains(option))
+            optionsAvailable.add(option);
     }
 
     public ArrayList<PokerAction> getOptions() {

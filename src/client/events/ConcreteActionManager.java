@@ -29,12 +29,12 @@ public class ConcreteActionManager implements ActionManager {
     }
 
     @Override
-    public void process(RaiseOption raiseOption) {
-        actionBoard.setRaiseEnabled(true);
-        actionBoard.setRaiseText("");
-        actionBoard.setExtremeSliderValues(raiseOption.getMinValue(), raiseOption.getMaxValue());
+    public void process(RaiseNoLimit raiseNoLimitOption) {
+        System.out.println("PROVA RAISE LATO CLIENT");
+        actionBoard.setRaiseText("RAISE");
+        actionBoard.setMinSlider(raiseNoLimitOption.getValue());
         actionBoard.addRaiseListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new Raise(actionBoard.getSliderValue()))));
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new RaiseNoLimit(actionBoard.getSliderValue()))));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
         });
@@ -61,15 +61,22 @@ public class ConcreteActionManager implements ActionManager {
     }
 
     @Override
-    public void process(BetOption bet) {
-        actionBoard.setRaiseEnabled(true);
-        actionBoard.setBetText("");
-        actionBoard.setExtremeSliderValues(bet.getMinValue(), bet.getMaxValue());
+    public void process(BetNoLimit betNoLimit) {
+        actionBoard.setBetText("BET");
+        actionBoard.setMinSlider(betNoLimit.getValue());
         actionBoard.addRaiseListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new Bet(actionBoard.getSliderValue()))));
+            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new BetNoLimit(actionBoard.getSliderValue()))));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
             actionBoard.setRaiseText("");
         });
+    }
+
+    @Override
+    public void process(AllIn allin) {
+        System.out.println("PROVA ALL IN LATO CLIENT");
+        actionBoard.setMaxSlider(allin.getValue());
+        actionBoard.refreshSlider();
+        actionBoard.setRaiseEnabled(true);
     }
 }

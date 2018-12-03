@@ -19,7 +19,7 @@ public class Flop extends AbstractPokerState {
         game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard(),
                 dealer.dealCommunityCard(), dealer.dealCommunityCard())));
 
-        NextBettingRound nextAction = new NextBettingRound();
+        NextNoLimitRound nextAction = new NextNoLimitRound();
         nextAction.setTransitionStrategy(() -> game.setState(new Turn()));
         game.setState(nextAction);
     }

@@ -11,7 +11,7 @@ public class Turn extends Street implements PokerState {
         dealer.burnCard();
 
         game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard())));
-        NextBettingRound nextAction = new NextBettingRound();
+        NextNoLimitRound nextAction = new NextNoLimitRound();
         nextAction.setTransitionStrategy(() -> game.setState(new River()));
         game.setState(nextAction);
         try {

@@ -7,9 +7,9 @@ public interface BettingManager {
 
     void process(Check check);
 
-    void process(Raise raise);
+    void process(RaiseNoLimit raiseNoLimit);
 
     void process(Call call);
 
-    void process(Bet bet);
+    void process(BetNoLimit betNoLimit);
 }

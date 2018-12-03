@@ -13,6 +13,12 @@ public class ForcedBets extends AbstractPokerState {
     public void goNext(Game game) {
         PlayerModel playerModel;
 
+        for(PlayerModel player : table){
+            dealer.collectForcedBetFrom(player, game.getAnte());
+            game.sendMessage(new EventsContainer(
+                    new PlayerUpdatedEvent(player.getNickname(), player.getChips(), "PAY" + game.getAnte())));
+        }
+
         ListIterator<PlayerModel> iterator = table.iterator();
 
         playerModel = iterator.next();
@@ -27,7 +33,7 @@ public class ForcedBets extends AbstractPokerState {
         payBlindAndUpdate(game, playerModel, dealer.getTurnBetOf(playerModel.getNickname()));
         game.sendMessage(new EventsContainer(new PotUpdatedEvent(dealer.getPotValue())));
 
-        game.setState(new FirstBettingRound());
+        game.setState(new FirstNoLimitRound());
     }
 
     private void payBlindAndUpdate(Game game, PlayerModel player, int value) {

@@ -4,18 +4,22 @@ import interfaces.ActionManager;
 import interfaces.BettingManager;
 import interfaces.PokerAction;
 
-public class AllIn implements PokerAction {
-    private int value;
-    private boolean optional;
+public class NullAction implements PokerAction {
+    private static NullAction instance;
 
-    public AllIn(int value, boolean optional) {
-        this.value = value;
-        this.optional = optional;
+    private NullAction(){
+
+    }
+
+    public static NullAction getInstance(){
+        if(instance == null)
+            instance = new NullAction();
+        return instance;
     }
 
     @Override
     public void accept(ActionManager actionManager) {
-        actionManager.process(this);
+
     }
 
     @Override
@@ -25,6 +29,6 @@ public class AllIn implements PokerAction {
 
     @Override
     public int getValue() {
-        return value;
+        return 0;
     }
 }

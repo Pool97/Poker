@@ -32,10 +32,10 @@ public class ConcreteBettingManager implements BettingManager {
     }
 
     @Override
-    public void process(Raise raise) {
-        String value = Integer.toString(raise.getValue());
+    public void process(RaiseNoLimit raiseNoLimit) {
+        String value = Integer.toString(raiseNoLimit.getValue());
         game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
-                raise.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
+                raiseNoLimit.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
     }
 
     @Override
@@ -46,9 +46,9 @@ public class ConcreteBettingManager implements BettingManager {
     }
 
     @Override
-    public void process(Bet bet) {
-        String value = Integer.toString(bet.getValue());
+    public void process(BetNoLimit betNoLimit) {
+        String value = Integer.toString(betNoLimit.getValue());
         game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(player.getNickname(), player.getChips(),
-                bet.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
+                betNoLimit.getClass().getSimpleName() + " " + value), new PotUpdatedEvent(table.getPotValue())));
     }
 }

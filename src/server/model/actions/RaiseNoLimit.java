@@ -4,16 +4,21 @@ import interfaces.ActionManager;
 import interfaces.BettingManager;
 import interfaces.PokerAction;
 
-public class Bet implements PokerAction {
+public class RaiseNoLimit implements PokerAction {
     private int value;
 
-    public Bet(int value) {
+    public RaiseNoLimit(int value) {
         this.value = value;
     }
 
     @Override
-    public void accept(ActionManager actionManager) {
+    public int getValue() {
+        return value;
+    }
 
+    @Override
+    public void accept(ActionManager actionManager) {
+        actionManager.process(this);
     }
 
     @Override
@@ -21,8 +26,5 @@ public class Bet implements PokerAction {
         bettingManager.process(this);
     }
 
-    @Override
-    public int getValue() {
-        return value;
-    }
+
 }

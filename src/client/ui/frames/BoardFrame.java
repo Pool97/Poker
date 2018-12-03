@@ -88,7 +88,7 @@ public class BoardFrame extends JFrame {
         reader.execute();
     }
 
-    private void logAvailableActions(PlayerTurnEvent event) {
+    private void logAvailableActions(PlayerRoundEvent event) {
         Client.logger.info("Azioni disponibili: " + event.getPlayerNickname() + " \n");
         event.getOptions()
                 .forEach(action -> Client.logger.info("Azione: " + action.toString()));
@@ -107,7 +107,7 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerTurnEvent event) {
+        public void process(PlayerRoundEvent event) {
             logAvailableActions(event);
             //PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
             //playerBoard.activateColorTransition();

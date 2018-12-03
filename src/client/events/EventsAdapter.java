@@ -5,7 +5,7 @@ import server.events.*;
 
 public class EventsAdapter implements EventsManager {
     @Override
-    public void process(PlayerTurnEvent event) {
+    public void process(PlayerRoundEvent event) {
 
     }
 

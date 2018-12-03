@@ -13,6 +13,8 @@ public class RaiseSlider extends JSlider {
     private Hashtable<Integer, JLabel> extremeValuesContainer;
     private JLabel minimumValue;
     private JLabel maximumValue;
+    private int minValue;
+    private int maxValue;
 
     public RaiseSlider() {
         super(JSlider.HORIZONTAL, DEFAULT_MIN_VALUE_SLIDER, DEFAULT_MAX_VALUE_SLIDER, DEFAULT_MIN_VALUE_SLIDER);
@@ -76,21 +78,29 @@ public class RaiseSlider extends JSlider {
         addMouseListener(listener);
     }
 
-    public void setMaximumValue(int value) {
-        maximumValue.setText(Integer.toString(value));
-    }
-
-    public void setMinimumValue(int value) {
+    private void setMinimumLabel(int value){
         minimumValue.setText(Integer.toString(value));
     }
 
-    public void regenerateSlider(int minValue, int maxValue) {
+    private void setMaximumLabel(int value){
+        maximumValue.setText(Integer.toString(value));
+    }
+
+    public void setMaximumValue(int value) {
+        this.maxValue = value;
+    }
+
+    public void setMinimumValue(int value) {
+        this.minValue = value;
+    }
+
+    public void regenerateSlider() {
         setPaintLabels(false);
         setLabelTable(null);
-        setMaximumValue(maxValue);
-        setMinimumValue(minValue);
 
         //setSpacing(minValue/ 10, maxValue / 10);
+        setMinimumLabel(minValue);
+        setMaximumLabel(maxValue);
 
         extremeValuesContainer = new Hashtable<>();
         createMinimumValue(minValue);
@@ -106,6 +116,7 @@ public class RaiseSlider extends JSlider {
 
         setMinimum(minValue);
         setMaximum(maxValue);
+
         setValue(minValue);
         setPaintTicks(true);
         setPaintLabels(true);
