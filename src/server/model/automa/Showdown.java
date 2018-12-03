@@ -1,10 +1,12 @@
 package server.model.automa;
 
-import server.model.PlayersStateAnalyzer;
-import server.model.TurnWinnerEvaluator;
 import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.ShowdownEvent;
+import server.model.PlayerModel;
+import server.model.TurnWinnerEvaluator;
+
+import java.util.ListIterator;
 
 public class Showdown extends AbstractPokerState{
 
@@ -19,17 +21,24 @@ public class Showdown extends AbstractPokerState{
 
         String nicknameWinner;
 
-        PlayersStateAnalyzer analyzer = new PlayersStateAnalyzer(table.getPlayers());
-        if (analyzer.getPlayersAtStake().size() == 1) {
-            nicknameWinner = analyzer.getPlayersAtStake().stream().findFirst().get().getNickname();
+        if (table.getPlayersInGame().size() == 1) {
+            nicknameWinner = table.getPlayersInGame().stream().findFirst().get().getNickname();
+            dealer.givePotTo(nicknameWinner);
+
         } else {
-            nicknameWinner = evaluator.evaluateTurnWinner();
+            evaluator.evaluateTurnWinner();
             eventsContainer.addEvent(new ShowdownEvent());
+            System.out.println("VINCITORI:");
+            evaluator.getWinners().forEach(System.out::println);
+            dealer.givePotTo(evaluator.getWinners().get(0));
         }
 
-        dealer.givePotTo(nicknameWinner);
-
-        table.getPlayers().forEach(player -> eventsContainer.addEvent(new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()))));
+        ListIterator<PlayerModel> iterator = table.iterator();
+        while(iterator.hasNext()){
+            PlayerModel player = iterator.next();
+            eventsContainer.addEvent(
+                    new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname())));
+        }
 
         game.sendMessage(eventsContainer);
 

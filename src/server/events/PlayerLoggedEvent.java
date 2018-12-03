@@ -2,24 +2,14 @@ package server.events;
 
 import interfaces.EventsManager;
 import interfaces.ServerEvent;
-import server.model.Position;
-
-/**
- * Evento generato dal server per indicare la corretta aggiunta del PlayerBoard alla lista dei giocatori
- * della partita.
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
 
 public class PlayerLoggedEvent implements ServerEvent {
     private String nickname;
     private String avatar;
-    private Position position;
+    private String position;
     private int chips;
 
-    public PlayerLoggedEvent(String nickname, String avatar, Position position, int chips) {
+    public PlayerLoggedEvent(String nickname, String avatar, String position, int chips) {
         this.nickname = nickname;
         this.avatar = avatar;
         this.position = position;
@@ -43,7 +33,7 @@ public class PlayerLoggedEvent implements ServerEvent {
         return avatar;
     }
 
-    public Position getPosition() {
+    public String getPosition() {
         return position;
     }
 

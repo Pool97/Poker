@@ -4,6 +4,8 @@ import interfaces.TransitionStrategy;
 import server.model.PlayerModel;
 import server.model.Position;
 
+import java.util.ListIterator;
+
 public class NextBettingRound extends BettingRound{
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
@@ -16,32 +18,42 @@ public class NextBettingRound extends BettingRound{
 
     @Override
     public void goNext(Game game) {
-        Position nextPosition = Position.SB;
+        int nextPosition = Position.SB.ordinal();
+
+        ListIterator<PlayerModel> iterator = table.iterator();
+        PlayerModel player;
 
         while (!turnFinished(nextPosition)) {
-            PlayerModel player = table.getPlayer(nextPosition);
+
+            player = iterator.next();
             if (!player.hasFolded() && !player.isAllIn()) {
                 doAction(player, game);
             }
-            nextPosition = table.getNextPosition(nextPosition);
-            if (nextPosition == Position.SB)
+
+            nextPosition = iterator.nextIndex();
+
+            if(!iterator.hasNext()){
+                iterator = table.iterator();
+                nextPosition = Position.SB.ordinal();
                 roundNumber++;
+            }
+
         }
 
-        if (playersAnalyzer.countPlayersAtStake() == 1) {
+        if (table.countPlayersInGame() == 1) {
             Game.logger.info(ONE_PLAYER_ONLY);
             game.setState(new Showdown());
-        } else if (isMatched() || (playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0)
-                || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
+        } else if (isMatched() || (table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0)
+                || table.isAllPlayersAllIn()) {
             Game.logger.info(EQUITY_REACHED);
             strategy.makeTransition();
         }
     }
 
     @Override
-    protected boolean turnFinished(Position nextPosition) {
-        return (nextPosition == Position.SB && ((isMatched() && roundNumber >= 1) || playersAnalyzer.countPlayersAtStake() == 1 || ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer()) || playersAnalyzer.isAllPlayersAtStakeAllIn()))
-                || (nextPosition != Position.SB) && (playersAnalyzer.countPlayersAtStake() == 1 || ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer()) || playersAnalyzer.isAllPlayersAtStakeAllIn());
+    protected boolean turnFinished(int cursor) {
+        return (cursor == Position.SB.ordinal() && ((isMatched() && roundNumber >= 1) || table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn()))
+                || (cursor != Position.SB.ordinal()) && (table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn());
     }
 
     public void setTransitionStrategy(TransitionStrategy strategy) {

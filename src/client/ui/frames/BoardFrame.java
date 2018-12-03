@@ -124,7 +124,7 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(PlayerLoggedEvent event) {
             PlayerBoard playerBoardLogged;
-            playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition().name(), true, event.getChips(), event.getAvatar());
+            playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition(), true, event.getChips(), event.getAvatar());
             if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname())) {
                 playerBoardLogged.setNicknameColor(Color.YELLOW);
             }

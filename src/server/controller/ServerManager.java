@@ -3,14 +3,17 @@ package server.controller;
 import client.events.PlayerConnectedEvent;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
-import server.model.automa.Game;
 import server.model.Dealer;
 import server.model.PlayerModel;
 import server.model.Table;
+import server.model.automa.Game;
+import server.model.gamestructure.NoLimit;
+import server.model.gamestructure.Tournament;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ListIterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
@@ -38,6 +41,8 @@ public class ServerManager implements Runnable {
             serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
             initializeModelComponents();
             game = new Game(table);
+            game.setBettingStructure(new NoLimit(20));
+            game.setGameType(new Tournament(game.getSmallBlind()));
             this.totalPlayers = totalPlayers;
         } catch (IOException e) {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
@@ -115,8 +120,12 @@ public class ServerManager implements Runnable {
 
     private void updateLobbyList(){
         EventsContainer playersListEvent = new EventsContainer();
-        table.getPlayers().forEach(playerModel1 -> playersListEvent.addEvent(
-                new PlayerLoggedEvent(playerModel1.getNickname(), playerModel1.getAvatar())));
+        ListIterator<PlayerModel> iterator = table.iterator();
+        PlayerModel player;
+        while(iterator.hasNext()){
+            player = iterator.next();
+            playersListEvent.addEvent(new PlayerLoggedEvent(player.getNickname(), player.getAvatar()));
+        }
         game.sendMessage(playersListEvent);
     }
 

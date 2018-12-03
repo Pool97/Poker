@@ -4,7 +4,8 @@ import server.events.EventsContainer;
 import server.events.PlayerUpdatedEvent;
 import server.events.PotUpdatedEvent;
 import server.model.PlayerModel;
-import server.model.Position;
+
+import java.util.ListIterator;
 
 public class ForcedBets extends AbstractPokerState {
 
@@ -12,15 +13,17 @@ public class ForcedBets extends AbstractPokerState {
     public void goNext(Game game) {
         PlayerModel playerModel;
 
-        playerModel = table.getPlayer(Position.SB);
+        ListIterator<PlayerModel> iterator = table.iterator();
 
-        dealer.collectForcedBetFrom(playerModel);
+        playerModel = iterator.next();
+
+        dealer.collectForcedBetFrom(playerModel, game.getSmallBlind());
         payBlindAndUpdate(game, playerModel, dealer.getTurnBetOf(playerModel.getNickname()));
         game.sendMessage(new EventsContainer(new PotUpdatedEvent(dealer.getPotValue())));
 
-        playerModel = table.getPlayer(Position.BB);
+        playerModel = iterator.next();
 
-        dealer.collectForcedBetFrom(playerModel);
+        dealer.collectForcedBetFrom(playerModel, game.getBigBlind());
         payBlindAndUpdate(game, playerModel, dealer.getTurnBetOf(playerModel.getNickname()));
         game.sendMessage(new EventsContainer(new PotUpdatedEvent(dealer.getPotValue())));
 

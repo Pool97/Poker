@@ -1,11 +1,9 @@
-package server.model;
+package server.model.cards;
 
 
-import server.model.cards.CardModel;
-import server.model.cards.CardRank;
-import server.model.cards.CardSuit;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class DeckModel implements Iterator<CardModel>{
     private ArrayList<CardModel> cardsList;

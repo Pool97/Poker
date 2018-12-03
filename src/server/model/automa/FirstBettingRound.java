@@ -3,50 +3,50 @@ package server.model.automa;
 import server.model.PlayerModel;
 import server.model.Position;
 
-/**
- * PokerAction è lo stato che gestisce un giro di puntate in un determinato turno. È bene ricordare che nel corso di un
- * turno ci possono essere da 1 a 4 giri di puntate, in base all'evoluzione del turno e alla scelta dei
- * giocatori di rimanere in gioco oppure di foldare.
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
+import java.util.ListIterator;
 
 public class FirstBettingRound extends BettingRound {
     private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
 
-    public FirstBettingRound() {
-        super();
-    }
-
     @Override
     public void goNext(Game game) {
         Game.logger.info(START_ACTIONS);
-        Position nextPosition = table.getNextPosition(Position.BB);
+        int nextPosition = (Position.BB.ordinal() + 1) % table.size();
+
+        ListIterator<PlayerModel> iterator = nextPosition == 0 ? table.iterator() : table.iterator(Position.BB.ordinal());
+        PlayerModel player;
 
         while (!turnFinished(nextPosition)) {
-            PlayerModel player = table.getPlayer(nextPosition);
+
+            player = iterator.next();
             if (!player.hasFolded() && !player.isAllIn()) {
                 doAction(player, game);
             }
-            nextPosition = table.getNextPosition(nextPosition);
+
+            nextPosition = iterator.nextIndex();
+
+            if(!iterator.hasNext()){
+                iterator = table.iterator();
+                nextPosition = Position.SB.ordinal();
+            }
+
         }
 
-        if (playersAnalyzer.countPlayersAtStake() == 1) {
+
+        if (table.countPlayersInGame() == 1) {
             Game.logger.info(ONE_PLAYER_ONLY);
             game.setState(new Showdown());
-        } else if ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) || isMatched() || playersAnalyzer.isAllPlayersAtStakeAllIn()) {
+        } else if ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) || isMatched() || table.isAllPlayersAllIn()) {
             game.setState(new Flop());
         }
     }
 
-    protected boolean turnFinished(Position nextPosition) {
-        return (nextPosition == Position.SB && isMatched())
-                || (nextPosition != Position.SB) && (playersAnalyzer.countPlayersAtStake() == 1 ||
-                ((playersAnalyzer.countActivePlayers() == 1 && playersAnalyzer.countAllInPlayers() > 0) && !checkForActingPlayer())
-                || playersAnalyzer.isAllPlayersAtStakeAllIn());
+    protected boolean turnFinished(int cursor) {
+        return (cursor == Position.SB.ordinal() && isMatched())
+                || (cursor != Position.SB.ordinal()) && (table.countPlayersInGame() == 1 ||
+                ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer())
+                || table.isAllPlayersAllIn());
     }
 }

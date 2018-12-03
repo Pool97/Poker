@@ -15,10 +15,6 @@ public class Flop extends AbstractPokerState {
 
         Game.logger.info(CARDS_GEN);
 
-        dealer.dealCommunityCard();
-        dealer.dealCommunityCard();
-        dealer.dealCommunityCard();
-
         Game.logger.info(CARDS_READY);
         game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard(),
                 dealer.dealCommunityCard(), dealer.dealCommunityCard())));

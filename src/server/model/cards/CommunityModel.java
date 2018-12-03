@@ -1,6 +1,4 @@
-package server.model;
-
-import server.model.cards.CardModel;
+package server.model.cards;
 
 import java.util.ArrayList;
 
@@ -21,5 +19,9 @@ public class CommunityModel {
 
     public void clear() {
         cardsList.clear();
+    }
+
+    public ArrayList<CardModel> getCardsList(){
+        return cardsList;
     }
 }

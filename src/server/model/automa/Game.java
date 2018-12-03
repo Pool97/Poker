@@ -6,6 +6,8 @@ import server.controller.ConcreteReceiver;
 import server.controller.ConcreteSendCommand;
 import server.events.EventsContainer;
 import server.model.Table;
+import server.model.gamestructure.BettingStructure;
+import server.model.gamestructure.GameType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ public class Game implements Runnable{
     private CountDownLatch countDownLatch;
     private PokerState currentState;
     private List<ConcreteReceiver> receivers;
+    private BettingStructure bettingStructure;
+    private GameType gameType;
 
     public static final Logger logger = Logger.getLogger(Game.class.getName());
 
@@ -32,12 +36,35 @@ public class Game implements Runnable{
         this.currentState = state;
     }
 
+    public void setBettingStructure(BettingStructure bettingStructure){
+        this.bettingStructure = bettingStructure;
+    }
+
+    public void setGameType(GameType gameType){
+        this.gameType = gameType;
+    }
+
+    public int getSmallBlind(){
+        return bettingStructure.getSmallBlind();
+    }
+
+    public int getBigBlind(){
+        return bettingStructure.getBigBlind();
+    }
+
+    public void increaseBlinds(){
+        bettingStructure.increaseBlinds();
+    }
+
+    public int getAnte(){
+        return gameType.getAnte();
+    }
     @Override
     public void run() {
         countDownLatch = new CountDownLatch(1);
-        while (countDownLatch.getCount() > 0) {
+
+        while (countDownLatch.getCount() > 0)
             currentState.goNext(this);
-        }
     }
 
     public void stop(){
@@ -45,9 +72,8 @@ public class Game implements Runnable{
     }
 
     public void sendMessage(EventsContainer eventsContainer){
-        for(ConcreteReceiver receiver : receivers) {
+        for(ConcreteReceiver receiver : receivers)
             new ConcreteSendCommand(receiver, eventsContainer).execute();
-        }
     }
 
     public EventsContainer readMessage(String nickname){

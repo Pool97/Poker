@@ -4,11 +4,13 @@ import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
 import server.events.RoomCreatedEvent;
 import server.model.Dealer;
+import server.model.PlayerModel;
+import server.model.Position;
 import server.model.Table;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class StartGame extends AbstractPokerState {
     private static final String STATE_STARTED = "Lo stato di StartGame è avviato.\n";
@@ -23,8 +25,6 @@ public class StartGame extends AbstractPokerState {
     public void goNext(Game game) {
         Game.logger.info(STATE_STARTED);
         Game.logger.info(CONF_MATCH);
-        dealer.setStartChips(table.currentNumberOfPlayers() * 10000);
-        dealer.setInitialBlinds();
 
         configureRoom();
 
@@ -44,16 +44,24 @@ public class StartGame extends AbstractPokerState {
 
     private void configureRoom() {
         dealer.dealStartingChips();
-        table.assignInitialPositions();
-        table.sortPlayersByPosition();
+        table.translatePositions();
     }
 
     private EventsContainer preparePlayersLoggedEvents() {
-        ArrayList<PlayerLoggedEvent> loggedEvents = table.getPlayers()
-                .stream()
-                .map(player -> new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), player.getPosition(),
-                        player.getChips()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<PlayerLoggedEvent> loggedEvents = new ArrayList<>();
+        String position = "";
+
+        ListIterator<PlayerModel> iterator = table.iterator();
+        PlayerModel player;
+        while(iterator.hasNext()){
+            player = iterator.next();
+            if(iterator.previousIndex() == Position.SB.ordinal() || iterator.previousIndex() == Position.BB.ordinal()
+                    || iterator.previousIndex() == table.size() - 1)
+                position = Position.values()[iterator.previousIndex()].name();
+            loggedEvents.add(new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), position,
+                    player.getChips()));
+            position = "";
+        }
         return new EventsContainer(loggedEvents);
     }
 

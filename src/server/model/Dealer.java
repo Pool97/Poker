@@ -1,6 +1,8 @@
 package server.model;
 
 import server.model.cards.CardModel;
+import server.model.cards.CommunityModel;
+import server.model.cards.DeckModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,14 +12,12 @@ public class Dealer {
     private DeckModel deck;
     private Table table;
     private PotList potList;
-    private BettingStructure bettingStructure;
     private CommunityModel communityModel;
 
     public Dealer(){
         deck = new DeckModel();
         communityModel = new CommunityModel();
         potList = new PotList();
-        bettingStructure = new BettingStructure();
     }
 
     public void shuffleCards(){
@@ -55,33 +55,14 @@ public class Dealer {
         List<String> activePlayers = Arrays.asList("Prova", "Prova2", "Prova3");
     }
 
-    public void setStartChips(int startChips){
-        bettingStructure.setStartChips(startChips);
-    }
-
-    public void setInitialBlinds(){
-        bettingStructure.setInitialBlinds();
-    }
-
-    public void collectForcedBetFrom(PlayerModel player){
-        if(player.getPosition() == Position.SB){
-            if(player.getChips() < bettingStructure.getSmallBlind()) {
-                potList.addWagerFor(player.getNickname(), player.getChips());
-                player.decreaseChips(player.getChips());
-            }else{
-                potList.addWagerFor(player.getNickname(), bettingStructure.getSmallBlind());
-                player.decreaseChips(bettingStructure.getSmallBlind());
-            }
+    public void collectForcedBetFrom(PlayerModel player, int forcedBet){
+        if(player.getChips() < forcedBet) {
+            potList.addWagerFor(player.getNickname(), player.getChips());
+            player.decreaseChips(player.getChips());
         }else{
-            if(player.getChips() < bettingStructure.getBigBlind()) {
-                potList.addWagerFor(player.getNickname(), player.getChips());
-                player.decreaseChips(player.getChips());
-            }else{
-                potList.addWagerFor(player.getNickname(), bettingStructure.getBigBlind());
-                player.decreaseChips(bettingStructure.getBigBlind());
-            }
+            potList.addWagerFor(player.getNickname(), forcedBet);
+            player.decreaseChips(forcedBet);
         }
-
         potList.descr();
     }
 
@@ -97,16 +78,12 @@ public class Dealer {
         return potList.countDistinctBetsOf(players) <= 1;
     }
 
-    public int getPotMatchingValue(String nickname){
-        return potList.maxBetAmong(table.getPlayers(), bettingStructure.getBigBlind()) - potList.getTurnBetOf(nickname);
+    public int getPotMatchingValue(String nickname, int bigBlind){
+        return potList.maxBetAmong(table.getPlayers(), bigBlind) - potList.getTurnBetOf(nickname);
     }
 
     public void dealStartingChips(){
-        table.getPlayers().forEach(player -> player.setChips(table.currentNumberOfPlayers() * 10000));
-    }
-
-    public void increaseBlinds(){
-        bettingStructure.increaseBlinds();
+        for (PlayerModel playerModel : table) playerModel.setChips(table.currentNumberOfPlayers() * 10000);
     }
 
     public int getTurnBetOf(String nickname){
@@ -119,14 +96,6 @@ public class Dealer {
 
     public int getPotValue(){
         return potList.totalValue();
-    }
-
-    public int getBigBlind(){
-        return bettingStructure.getBigBlind();
-    }
-
-    public int getSmallBlind(){
-        return bettingStructure.getSmallBlind();
     }
 
     public CommunityModel getCommunityModel(){

@@ -6,6 +6,9 @@ import server.events.PotUpdatedEvent;
 import server.events.TurnEndedEvent;
 import server.model.PlayerModel;
 
+import java.util.ListIterator;
+import java.util.concurrent.TimeUnit;
+
 public class TurnEnd extends AbstractPokerState{
 
     public TurnEnd() {
@@ -17,19 +20,25 @@ public class TurnEnd extends AbstractPokerState{
 
         EventsContainer eventsContainer = new EventsContainer();
         eventsContainer.addEvent(new PotUpdatedEvent(dealer.getPotValue()));
-        table.getPlayers().stream().filter(playerModel -> playerModel.getChips() <= 0).forEach(playerModel -> playerModel.setLost(true));
-        table.getPlayers().forEach(PlayerModel::giveBackCards);
-        table.getPlayers().stream()
-                .filter(PlayerModel::hasLost)
-                .forEach(playerModel -> eventsContainer.addEvent(new MatchLostEvent(playerModel.getNickname(),
-                        table.currentNumberOfPlayers() + 1, playerModel.isCreator())));
-        table.getPlayers().stream().filter(PlayerModel::hasLost).forEach(playerModel -> table.removePosition());
+
+        ListIterator<PlayerModel> iterator = table.iterator();
+        PlayerModel player;
+        while(iterator.hasNext()){
+            player = iterator.next();
+            player.giveBackCards();
+            if(player.getChips() <= 0) {
+                player.setLost(true);
+                eventsContainer.addEvent(new MatchLostEvent(player.getNickname(), table.currentNumberOfPlayers() + 1, player.isCreator()));
+            }
+            player.setFolded(false);
+        }
 
         eventsContainer.addEvent(new TurnEndedEvent());
 
         game.sendMessage(eventsContainer);
+
         try {
-            Thread.sleep(1000);
+            TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

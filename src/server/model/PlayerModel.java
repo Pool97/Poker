@@ -8,7 +8,6 @@ import java.util.Objects;
 
 public class PlayerModel implements Serializable, Cloneable{
     private String nickname;
-    private Position position;
     private String avatar;
     private int chips;
     private boolean isAllIn;
@@ -55,13 +54,6 @@ public class PlayerModel implements Serializable, Cloneable{
 
     public void addChips(int chips) {
         this.chips += chips;
-    }
-    public Position getPosition() {
-        return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
     }
 
     public void receiveCards(CardModel first, CardModel second) {
@@ -128,13 +120,12 @@ public class PlayerModel implements Serializable, Cloneable{
         PlayerModel that = (PlayerModel) o;
         return chips == that.chips &&
                 Objects.equals(nickname, that.nickname) &&
-                position == that.position &&
                 Objects.equals(avatar, that.avatar);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nickname, position, avatar, chips);
+        return Objects.hash(nickname, avatar, chips);
     }
 
     @Override
