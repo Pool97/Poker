@@ -41,6 +41,10 @@ public class EventsContainer implements Serializable {
         return events.pop();
     }
 
+    public Event lookEvent(){
+        return events.peek();
+    }
+
     public ArrayList<Event> getEvents() {
         return new ArrayList<>(events);
     }

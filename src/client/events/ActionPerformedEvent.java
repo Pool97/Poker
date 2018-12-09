@@ -1,16 +1,16 @@
 package client.events;
 
 import interfaces.ClientEvent;
-import interfaces.PokerAction;
+import server.model.actions.AbstractPokerAction;
 
 public class ActionPerformedEvent implements ClientEvent {
-    private PokerAction action;
+    private AbstractPokerAction action;
 
-    public ActionPerformedEvent(PokerAction action) {
+    public ActionPerformedEvent(AbstractPokerAction action) {
         this.action = action;
     }
 
-    public PokerAction getAction() {
+    public AbstractPokerAction getAction() {
         return action;
     }
 }

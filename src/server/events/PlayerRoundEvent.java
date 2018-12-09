@@ -11,6 +11,10 @@ public class PlayerRoundEvent implements Serializable, ServerEvent {
     private String player;
     private ArrayList<PokerAction> optionsAvailable;
 
+    public PlayerRoundEvent(){
+        optionsAvailable = new ArrayList<>();
+    }
+
     public PlayerRoundEvent(String player) {
         this.player = player;
         optionsAvailable = new ArrayList<>();

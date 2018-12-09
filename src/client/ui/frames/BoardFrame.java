@@ -163,11 +163,6 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerFoldedEvent event) {
-            pokerTable.getPlayerBoardBy(event.getNickname()).setHandIndicator("FOLD");
-        }
-
-        @Override
         public void process(PotUpdatedEvent event) {
             matchBoard.setPot(event.getPot());
         }

@@ -1,12 +1,15 @@
-package server.model.automa;
+package server.model.automa.round;
 
 import server.model.PlayerModel;
 import server.model.Position;
+import server.model.automa.Flop;
+import server.model.automa.Game;
+import server.model.automa.Showdown;
 
 import java.util.AbstractMap;
 import java.util.ListIterator;
 
-public class FirstNoLimitRound extends NoLimitBettingRound {
+public class FirstNoLimitRound extends NoLimitRound {
     private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
     private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";

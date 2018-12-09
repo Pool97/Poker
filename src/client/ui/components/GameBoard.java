@@ -11,8 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 
 import static java.awt.GridBagConstraints.*;
-import static layout.TableLayoutConstants.*;
 import static layout.TableLayoutConstants.CENTER;
+import static layout.TableLayoutConstants.*;
 
 public class GameBoard extends JPanel {
     public final static String BACKGROUND_IMAGE = "board.png";
@@ -29,6 +29,7 @@ public class GameBoard extends JPanel {
         createBottomPart();
         setBottomPartProperties();
         attachBottomPart();
+        setOpaque(false);
     }
 
     private void createMiddlePart() {
@@ -87,6 +88,31 @@ public class GameBoard extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(Utils.loadImage(BACKGROUND_IMAGE, getSize()), 0, 0, getWidth(), getHeight(), null);
+        Graphics2D graphics = (Graphics2D)g;
+        graphics.setRenderingHints(Utils.getHighQualityRenderingHints());
+        graphics.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+
+        Paint oldPaint = graphics.getPaint();
+
+        LinearGradientPaint linear = new LinearGradientPaint(0, 0, getWidth(), getHeight(),
+                new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(36, 36, 36), new Color(64, 64, 64), new Color(36,36,36)});
+        graphics.setPaint(linear);
+        graphics.fillRect(0,0, getWidth(), getHeight());
+        graphics.setPaint(oldPaint);
+        graphics.setColor(new Color(64,32,0));
+        graphics.fillOval(3, 3, getWidth()- 6, getHeight() - 6);
+        graphics.setColor(new Color(139,69,19));
+        graphics.fillOval(5, 5, getWidth()- 10, getHeight() - 10);
+        graphics.setColor(new Color(64,32,0));
+        graphics.fillOval(38, 38, getWidth()- 76, getHeight() - 76);
+        LinearGradientPaint gradient = new LinearGradientPaint(0, 0, getWidth()- 80, getHeight()-80,
+                new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(0, 60, 20), new Color(0, 100, 20), new Color(0, 60, 20)}
+                , MultipleGradientPaint.CycleMethod.REFLECT);
+
+        graphics.setPaint(gradient);
+        graphics.fillOval(40, 40, getWidth() - 80, getHeight() - 80);
+        //graphics.fillRoundRect(50,50, getWidth() - 50, getHeight() - 50, 200, 200);
+
+        //g.drawImage(Utils.loadImage(BACKGROUND_IMAGE, getSize()), 0, 0, getWidth(), getHeight(), null);
     }
 }

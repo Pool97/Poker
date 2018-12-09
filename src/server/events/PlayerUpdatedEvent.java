@@ -16,11 +16,13 @@ public class PlayerUpdatedEvent implements ServerEvent {
     private String nickname;
     private int chips;
     private String action;
+    private int value;
 
-    public PlayerUpdatedEvent(String nickname, int chips, String action) {
+    public PlayerUpdatedEvent(String nickname, int chips, String action, int value) {
         this.nickname = nickname;
         this.chips = chips;
         this.action = action;
+        this.value = value;
     }
 
     public String getNickname() {
@@ -33,6 +35,10 @@ public class PlayerUpdatedEvent implements ServerEvent {
 
     public String getAction() {
         return action;
+    }
+
+    public int getValue(){
+        return value;
     }
 
     @Override

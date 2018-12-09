@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.image.BufferedImage;
 
 public class Card extends JComponent implements ComponentListener {
     private final static int TOP_LEFT = 0;
@@ -20,6 +19,7 @@ public class Card extends JComponent implements ComponentListener {
     private Card(boolean isVisible, boolean isCovered) {
         this.frontImageDirectoryPath = DEFAULT_IMAGE;
         this.backImageDirectoryPath = DEFAULT_BACK;
+        setOpaque(false);
         setVisible(isVisible);
         setCovered(isCovered);
         addComponentListener(this);
@@ -31,10 +31,11 @@ public class Card extends JComponent implements ComponentListener {
         setVisible(isVisible);
         setCovered(isCovered);
         addComponentListener(this);
+        setOpaque(false);
     }
 
     public static Card createEmptyCard() {
-        return new Card(false, false);
+        return new Card(true, false);
     }
 
     public static Card createCard(boolean isCovered) {
@@ -50,7 +51,7 @@ public class Card extends JComponent implements ComponentListener {
     }
 
     public void loadImage() {
-        if(getSize().width != 0 && getSize().height != 0)
+        if(getSize().width != 0 && getSize().height != 0 && !frontImageDirectoryPath.equals(DEFAULT_IMAGE))
             image = Utils.loadImageByPath(getDirectoryPathImageToLoad(), getSize());
     }
 
@@ -72,13 +73,26 @@ public class Card extends JComponent implements ComponentListener {
         Graphics2D g2D = (Graphics2D) g;
         g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
         if (isImageLoaded(image)) {
-            g2D.drawImage(image, TOP_LEFT, TOP_LEFT, null);
+            g2D.drawImage(image, 2, 2, getWidth() - 4, getHeight() - 4, null);
+        }else{
+            Composite composite = g2D.getComposite();
+            g2D.setColor(new Color(100, 128, 150));
+            g2D.setStroke(new BasicStroke(3));
+            g2D.drawRoundRect(5, 5, getWidth() - 8, getHeight() - 8, 10, 10);
+            g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.65f));
+            g2D.fillRoundRect(6, 6, getWidth() - 9, getHeight() - 9, 10, 10);
+            g2D.setComposite(composite);
+
         }
+    }
+
+    public boolean isDefault(){
+        return frontImageDirectoryPath.equals(DEFAULT_IMAGE);
     }
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension(60, 80);
+        return new Dimension(60, 70);
     }
 
     @Override

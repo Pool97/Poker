@@ -65,15 +65,20 @@ public class Dealer {
         List<String> activePlayers = Arrays.asList("Prova", "Prova2", "Prova3");
     }
 
-    public void collectForcedBetFrom(PlayerModel player, int forcedBet){
+    public int collectForcedBetFrom(PlayerModel player, int forcedBet){
+        int valueCollected = 0;
         if(player.getChips() < forcedBet) {
             potList.addWagerFor(player.getNickname(), player.getChips());
+            valueCollected = player.getChips();
             player.decreaseChips(player.getChips());
         }else{
             potList.addWagerFor(player.getNickname(), forcedBet);
             player.decreaseChips(forcedBet);
+            valueCollected = forcedBet;
         }
         potList.descr();
+
+        return valueCollected;
     }
 
     public void collectAction(PlayerModel player, int value){

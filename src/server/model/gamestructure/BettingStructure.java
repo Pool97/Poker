@@ -1,6 +1,8 @@
 package server.model.gamestructure;
 
-public abstract class BettingStructure {
+import interfaces.Reachable;
+
+public abstract class BettingStructure implements Reachable {
     protected int smallBlind;
     protected int bigBlind;
 

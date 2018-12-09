@@ -1,10 +1,8 @@
 package server.model.actions;
 
 import interfaces.ActionManager;
-import interfaces.BettingManager;
-import interfaces.PokerAction;
 
-public class NullAction implements PokerAction {
+public class NullAction extends AbstractPokerAction {
     private static NullAction instance;
 
     private NullAction(){
@@ -19,11 +17,6 @@ public class NullAction implements PokerAction {
 
     @Override
     public void accept(ActionManager actionManager) {
-
-    }
-
-    @Override
-    public void process(BettingManager bettingManager) {
 
     }
 

@@ -14,8 +14,9 @@ import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.SwingConstants.LEFT;
 import static javax.swing.SwingConstants.RIGHT;
 import static utils.Utils.DEFAULT_FONT;
+import static utils.Utils.getHighQualityRenderingHints;
 
-public class PlayerBoard extends BorderPanel {
+public class PlayerBoard extends JPanel{
     private Avatar avatar;
     private JLabel chipIndicator;
     private JLabel nickname;
@@ -24,12 +25,39 @@ public class PlayerBoard extends BorderPanel {
     private JPanel avatarAndCardsContainer;
     private ArrayList<Card> cards;
 
-    private final long animationDuration = 2000;
-    private Timer tm;
-    private long animStartTime;
-    private Color colorStart = Color.WHITE;
-    private Color colorEnd = new Color(41, 121, 255);
-    private Color currentColor;
+    /**
+     * Stroke size. it is recommended to set it to 1 for better view
+     */
+    protected int strokeSize = 3;
+    /**
+     * Color of shadow
+     */
+    protected Color shadowColor = new Color(0, 40, 5);
+    /**
+     * Sets if it drops shadow
+     */
+    protected boolean shady = true;
+    /**
+     * Sets if it has an High Quality view
+     */
+    protected boolean highQuality = true;
+    /**
+     * Double values for Horizontal and Vertical radius of corner arcs
+     */
+    protected Dimension arcs = new Dimension(40, 40);
+    //protected Dimension arcs = new Dimension(20, 20);//creates curved borders and panel
+    /**
+     * Distance between shadow border and opaque panel border
+     */
+    protected int shadowGap = 8;
+    /**
+     * The offset of shadow.
+     */
+    protected int shadowOffset = 7;
+    /**
+     * The transparency value of shadow. ( 0 - 255)
+     */
+    protected int shadowAlpha = 180;
 
     public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
         setVisible(false);
@@ -56,12 +84,10 @@ public class PlayerBoard extends BorderPanel {
         attachComponents();
         setOpaque(false);
         setVisible(true);
-        //setBorder(new RoundBorder(40));
     }
 
     private void setComponentProperties() {
         setLayout(new GridBagLayout());
-        //setBorder(new RoundBorder(25));
     }
 
     private void createAvatar(String avatarDirectoryPath) {
@@ -111,7 +137,7 @@ public class PlayerBoard extends BorderPanel {
     private void attachComponents() {
         attachAvatar();
         attachCards();
-        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(15, 20, 0, 0)));
+        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(10, 15, 0, 0)));
         attachNickname();
         attachPosition();
         attachHand();
@@ -124,7 +150,9 @@ public class PlayerBoard extends BorderPanel {
 
     private void attachCards() {
         avatarAndCardsContainer.add(Box.createRigidArea(new Dimension(20, 0)));
-        cards.forEach(card -> avatarAndCardsContainer.add(card));
+        avatarAndCardsContainer.add(cards.get(0));
+        avatarAndCardsContainer.add(Box.createHorizontalStrut(5));
+        avatarAndCardsContainer.add(cards.get(1));
     }
 
     private void attachNickname() {
@@ -132,64 +160,49 @@ public class PlayerBoard extends BorderPanel {
     }
 
     private void attachPosition() {
-        add(position, new GBC(1, 1, 1, 0.15, 1, 1, EAST, NONE, new Insets(10, 0, 0, 20)));
+        add(position, new GBC(1, 1, 1, 0.15, 1, 1, EAST, NONE, new Insets(5, 0, 0, 20)));
     }
 
     private void attachHand() {
-        add(handIndicator, new GBC(1, 2, 1, 0.15, 1, 1, EAST, NONE, new Insets(0, 0, 10, 20)));
+        add(handIndicator, new GBC(1, 2, 1, 0.15, 1, 1, EAST, NONE, new Insets(0, 0, 15, 20)));
     }
 
     private void attachChips() {
-        add(chipIndicator, new GBC(0, 2, 1, 0.15, 1, 1, WEST, NONE, new Insets(0, 20, 10, 0)));
+        add(chipIndicator, new GBC(0, 2, 1, 0.15, 1, 1, WEST, NONE, new Insets(0, 20, 15, 0)));
     }
 
     @Override
-    protected void drawBackground(Graphics2D g2D) {
-        g2D.setColor(new Color(0, 117, 178));
-        g2D.fillRoundRect(6, 6, getWidth() - 10, getHeight() - 10,
-                30, 30);
-    }
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Color shadowColorA = new Color(shadowColor.getRed(),
+                shadowColor.getGreen(), shadowColor.getBlue(), shadowAlpha);
+        Graphics2D graphics = (Graphics2D) g;
+        graphics.setRenderingHints(getHighQualityRenderingHints());
 
-    @Override
-    protected void drawBorder(Graphics2D g2D, Color color) {
-        g2D.setStroke(new BasicStroke(6f));
-        g2D.setColor(color);
-        g2D.drawRoundRect(6, 6, getWidth() - 10, getHeight() - 10,
-                40, 40);
-    }
-
-    public void activateColorTransition() {
-        tm = new Timer(50, e -> {
-            long currentTime = System.nanoTime() / 1000000;
-            long totalTime = currentTime - animStartTime;
-            if (totalTime > animationDuration) {
-                animStartTime = currentTime;
-            }
-            float fraction = (float) totalTime / animationDuration;
-            fraction = Math.min(1.0f, fraction);
-            int red = (int) (fraction * colorEnd.getRed() +
-                    (1 - fraction) * colorStart.getRed());
-            int green = (int) (fraction * colorEnd.getGreen() +
-                    (1 - fraction) * colorStart.getGreen());
-            int blue = (int) (fraction * colorEnd.getBlue() +
-                    (1 - fraction) * colorStart.getBlue());
-            currentColor = new Color(red, green, blue);
-            borderColor = currentColor;
-            repaint();
-        });
-        tm.setInitialDelay(1000);
-        animStartTime = 1000 + System.nanoTime() / 1000000;
-        animStartTime = 1000 + System.nanoTime() / 1000000;
-        tm.start();
-    }
-
-    public void disableColorTransition() {
-        if (tm != null && tm.isRunning()) {
-            tm.stop();
-            borderColor = Color.WHITE;
-            repaint();
+        //Draws shadow borders if any.
+        if (shady) {
+            graphics.setColor(shadowColorA);
+            graphics.fillRoundRect(
+                    shadowOffset,// X position
+                    shadowOffset,// Y position
+                    getWidth() - strokeSize - shadowOffset, // width
+                    getHeight() - strokeSize - shadowOffset, // height
+                    arcs.width, arcs.height);// arc Dimension
+        } else {
+            shadowGap = 1;
         }
-
+        Paint paint = graphics.getPaint();
+        LinearGradientPaint gradient = new LinearGradientPaint(strokeSize, strokeSize, getWidth()- shadowGap - strokeSize, getHeight()-shadowGap-strokeSize,
+                new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(0, 130, 178), new Color(0, 115, 178), new Color(0, 100, 178)});
+        graphics.setPaint(gradient);
+        //Draws the rounded opaque panel with borders.
+        graphics.fillRoundRect(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
+                getHeight() - shadowGap - strokeSize, arcs.width, arcs.height);
+        graphics.setPaint(paint);
+        graphics.setColor(WHITE);
+        graphics.setStroke(new BasicStroke(strokeSize));
+        graphics.drawRoundRect(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
+                getHeight() - shadowGap - strokeSize, arcs.width, arcs.height);
     }
 
     public void setChipIndicator(int chips) {

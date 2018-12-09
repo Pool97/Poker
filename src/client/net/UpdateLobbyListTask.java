@@ -34,7 +34,7 @@ public class UpdateLobbyListTask extends SwingWorker<Void, EventsContainer> {
             try {
                 messageObject = (EventsContainer) Client.getInstance().readMessage();
                 publish(messageObject);
-                Thread.sleep(800);
+                Thread.sleep(500);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -1,10 +1,8 @@
 package server.model.actions;
 
 import interfaces.ActionManager;
-import interfaces.BettingManager;
-import interfaces.PokerAction;
 
-public class AllIn implements PokerAction {
+public class AllIn extends AbstractPokerAction {
     private int value;
     private boolean optional;
 
@@ -16,11 +14,6 @@ public class AllIn implements PokerAction {
     @Override
     public void accept(ActionManager actionManager) {
         actionManager.process(this);
-    }
-
-    @Override
-    public void process(BettingManager bettingManager) {
-
     }
 
     @Override

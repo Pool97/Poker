@@ -8,7 +8,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 
 import static utils.Utils.EMPTY;
 
@@ -90,6 +89,7 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
             g.drawImage(image, 0, 1, null);
             g.drawOval(1, 1, dimension-3, dimension-3);
         }
+
 
         if (isOpacity)
             applyOpacity((Graphics2D) g.create(), opacity);

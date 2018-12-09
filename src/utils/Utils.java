@@ -27,7 +27,6 @@ public class Utils {
     public static final String EMPTY = "";
     public static final String WORKING_DIRECTORY = "user.dir";
     public static final Color TRANSPARENT = new Color(0,0,0,0);
-    public static final Integer[] POSSIBLE_TOTAL_PLAYERS = new Integer[]{2, 3, 4, 5, 6};
     public static String[] EXTENSIONS = new String[]{"gif", "png", "bmp"};
     public final static String DEFAULT_THEME = "Nimbus";
     public final static String DEFAULT_FONT = "helvetica";
@@ -37,7 +36,7 @@ public class Utils {
 
         try {
             BufferedImage originalImage = ImageIO.read(new File(System.getProperty(WORKING_DIRECTORY) + RES_DIRECTORY + filename));
-            scaledImage = originalImage.getScaledInstance(scaleSize.width, scaleSize.height, Image.SCALE_SMOOTH);
+            scaledImage = originalImage.getScaledInstance(scaleSize.width, scaleSize.height, Image.SCALE_REPLICATE);
         } catch (IOException e) {
             e.printStackTrace();
         }

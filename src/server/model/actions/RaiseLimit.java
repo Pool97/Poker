@@ -2,16 +2,11 @@ package server.model.actions;
 
 import interfaces.ActionManager;
 
-public class RaiseNoLimit extends AbstractPokerAction  {
+public class RaiseLimit extends AbstractPokerAction  {
     private int value;
 
-    public RaiseNoLimit(int value) {
+    public RaiseLimit(int value){
         this.value = value;
-    }
-
-    @Override
-    public int getValue() {
-        return value;
     }
 
     @Override
@@ -19,5 +14,8 @@ public class RaiseNoLimit extends AbstractPokerAction  {
         actionManager.process(this);
     }
 
-
+    @Override
+    public int getValue() {
+        return value;
+    }
 }

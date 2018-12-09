@@ -63,6 +63,7 @@ public class PotList {
                 .sum();
     }
 
+
     public int countDistinctBetsOf(ArrayList<PlayerModel> players){
         return (int)players.stream()
                 .mapToInt(player -> getTurnBetOf(player.getNickname()))

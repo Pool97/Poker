@@ -1,7 +1,6 @@
 package client.ui.frames;
 
 import client.ui.components.Avatar;
-import client.ui.dialogs.CreatorDialog;
 import client.ui.dialogs.PlayerDialog;
 import client.ui.dialogs.PokerDialog;
 import utils.GBC;
@@ -172,15 +171,23 @@ public class SelectAvatarFrame extends JFrame {
         }
 
         public void mouseClicked(MouseEvent event) {
-            if (playerMode == 0)
-                dialog = new CreatorDialog(avatar);
-
-            else
+            if (playerMode == 0) {
+                SelectModeFrame frame = new SelectModeFrame(avatar);
+                frame.setLocationRelativeTo(null);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setTitle(FRAME_TITLE);
+                frame.setVisible(true);
+                frame.setResizable(false);
+            }
+            else {
                 dialog = new PlayerDialog(avatar);
-            dialog.pack();
-            dialog.setLocationRelativeTo(null);
-            dialog.setVisible(true);
-            dialog.setFocusOnButton();
+                dialog.pack();
+                dialog.setLocationRelativeTo(null);
+                dialog.setVisible(true);
+                dialog.setFocusOnButton();
+            }
+
+
             dispose();
         }
 

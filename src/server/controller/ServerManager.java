@@ -1,5 +1,6 @@
 package server.controller;
 
+import client.events.MatchModeEvent;
 import client.events.PlayerConnectedEvent;
 import server.events.EventsContainer;
 import server.events.PlayerLoggedEvent;
@@ -7,6 +8,7 @@ import server.model.Dealer;
 import server.model.PlayerModel;
 import server.model.Table;
 import server.model.automa.Game;
+import server.model.gamestructure.FixedLimit;
 import server.model.gamestructure.NoLimit;
 import server.model.gamestructure.Tournament;
 
@@ -16,6 +18,7 @@ import java.net.Socket;
 import java.util.ListIterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,19 +34,18 @@ public class ServerManager implements Runnable {
     private final static String PLAYER_ADDED = "GIOCATORE AGGIUNTO ALLA LISTA PER LA PARTITA IMMINENTE... \n";
 
     private final static Logger logger = Logger.getLogger(ServerManager.class.getName());
-    private int totalPlayers;
     private ServerSocket serverSocket;
     private Table table;
     private Game game;
+    private CountDownLatch latch;
 
-    public ServerManager(int totalPlayers) {
+    public ServerManager() {
         try {
             serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
             initializeModelComponents();
-            game = new Game(table);
-            game.setBettingStructure(new NoLimit(20));
-            game.setGameType(new Tournament(game.getSmallBlind()));
-            this.totalPlayers = totalPlayers;
+            latch = new CountDownLatch(1);
+            game = new Game(table, latch);
+            new Thread(game).start();
         } catch (IOException e) {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
         }
@@ -73,9 +75,6 @@ public class ServerManager implements Runnable {
 
             updateLobbyList();
 
-            if (isMatchReadyToStart())
-                new Thread(game).start();
-
         } catch (IOException e) {
             e.printStackTrace();
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
@@ -87,12 +86,26 @@ public class ServerManager implements Runnable {
         BlockingQueue<EventsContainer> queue1 = new ArrayBlockingQueue<>(20);
         BlockingQueue<EventsContainer> queue2 = new ArrayBlockingQueue<>(20);
 
-        ClientSocket client = new ClientSocket(socket, queue1, queue2);
+        ClientSocket client = new ClientSocket(socket, queue1, queue2, latch);
+
+
+
         PlayerModel model = new PlayerModel();
 
         table.sit(model);
 
         new Thread(client).start();
+
+        if(table.size() == 1){
+            try {
+                EventsContainer event = queue2.take();
+                MatchModeEvent matchMode = (MatchModeEvent) event.getEvent();
+                game.setBettingStructure(matchMode.isFixedLimit() ? new FixedLimit(10) : new NoLimit(20));
+                game.setGameType(new Tournament(game.getSmallBlind()));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         initializePlayerModel(model, queue2);
 
@@ -127,10 +140,6 @@ public class ServerManager implements Runnable {
             playersListEvent.addEvent(new PlayerLoggedEvent(player.getNickname(), player.getAvatar()));
         }
         game.sendMessage(playersListEvent);
-    }
-
-    public boolean isMatchReadyToStart(){
-        return table.currentNumberOfPlayers() == totalPlayers;
     }
 }
 

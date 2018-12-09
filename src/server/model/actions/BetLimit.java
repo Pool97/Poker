@@ -2,10 +2,10 @@ package server.model.actions;
 
 import interfaces.ActionManager;
 
-public class BetNoLimit extends AbstractPokerAction  {
+public class BetLimit extends AbstractPokerAction {
     private int value;
 
-    public BetNoLimit(int value) {
+    public BetLimit(int value) {
         this.value = value;
     }
 
@@ -19,8 +19,8 @@ public class BetNoLimit extends AbstractPokerAction  {
         return value;
     }
 
-    public static BetNoLimit empty(){
-        return new BetNoLimit(0);
+    public static BetLimit empty(){
+        return new BetLimit(0);
     }
 
     public boolean isEmpty(){

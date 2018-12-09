@@ -1,6 +1,9 @@
 package server.model.gamestructure;
 
-public class FixedLimit extends BettingStructure {
+import interfaces.Reachable;
+import interfaces.Reacher;
+
+public class FixedLimit extends BettingStructure implements Reachable {
     private int lowerLimit;
     private int higherLimit;
 
@@ -15,5 +18,10 @@ public class FixedLimit extends BettingStructure {
     public void increaseBlinds() {
         bigBlind *= 2;
         smallBlind = bigBlind / 2;
+    }
+
+    @Override
+    public void reach(Reacher reacher) {
+        reacher.nextState(this);
     }
 }

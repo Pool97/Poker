@@ -11,7 +11,6 @@ public class ConcreteActionManager implements ActionManager {
 
     public ConcreteActionManager(ActionBoard actionBoard) {
         this.actionBoard = actionBoard;
-
     }
 
     @Override
@@ -30,7 +29,6 @@ public class ConcreteActionManager implements ActionManager {
 
     @Override
     public void process(RaiseNoLimit raiseNoLimitOption) {
-        System.out.println("PROVA RAISE LATO CLIENT");
         actionBoard.setRaiseText("RAISE");
         actionBoard.setMinSlider(raiseNoLimitOption.getValue());
         actionBoard.addRaiseListener(eventG -> {
@@ -62,13 +60,13 @@ public class ConcreteActionManager implements ActionManager {
 
     @Override
     public void process(BetNoLimit betNoLimit) {
-        actionBoard.setBetText("BET");
+        actionBoard.setBetText(Integer.toString(betNoLimit.getValue()));
         actionBoard.setMinSlider(betNoLimit.getValue());
         actionBoard.addRaiseListener(eventG -> {
             Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new BetNoLimit(actionBoard.getSliderValue()))));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
-            actionBoard.setRaiseText("");
+            actionBoard.setRaiseText("BET");
         });
     }
 
@@ -78,5 +76,20 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setMaxSlider(allin.getValue());
         actionBoard.refreshSlider();
         actionBoard.setRaiseEnabled(true);
+    }
+
+    @Override
+    public void process(RaiseLimit raiseLimit) {
+
+    }
+
+    @Override
+    public void process(BetLimit betLimit) {
+
+    }
+
+    @Override
+    public void process(AbstractPokerAction action) {
+
     }
 }

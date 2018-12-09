@@ -36,6 +36,13 @@ public class RaiseSlider extends JSlider {
         setBackground(new Color(171, 39, 60));
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2D = (Graphics2D)g;
+        g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
+    }
+
     private void setSpacing(int minorSpacing, int maxSpacing) {
         //setMinorTickSpacing(minorSpacing);
         //setMajorTickSpacing(5000);

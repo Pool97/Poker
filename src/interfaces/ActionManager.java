@@ -14,4 +14,10 @@ public interface ActionManager {
     void process(BetNoLimit betNoLimit);
 
     void process(AllIn allin);
+
+    void process(RaiseLimit raiseLimit);
+
+    void process(BetLimit betLimit);
+
+    void process(AbstractPokerAction action);
 }

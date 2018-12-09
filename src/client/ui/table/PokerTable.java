@@ -46,6 +46,7 @@ public class PokerTable {
 
     private void createCommunityCardsBoard() {
         communityCardsBoard = CommunityCardsBoard.createEmptyCommunityCards();
+        communityCardsBoard.setOpaque(false);
     }
 
     public HorizontalTableSide getTopSide() {
@@ -92,7 +93,7 @@ public class PokerTable {
     public void updatePlayerProperties(PlayerUpdatedEvent event) {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
         board.setChipIndicator(event.getChips());
-        board.setHandIndicator(event.getAction());
+        board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() : ""));
         //board.disableColorTransition();
         Timer timer = new Timer(3000, ae -> {
             board.setHandIndicator(Utils.EMPTY);

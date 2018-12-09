@@ -22,7 +22,7 @@ public class ReadServerMessagesTask extends SwingWorker<Void, EventsContainer> {
             Client.logger.info(WAITING_FOR_SERVER);
             eventsContainer = (EventsContainer) Client.getInstance().readMessage();
             publish(eventsContainer);
-            Thread.sleep(1500);
+            Thread.sleep(800);
         } while (true);
     }
 

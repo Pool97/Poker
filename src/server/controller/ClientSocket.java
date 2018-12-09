@@ -1,5 +1,6 @@
 package server.controller;
 
+import client.events.MatchCanStartEvent;
 import interfaces.Observer;
 import server.events.EventsContainer;
 import server.model.automa.Game;
@@ -9,21 +10,24 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 public class ClientSocket implements Runnable, Observer {
     private Socket socket;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
+    private CountDownLatch latch;
     private BlockingQueue<EventsContainer> readQueue;
     private BlockingQueue<EventsContainer> writeQueue;
 
     private final static String STREAM_CREATION_ERROR = "Errore nella creazione degli stream... ";
     private final static String STREAM_ERROR = "Errore avvenuto nello stream... ";
 
-    public ClientSocket(Socket socket, BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue){
+    public ClientSocket(Socket socket, BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue, CountDownLatch latch){
         this.socket = socket;
         this.readQueue = readQueue;
         this.writeQueue = writeQueue;
+        this.latch = latch;
         createIOStream();
     }
 
@@ -63,7 +67,15 @@ public class ClientSocket implements Runnable, Observer {
     public void run() {
         while(true){
             try {
-                writeQueue.put(readMessage());
+                EventsContainer event = readMessage();
+                if(event.lookEvent() instanceof MatchCanStartEvent) {
+                    latch.countDown();
+                    System.out.println("ENCULET");
+                }
+                else {
+                    writeQueue.put(event);
+                    System.out.println("ENCULET1");
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

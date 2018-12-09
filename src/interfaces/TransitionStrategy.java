@@ -1,5 +1,5 @@
 package interfaces;
 
-public interface TransitionStrategy {
-    void makeTransition();
+public interface TransitionStrategy<PokerState> {
+    PokerState determineTransition();
 }

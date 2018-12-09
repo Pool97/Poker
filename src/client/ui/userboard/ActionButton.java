@@ -78,6 +78,7 @@ public class ActionButton extends JButton implements MouseListener {
         if (isEnabled()) {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             opacity = .20f;
+
         }
     }
 

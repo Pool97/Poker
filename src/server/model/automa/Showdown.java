@@ -37,7 +37,7 @@ public class Showdown extends AbstractPokerState{
         while(iterator.hasNext()){
             PlayerModel player = iterator.next();
             eventsContainer.addEvent(
-                    new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname())));
+                    new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()), 0));
         }
 
         game.sendMessage(eventsContainer);

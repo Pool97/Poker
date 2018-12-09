@@ -1,6 +1,9 @@
 package server.model.gamestructure;
 
-public class NoLimit extends BettingStructure {
+import interfaces.Reachable;
+import interfaces.Reacher;
+
+public class NoLimit extends BettingStructure implements Reachable {
 
     public NoLimit(int smallBlind){
         super(smallBlind, smallBlind * 2);
@@ -11,5 +14,10 @@ public class NoLimit extends BettingStructure {
     public void increaseBlinds() {
         bigBlind *= 2;
         smallBlind = bigBlind / 2;
+    }
+
+    @Override
+    public void reach(Reacher reacher) {
+        reacher.nextState(this);
     }
 }
