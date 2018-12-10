@@ -5,72 +5,77 @@ import server.events.*;
 
 public class EventsAdapter implements EventsManager {
     @Override
-    public void process(PlayerRoundEvent event) {
+    public void process(PlayerRound event) {
 
     }
 
     @Override
-    public void process(BlindsUpdatedEvent event) {
+    public void process(BlindsUpdated event) {
 
     }
 
     @Override
-    public void process(PlayerLoggedEvent event) {
+    public void process(PlayerLogged event) {
 
     }
 
     @Override
-    public void process(PlayerUpdatedEvent event) {
+    public void process(PlayerUpdated event) {
 
     }
 
     @Override
-    public void process(PotUpdatedEvent event) {
+    public void process(PotUpdated event) {
 
     }
 
     @Override
-    public void process(RoomCreatedEvent event) {
+    public void process(RoomCreated event) {
 
     }
 
     @Override
-    public void process(CommunityUpdatedEvent event) {
+    public void process(CommunityUpdated event) {
 
     }
 
     @Override
-    public void process(TurnStartedEvent event) {
+    public void process(TurnStarted event) {
 
     }
 
     @Override
-    public void process(TurnEndedEvent event) {
+    public void process(TurnEnded event) {
 
     }
 
     @Override
-    public void process(ShowdownEvent event) {
+    public void process(Showdown event) {
 
     }
 
     @Override
-    public void process(MatchLostEvent event) {
+    public void process(MatchLost event) {
 
     }
 
     @Override
-    public void process(PlayerHasWinEvent event) {
+    public void process(PlayerHasWin event) {
 
     }
 
     @Override
-    public void process(PlayerDisconnectedEvent event) {
+    public void process(PlayerDisconnected event) {
 
     }
 
     @Override
-    public void process(ServerClosedEvent event) {
+    public void process(ServerClosed event) {
+
+    }
+
+    @Override
+    public void process(ChatMessage event) {
 
     }
 }

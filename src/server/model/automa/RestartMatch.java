@@ -1,7 +1,7 @@
 package server.model.automa;
 
-import server.events.EventsContainer;
-import server.events.ServerClosedEvent;
+import server.controller.Game;
+import server.events.ServerClosed;
 
 public class RestartMatch extends AbstractPokerState {
 
@@ -11,7 +11,7 @@ public class RestartMatch extends AbstractPokerState {
 
     @Override
     public void goNext(Game game) {
-        game.sendMessage(new EventsContainer(new ServerClosedEvent()));
+        game.sendMessage(new ServerClosed());
         game.stop();
     }
 }

@@ -1,20 +1,21 @@
 package server.model.automa.round;
 
-import client.events.ActionPerformedEvent;
-import server.events.EventsContainer;
-import server.events.PlayerRoundEvent;
+import client.events.ActionPerformed;
+import server.controller.Game;
+import server.events.PlayerRound;
+import server.events.PlayerUpdated;
+import server.events.PotUpdated;
 import server.model.PlayerModel;
 import server.model.actions.AbstractPokerAction;
 import server.model.actions.BetLimit;
 import server.model.actions.RaiseLimit;
-import server.model.automa.Game;
 import server.model.gamestructure.LimitActionGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class LimitRound extends BettingRound {
-    List<AbstractPokerAction> turnActions;
+    private List<AbstractPokerAction> turnActions;
     protected int numberOfRaiseHappened;
     protected int numberOfBetHappened;
     private int fixedLimit;
@@ -25,7 +26,7 @@ public abstract class LimitRound extends BettingRound {
     }
 
     protected void doAction(PlayerModel player, Game game) {
-        PlayerRoundEvent optionsEvent;
+        PlayerRound optionsEvent;
         int currentBet = dealer.getPotMatchingValue(player.getNickname(), game.getBigBlind());
 
         actionGenerator = new LimitActionGenerator(fixedLimit, getNumberOfRaiseBy(player.getNickname()),
@@ -33,12 +34,18 @@ public abstract class LimitRound extends BettingRound {
 
         optionsEvent = generateActions();
         optionsEvent.setPlayerNickname(player.getNickname());
+        optionsEvent.getOptions().forEach(System.out::println);
 
-        game.sendMessage(new EventsContainer(optionsEvent));
+        game.sendMessage(optionsEvent);
 
-        ActionPerformedEvent playerAction = (ActionPerformedEvent) game.readMessage(player.getNickname()).getEvent();
+        ActionPerformed playerAction = (ActionPerformed) game.readMessage(player.getNickname());
         playerAction.getAction().accept(this);
+        playerAction.getAction().setNickname(player.getNickname());
+
         dealer.collectAction(player, playerAction.getAction().getValue());
+        game.sendMessage(new PlayerUpdated(player.getNickname(), player.getChips(),
+                playerAction.getAction().getClass().getSimpleName(), playerAction.getAction().getValue()));
+        game.sendMessage(new PotUpdated(table.getPotValue()));
         turnActions.add(playerAction.getAction());
         if(table.getPlayerByName(player.getNickname()).getChips() == 0)
             player.setAllIn(true);
@@ -55,6 +62,8 @@ public abstract class LimitRound extends BettingRound {
     }
 
     public int getNumberOfRaiseBy(String nickname){
+        if(turnActions.size() == 0)
+            return 0;
         return (int)turnActions.stream().filter(action -> action.getNickname().equals(nickname))
                 .filter(action -> action instanceof RaiseLimit)
                 .count();

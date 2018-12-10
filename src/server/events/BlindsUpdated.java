@@ -11,11 +11,11 @@ import interfaces.ServerEvent;
  * @since 1.0
  */
 
-public class BlindsUpdatedEvent implements ServerEvent {
+public class BlindsUpdated implements ServerEvent {
     private int smallBlind;
     private int bigBlind;
 
-    public BlindsUpdatedEvent(int smallBlind, int bigBlind) {
+    public BlindsUpdated(int smallBlind, int bigBlind) {
         this.smallBlind = smallBlind;
         this.bigBlind = bigBlind;
     }

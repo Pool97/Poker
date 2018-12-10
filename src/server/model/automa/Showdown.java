@@ -1,10 +1,9 @@
 package server.model.automa;
 
-import server.events.EventsContainer;
-import server.events.PlayerUpdatedEvent;
-import server.events.ShowdownEvent;
+import server.algorithm.TurnWinnerEvaluator;
+import server.controller.Game;
+import server.events.PlayerUpdated;
 import server.model.PlayerModel;
-import server.model.TurnWinnerEvaluator;
 
 import java.util.ListIterator;
 
@@ -16,7 +15,6 @@ public class Showdown extends AbstractPokerState{
     @Override
     public void goNext(Game game) {
         System.out.println("ShowDown.");
-        EventsContainer eventsContainer = new EventsContainer();
         TurnWinnerEvaluator evaluator = new TurnWinnerEvaluator(table.getPlayers(), dealer.getCommunityModel());
 
         String nicknameWinner;
@@ -27,7 +25,7 @@ public class Showdown extends AbstractPokerState{
 
         } else {
             evaluator.evaluateTurnWinner();
-            eventsContainer.addEvent(new ShowdownEvent());
+            game.sendMessage(new server.events.Showdown());
             System.out.println("VINCITORI:");
             evaluator.getWinners().forEach(System.out::println);
             dealer.givePotTo(evaluator.getWinners().get(0));
@@ -36,11 +34,9 @@ public class Showdown extends AbstractPokerState{
         ListIterator<PlayerModel> iterator = table.iterator();
         while(iterator.hasNext()){
             PlayerModel player = iterator.next();
-            eventsContainer.addEvent(
-                    new PlayerUpdatedEvent(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()), 0));
+            game.sendMessage(
+                    new PlayerUpdated(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()), 0));
         }
-
-        game.sendMessage(eventsContainer);
 
         try {
             Thread.sleep(10000);

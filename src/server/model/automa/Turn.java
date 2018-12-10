@@ -1,9 +1,9 @@
 package server.model.automa;
 
 import interfaces.PokerState;
-import server.events.CommunityUpdatedEvent;
-import server.events.EventsContainer;
-import server.model.automa.round.FirstLimitRound;
+import server.controller.Game;
+import server.events.CommunityUpdated;
+import server.model.automa.round.NextLimitRound;
 import server.model.automa.round.NextNoLimitRound;
 import server.model.gamestructure.FixedLimit;
 import server.model.gamestructure.NoLimit;
@@ -16,7 +16,7 @@ public class Turn extends Street implements PokerState {
     public void goNext(Game game) {
         dealer.burnCard();
         fixedLimit = game.getBigBlind() * 2;
-        game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard())));
+        game.sendMessage(new CommunityUpdated(dealer.dealCommunityCard()));
 
         game.getBettingStructure().reach(this);
         game.setState(nextState);
@@ -37,7 +37,7 @@ public class Turn extends Street implements PokerState {
 
     @Override
     public void nextState(FixedLimit type) {
-        nextState = new FirstLimitRound(fixedLimit);
-        ((FirstLimitRound) nextState).setTransitionStrategy(River::new);
+        nextState = new NextLimitRound(fixedLimit);
+        ((NextLimitRound) nextState).setTransitionStrategy(River::new);
     }
 }

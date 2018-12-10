@@ -3,31 +3,33 @@ package interfaces;
 import server.events.*;
 
 public interface EventsManager {
-    void process(PlayerRoundEvent event);
+    void process(PlayerRound event);
 
-    void process(BlindsUpdatedEvent event);
+    void process(BlindsUpdated event);
 
-    void process(PlayerLoggedEvent event);
+    void process(PlayerLogged event);
 
-    void process(PlayerUpdatedEvent event);
+    void process(PlayerUpdated event);
 
-    void process(PotUpdatedEvent event);
+    void process(PotUpdated event);
 
-    void process(RoomCreatedEvent event);
+    void process(RoomCreated event);
 
-    void process(CommunityUpdatedEvent event);
+    void process(CommunityUpdated event);
 
-    void process(TurnStartedEvent event);
+    void process(TurnStarted event);
 
-    void process(TurnEndedEvent event);
+    void process(TurnEnded event);
 
-    void process(ShowdownEvent event);
+    void process(Showdown event);
 
-    void process(MatchLostEvent event);
+    void process(MatchLost event);
 
-    void process(PlayerHasWinEvent event);
+    void process(PlayerHasWin event);
 
-    void process(PlayerDisconnectedEvent event);
+    void process(PlayerDisconnected event);
 
-    void process(ServerClosedEvent event);
+    void process(ServerClosed event);
+
+    void process(ChatMessage event);
 }

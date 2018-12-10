@@ -1,6 +1,6 @@
 package interfaces;
 
-import server.model.automa.Game;
+import server.controller.Game;
 
 /**
  * Interfaccia che espone quali metodi deve implementare una classe che

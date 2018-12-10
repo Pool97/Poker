@@ -11,10 +11,10 @@ import interfaces.ServerEvent;
  * @since 1.0
  */
 
-public class PotUpdatedEvent implements ServerEvent {
+public class PotUpdated implements ServerEvent {
     private int pot;
 
-    public PotUpdatedEvent(int pot) {
+    public PotUpdated(int pot) {
         this.pot = pot;
     }
 

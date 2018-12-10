@@ -1,11 +1,11 @@
 package server.controller;
 
 import interfaces.Command;
-import server.events.EventsContainer;
+import interfaces.Event;
 
 public class ConcreteReadCommand implements Command {
     private ConcreteReceiver receiver;
-    private EventsContainer eventsContainer;
+    private Event eventsContainer;
 
     public ConcreteReadCommand(ConcreteReceiver receiver){
         this.receiver = receiver;
@@ -16,7 +16,7 @@ public class ConcreteReadCommand implements Command {
         eventsContainer = receiver.readMessage();
     }
 
-    public EventsContainer getMessage(){
+    public Event getMessage(){
         return eventsContainer;
     }
 }

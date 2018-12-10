@@ -1,8 +1,6 @@
 package interfaces;
 
-import server.events.EventsContainer;
-
 public interface Receiver {
-    void sendMessage(EventsContainer eventsContainer);
-    EventsContainer readMessage();
+    void sendMessage(Event eventsContainer);
+    Event readMessage();
 }

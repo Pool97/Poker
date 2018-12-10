@@ -66,6 +66,11 @@ public class GameBoard extends JPanel {
         add(bottomPart, new TableLayoutConstraints(0, 3, 0, 3, FULL, BOTTOM));
     }
 
+    public void attachChat(Chat chat){
+        bottomPart.add(chat, new GBC(0, 0, 50, 1, 1, 1, NORTHEAST, BOTH,
+                new Insets(0, 10, 30, 10)));
+    }
+
     public void attach(PokerTable pokerTable) {
         add(pokerTable.getTopSide(), new TableLayoutConstraints(0, 0, 0, 0, CENTER, CENTER));
         add(pokerTable.getBottomSide(), new TableLayoutConstraints(0, 2, 0, 2, CENTER, BOTTOM));
@@ -75,14 +80,11 @@ public class GameBoard extends JPanel {
     }
 
     public void attach(ActionBoard actionBoard, MatchBoard matchBoard) {
-        bottomPart.add(Box.createGlue(), new GBC(0, 0, 25, 1, 1, 1, NORTHEAST, BOTH,
-                new Insets(0, 10, 30, 10)));
+        bottomPart.add(actionBoard, new GBC(1, 0, 40, 1, 1, 1, GBC.CENTER,
+                VERTICAL, new Insets(0, 0, 30, 10)));
 
-        bottomPart.add(actionBoard, new GBC(1, 0, 50, 1, 1, 1, GBC.CENTER,
-                VERTICAL, new Insets(0, 10, 30, 10)));
-
-        bottomPart.add(matchBoard, new GBC(3, 0, 10, 1, 1, 1, NORTHEAST,
-                VERTICAL, new Insets(0, 10, 30, 10)));
+        bottomPart.add(matchBoard, new GBC(2, 0, 10, 1, 1, 1, NORTHEAST,
+                VERTICAL, new Insets(0, 0, 30, 10)));
     }
 
     @Override

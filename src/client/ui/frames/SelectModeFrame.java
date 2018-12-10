@@ -1,7 +1,7 @@
 package client.ui.frames;
 
 import client.ui.components.Avatar;
-import client.ui.dialogs.PlayerDialog;
+import client.ui.dialogs.PokerDialog;
 import client.ui.userboard.ActionButton;
 import server.controller.ServerManager;
 
@@ -19,7 +19,7 @@ public class SelectModeFrame extends JFrame {
     private void createGUI(Avatar avatar) {
 
         JPanel container = new JPanel();
-
+        setTitle("Seleziona la modalità");
         container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
         container.setBackground(new Color(178, 39, 60));
         container.add(Box.createHorizontalGlue());
@@ -29,7 +29,7 @@ public class SelectModeFrame extends JFrame {
         noLimitMode.addActionListener(event -> {
             new Thread(new ServerManager()).start();
             dispose();
-            PlayerDialog dialog = new PlayerDialog(avatar, false);
+            PokerDialog dialog = new PokerDialog(avatar, false);
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
@@ -42,7 +42,7 @@ public class SelectModeFrame extends JFrame {
         fixedLimitMode.addActionListener(event -> {
             new Thread(new ServerManager()).start();
             dispose();
-            PlayerDialog dialog = new PlayerDialog(avatar, true);
+            PokerDialog dialog = new PokerDialog(avatar, true);
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);

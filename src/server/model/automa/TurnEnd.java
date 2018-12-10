@@ -1,9 +1,9 @@
 package server.model.automa;
 
-import server.events.EventsContainer;
-import server.events.MatchLostEvent;
-import server.events.PotUpdatedEvent;
-import server.events.TurnEndedEvent;
+import server.controller.Game;
+import server.events.MatchLost;
+import server.events.PotUpdated;
+import server.events.TurnEnded;
 import server.model.PlayerModel;
 
 import java.util.ListIterator;
@@ -18,8 +18,7 @@ public class TurnEnd extends AbstractPokerState{
     public void goNext(Game game) {
         System.out.println("TurnEnd.");
 
-        EventsContainer eventsContainer = new EventsContainer();
-        eventsContainer.addEvent(new PotUpdatedEvent(dealer.getPotValue()));
+        game.sendMessage(new PotUpdated(dealer.getPotValue()));
 
         ListIterator<PlayerModel> iterator = table.iterator();
         PlayerModel player;
@@ -28,14 +27,12 @@ public class TurnEnd extends AbstractPokerState{
             player.giveBackCards();
             if(player.getChips() <= 0) {
                 player.setLost(true);
-                eventsContainer.addEvent(new MatchLostEvent(player.getNickname(), table.currentNumberOfPlayers() + 1, player.isCreator()));
+               game.sendMessage(new MatchLost(player.getNickname(), table.currentNumberOfPlayers() + 1, player.isCreator()));
             }
             player.setFolded(false);
         }
 
-        eventsContainer.addEvent(new TurnEndedEvent());
-
-        game.sendMessage(eventsContainer);
+        game.sendMessage(new TurnEnded());
 
         try {
             TimeUnit.SECONDS.sleep(1);

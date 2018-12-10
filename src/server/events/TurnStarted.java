@@ -5,13 +5,13 @@ import interfaces.ServerEvent;
 
 import java.util.ArrayList;
 
-public class TurnStartedEvent implements ServerEvent {
+public class TurnStarted implements ServerEvent {
     private String nickname;
     private String turnPosition;
     private boolean cardsCovered;
     private ArrayList<String> frontImageCards;
 
-    public TurnStartedEvent(String nickname, String turnPosition) {
+    public TurnStarted(String nickname, String turnPosition) {
         this.nickname = nickname;
         this.turnPosition = turnPosition;
         this.frontImageCards = new ArrayList<>();

@@ -1,11 +1,9 @@
-package server.model.automa;
+package server.controller;
 
+import interfaces.Event;
 import interfaces.PokerState;
-import server.controller.ConcreteReadCommand;
-import server.controller.ConcreteReceiver;
-import server.controller.ConcreteSendCommand;
-import server.events.EventsContainer;
 import server.model.Table;
+import server.model.automa.StartGame;
 import server.model.gamestructure.BettingStructure;
 import server.model.gamestructure.GameType;
 
@@ -89,12 +87,12 @@ public class Game implements Runnable{
         countDownLatch.countDown();
     }
 
-    public void sendMessage(EventsContainer eventsContainer){
+    public void sendMessage(Event eventsContainer){
         for(ConcreteReceiver receiver : receivers)
             new ConcreteSendCommand(receiver, eventsContainer).execute();
     }
 
-    public EventsContainer readMessage(String nickname){
+    public Event readMessage(String nickname){
         ConcreteReceiver receiver = receivers.stream().filter(rec -> rec.getNickname().equals(nickname)).findFirst().get();
         ConcreteReadCommand readCommand = new ConcreteReadCommand(receiver);
         readCommand.execute();

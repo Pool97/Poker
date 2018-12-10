@@ -13,11 +13,11 @@ import java.io.Serializable;
  * @since 1.0
  */
 
-public class PlayerConnectedEvent implements ClientEvent, Serializable {
+public class PlayerConnected implements ClientEvent, Serializable {
     private String nickname;
     private String avatar;
 
-    public PlayerConnectedEvent(String nickname, String avatar) {
+    public PlayerConnected(String nickname, String avatar) {
         this.nickname = nickname;
         this.avatar = avatar;
     }

@@ -7,15 +7,15 @@ import interfaces.ServerEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PlayerRoundEvent implements Serializable, ServerEvent {
+public class PlayerRound implements Serializable, ServerEvent {
     private String player;
     private ArrayList<PokerAction> optionsAvailable;
 
-    public PlayerRoundEvent(){
+    public PlayerRound(){
         optionsAvailable = new ArrayList<>();
     }
 
-    public PlayerRoundEvent(String player) {
+    public PlayerRound(String player) {
         this.player = player;
         optionsAvailable = new ArrayList<>();
     }

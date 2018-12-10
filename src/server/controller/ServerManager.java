@@ -1,13 +1,12 @@
 package server.controller;
 
-import client.events.MatchModeEvent;
-import client.events.PlayerConnectedEvent;
-import server.events.EventsContainer;
-import server.events.PlayerLoggedEvent;
+import client.events.MatchMode;
+import client.events.PlayerConnected;
+import interfaces.Event;
+import server.events.PlayerLogged;
 import server.model.Dealer;
 import server.model.PlayerModel;
 import server.model.Table;
-import server.model.automa.Game;
 import server.model.gamestructure.FixedLimit;
 import server.model.gamestructure.NoLimit;
 import server.model.gamestructure.Tournament;
@@ -83,8 +82,8 @@ public class ServerManager implements Runnable {
     }
 
     private void handleClient(Socket socket){
-        BlockingQueue<EventsContainer> queue1 = new ArrayBlockingQueue<>(20);
-        BlockingQueue<EventsContainer> queue2 = new ArrayBlockingQueue<>(20);
+        BlockingQueue<Event> queue1 = new ArrayBlockingQueue<>(20);
+        BlockingQueue<Event> queue2 = new ArrayBlockingQueue<>(20);
 
         ClientSocket client = new ClientSocket(socket, queue1, queue2, latch);
 
@@ -98,8 +97,8 @@ public class ServerManager implements Runnable {
 
         if(table.size() == 1){
             try {
-                EventsContainer event = queue2.take();
-                MatchModeEvent matchMode = (MatchModeEvent) event.getEvent();
+                Event event = queue2.take();
+                MatchMode matchMode = (MatchMode) event;
                 game.setBettingStructure(matchMode.isFixedLimit() ? new FixedLimit(10) : new NoLimit(20));
                 game.setGameType(new Tournament(game.getSmallBlind()));
             } catch (InterruptedException e) {
@@ -114,15 +113,15 @@ public class ServerManager implements Runnable {
         receiver.register(client);
     }
 
-    private void initializePlayerModel(PlayerModel model, BlockingQueue<EventsContainer> queue2){
-        EventsContainer newPlayerConnected = null;
+    private void initializePlayerModel(PlayerModel model, BlockingQueue<Event> queue2){
+        Event newPlayerConnected = null;
         try {
             newPlayerConnected = queue2.take();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        PlayerConnectedEvent event = (PlayerConnectedEvent) newPlayerConnected.getEvent();
+        PlayerConnected event = (PlayerConnected) newPlayerConnected;
 
         logger.info(PLAYER_ADDED + event.getNickname());
 
@@ -132,14 +131,13 @@ public class ServerManager implements Runnable {
     }
 
     private void updateLobbyList(){
-        EventsContainer playersListEvent = new EventsContainer();
         ListIterator<PlayerModel> iterator = table.iterator();
         PlayerModel player;
         while(iterator.hasNext()){
             player = iterator.next();
-            playersListEvent.addEvent(new PlayerLoggedEvent(player.getNickname(), player.getAvatar()));
+            game.sendMessage(new PlayerLogged(player.getNickname(), player.getAvatar()));
         }
-        game.sendMessage(playersListEvent);
+
     }
 }
 

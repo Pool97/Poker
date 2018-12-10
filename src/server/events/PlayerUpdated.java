@@ -12,13 +12,13 @@ import interfaces.ServerEvent;
  * @since 1.0
  */
 
-public class PlayerUpdatedEvent implements ServerEvent {
+public class PlayerUpdated implements ServerEvent {
     private String nickname;
     private int chips;
     private String action;
     private int value;
 
-    public PlayerUpdatedEvent(String nickname, int chips, String action, int value) {
+    public PlayerUpdated(String nickname, int chips, String action, int value) {
         this.nickname = nickname;
         this.chips = chips;
         this.action = action;

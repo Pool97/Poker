@@ -4,10 +4,10 @@ import client.events.EventsAdapter;
 import client.ui.components.Avatar;
 import client.ui.frames.BoardFrame;
 import client.ui.frames.Lobby;
+import interfaces.Event;
 import interfaces.ServerEvent;
-import server.events.EventsContainer;
-import server.events.PlayerLoggedEvent;
-import server.events.RoomCreatedEvent;
+import server.events.PlayerLogged;
+import server.events.RoomCreated;
 import utils.Utils;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateLobbyListTask extends SwingWorker<Void, EventsContainer> {
+public class UpdateLobbyListTask extends SwingWorker<Void, Event> {
     private final static String WAITING = "In attesa della creazione della stanza...";
     private EventsProcessor processor;
     private Lobby frame;
@@ -28,11 +28,11 @@ public class UpdateLobbyListTask extends SwingWorker<Void, EventsContainer> {
     @SuppressWarnings("unchecked")
     @Override
     protected Void doInBackground(){
-        EventsContainer messageObject;
+        Event messageObject;
         do {
             Client.logger.info(WAITING);
             try {
-                messageObject = (EventsContainer) Client.getInstance().readMessage();
+                messageObject = (Event)Client.getInstance().readMessage();
                 publish(messageObject);
                 Thread.sleep(500);
 
@@ -44,9 +44,9 @@ public class UpdateLobbyListTask extends SwingWorker<Void, EventsContainer> {
     }
 
     @Override
-    protected void process(List<EventsContainer> chunks) {
-        EventsContainer eventsContainer = chunks.get(0);
-        eventsContainer.getEvents().forEach(event -> ((ServerEvent) event).accept(processor));
+    protected void process(List<Event> chunks) {
+        Event eventsContainer = chunks.get(0);
+        ((ServerEvent)eventsContainer).accept(processor);
         frame.validate();
     }
 
@@ -68,7 +68,7 @@ class EventsProcessor extends EventsAdapter {
     }
 
     @Override
-    public void process(PlayerLoggedEvent event) {
+    public void process(PlayerLogged event) {
         if (!playerLogged.contains(event.getNickname())) {
             playerLogged.add(event.getNickname());
             JPanel tuple = new JPanel();
@@ -78,8 +78,9 @@ class EventsProcessor extends EventsAdapter {
             tuple.setOpaque(false);
             Avatar avatar = new Avatar(event.getAvatar());
             avatar.setMinimumSize(true);
+            avatar.setAlignmentX(Component.LEFT_ALIGNMENT);
             tuple.add(avatar);
-            JLabel nickname = new JLabel(event.getNickname(), SwingConstants.LEFT);
+            JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
             nickname.setFont(new Font("helvetica", Font.BOLD, 25));
             nickname.setForeground(Color.WHITE);
             tuple.add(nickname);
@@ -89,7 +90,7 @@ class EventsProcessor extends EventsAdapter {
     }
 
     @Override
-    public void process(RoomCreatedEvent event) {
+    public void process(RoomCreated event) {
         isRoomCreated = true;
     }
 

@@ -2,7 +2,7 @@ package server.model.automa.round;
 
 import interfaces.ActionGenerator;
 import interfaces.ActionManager;
-import server.events.PlayerRoundEvent;
+import server.events.PlayerRound;
 import server.model.actions.*;
 import server.model.automa.AbstractPokerState;
 
@@ -69,8 +69,8 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     protected abstract boolean roundFinished(int cursor);
 
-    protected PlayerRoundEvent generateActions(){
-        PlayerRoundEvent actions = new PlayerRoundEvent();
+    protected PlayerRound generateActions(){
+        PlayerRound actions = new PlayerRound();
         actions.addOption(actionGenerator.retrieveCall());
         actions.addOption(actionGenerator.retrieveCheck());
         actions.addOption(actionGenerator.retrieveFold());

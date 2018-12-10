@@ -1,14 +1,13 @@
 package server.model.automa;
 
-import server.events.BlindsUpdatedEvent;
-import server.events.EventsContainer;
-import server.events.PlayerHasWinEvent;
-import server.events.TurnStartedEvent;
+import server.controller.Game;
+import server.events.BlindsUpdated;
+import server.events.PlayerHasWin;
+import server.events.TurnStarted;
 import server.model.PlayerModel;
 import server.model.Position;
 import server.model.cards.CardModel;
 
-import java.util.ArrayList;
 import java.util.ListIterator;
 
 public class StartTurn extends AbstractPokerState {
@@ -26,28 +25,26 @@ public class StartTurn extends AbstractPokerState {
 
         if (table.hasWinner()) {
 
-            game.sendMessage(new EventsContainer(new PlayerHasWinEvent(table.getWinner())));
+            game.sendMessage(new PlayerHasWin(table.getWinner()));
             game.setState(new RestartMatch());
 
         } else {
 
             dealer.shuffleCards();
             game.increaseBlinds();
-            game.sendMessage(new EventsContainer(new BlindsUpdatedEvent(game.getSmallBlind(), game.getBigBlind())));
+            game.sendMessage(new BlindsUpdated(game.getSmallBlind(), game.getBigBlind()));
 
             table.removeDisconnectedPlayers();
             table.translatePositions();
 
             for(PlayerModel player : table) player.receiveCards(dealer.dealCard(), dealer.dealCard());
-
-            game.sendMessage(prepareTurnStartedEvents());
+            prepareTurnStartedEvents(game);
 
             game.setState(new ForcedBets());
         }
     }
 
-    private EventsContainer prepareTurnStartedEvents() {
-        ArrayList<TurnStartedEvent> events = new ArrayList<>();
+    private void prepareTurnStartedEvents(Game game) {
         String position = "";
 
         ListIterator<PlayerModel> iterator = table.iterator();
@@ -57,12 +54,10 @@ public class StartTurn extends AbstractPokerState {
             if(iterator.previousIndex() == 0 || iterator.previousIndex() == 1 || iterator.previousIndex() == table.size() - 1)
                 position = Position.values()[iterator.previousIndex()].name();
 
-            TurnStartedEvent event = new TurnStartedEvent(player.getNickname(), position);
+            TurnStarted event = new TurnStarted(player.getNickname(), position);
             player.getCards().stream().map(CardModel::getImageDirectoryPath).forEach(event::addCardPath);
-            events.add(event);
+            game.sendMessage(event);
             position = "";
         }
-
-        return new EventsContainer(events);
     }
 }

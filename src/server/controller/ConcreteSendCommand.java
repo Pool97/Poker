@@ -1,13 +1,13 @@
 package server.controller;
 
 import interfaces.Command;
-import server.events.EventsContainer;
+import interfaces.Event;
 
 public class ConcreteSendCommand implements Command {
     private ConcreteReceiver receiver;
-    private EventsContainer message;
+    private Event message;
 
-    public ConcreteSendCommand(ConcreteReceiver receiver, EventsContainer message){
+    public ConcreteSendCommand(ConcreteReceiver receiver, Event message){
         this.receiver = receiver;
         this.message = message;
 

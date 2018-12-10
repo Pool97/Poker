@@ -1,6 +1,6 @@
-package server.model;
+package server.algorithm;
 
-import server.algorithm.PokerHandsEvaluator;
+import server.model.PlayerModel;
 import server.model.cards.CardModel;
 import server.model.cards.CommunityModel;
 import utils.Utils;
@@ -314,12 +314,13 @@ public class TurnWinnerEvaluator {
                 System.out.print(index.size()+ " SPLIT BETWEEN ");
                 for(int ind : index){
                     System.out.print(playersByName.get(ind)+" ");
-                    winners.add(players.get(ind).getNickname());
+                    winners.add(playersByName.get(ind));
                 }
             }
             System.out.println("\nPAREGGIO");
         }else{
-            winners.add(players.get(0).getNickname());
+            System.out.println("VINCITORE: " + playersByName.get(tmpWinnerIndex));
+            winners.add(playersByName.get(tmpWinnerIndex));
             System.out.println("VINCITORE");
         }
     }

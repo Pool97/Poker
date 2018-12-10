@@ -2,10 +2,10 @@ package client.events;
 
 import interfaces.ClientEvent;
 
-public class MatchModeEvent implements ClientEvent {
+public class MatchMode implements ClientEvent {
     private boolean fixedLimit;
 
-    public MatchModeEvent(boolean fixedLimit){
+    public MatchMode(boolean fixedLimit){
         this.fixedLimit = fixedLimit;
     }
 

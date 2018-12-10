@@ -6,10 +6,10 @@ import server.model.cards.CardModel;
 
 import java.util.Stack;
 
-public class CommunityUpdatedEvent implements ServerEvent {
+public class CommunityUpdated implements ServerEvent {
     private Stack<CardModel> communityCards;
 
-    public CommunityUpdatedEvent(CardModel... cards) {
+    public CommunityUpdated(CardModel... cards) {
         communityCards = new Stack<>();
         for (CardModel card : cards)
             communityCards.push(card);

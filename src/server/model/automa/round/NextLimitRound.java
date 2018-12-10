@@ -1,26 +1,25 @@
 package server.model.automa.round;
 
+import interfaces.PokerState;
+import interfaces.TransitionStrategy;
 import server.controller.Game;
 import server.model.PlayerModel;
 import server.model.Position;
-import server.model.automa.Flop;
 import server.model.automa.Showdown;
 
-import java.util.AbstractMap;
 import java.util.ListIterator;
 
-public class FirstNoLimitRound extends NoLimitRound {
-    private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
-    private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
-    private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
+public class NextLimitRound extends LimitRound {
+    private int roundNumber;
+    private TransitionStrategy<PokerState> strategy;
+
+    public NextLimitRound(int betAndRaiseValue){
+        super(betAndRaiseValue);
+    }
 
     @Override
     public void goNext(Game game) {
-        Game.logger.info(START_ACTIONS);
-        int nextPosition = (Position.BB.ordinal() + 1) % table.size();
-
-        dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(
-                table.iterator(Position.SB.ordinal()).next().getNickname(), game.getBigBlind()));
+        int nextPosition = Position.SB.ordinal();
 
         ListIterator<PlayerModel> iterator = nextPosition == 0 ? table.iterator() : table.iterator(Position.BB.ordinal());
         PlayerModel player;
@@ -38,22 +37,26 @@ public class FirstNoLimitRound extends NoLimitRound {
             if(!iterator.hasNext()){
                 iterator = table.iterator();
                 nextPosition = Position.SB.ordinal();
+                roundNumber++;
             }
 
         }
 
         if (table.countPlayersInGame() == 1) {
-            Game.logger.info(ONE_PLAYER_ONLY);
             game.setState(new Showdown());
         } else if ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) || isMatched() || table.isAllPlayersAllIn()) {
-            game.setState(new Flop());
+            game.setState(strategy.determineTransition());
         }
     }
 
+    public void setTransitionStrategy(TransitionStrategy<PokerState> strategy) {
+        this.strategy = strategy;
+    }
+
+
+    @Override
     protected boolean roundFinished(int cursor) {
-        return (cursor == Position.SB.ordinal() && isMatched())
-                || (cursor != Position.SB.ordinal()) && (table.countPlayersInGame() == 1 ||
-                ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer())
-                || table.isAllPlayersAllIn());
+        return (cursor == Position.SB.ordinal() && ((isMatched() && roundNumber >= 1) || table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn()))
+                || (cursor != Position.SB.ordinal()) && (table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn());
     }
 }

@@ -1,23 +1,22 @@
 package server.model.automa.round;
 
-import client.events.ActionPerformedEvent;
-import server.events.EventsContainer;
-import server.events.PlayerRoundEvent;
-import server.events.PlayerUpdatedEvent;
-import server.events.PotUpdatedEvent;
+import client.events.ActionPerformed;
+import server.controller.Game;
+import server.events.PlayerRound;
+import server.events.PlayerUpdated;
+import server.events.PotUpdated;
 import server.model.PlayerModel;
 import server.model.actions.AllIn;
 import server.model.actions.BetNoLimit;
 import server.model.actions.Fold;
 import server.model.actions.RaiseNoLimit;
-import server.model.automa.Game;
 import server.model.gamestructure.NoLimitActionGenerator;
 
 import java.util.AbstractMap;
 
 public abstract class NoLimitRound extends BettingRound {
     private PlayerModel actualPlayer;
-    private ActionPerformedEvent action;
+    private ActionPerformed action;
     private int currentBet;
 
     protected void doAction(PlayerModel player, Game game) {
@@ -27,18 +26,19 @@ public abstract class NoLimitRound extends BettingRound {
         actionGenerator = new NoLimitActionGenerator(dealer.getMinimumLegalRaise(), player,
                 currentBet);
 
-        PlayerRoundEvent optionsEvent = generateActions();
+        PlayerRound optionsEvent = generateActions();
         optionsEvent.setPlayerNickname(player.getNickname());
 
-        game.sendMessage(new EventsContainer(optionsEvent));
+        game.sendMessage(optionsEvent);
 
-        action = (ActionPerformedEvent) game.readMessage(player.getNickname()).getEvent();
+        action = (ActionPerformed) game.readMessage(player.getNickname());
 
         dealer.collectAction(player, action.getAction().getValue());
         action.getAction().accept(this);
 
-        game.sendMessage(new EventsContainer(new PlayerUpdatedEvent(actualPlayer.getNickname(), actualPlayer.getChips(),
-                action.getAction().getClass().getSimpleName(), action.getAction().getValue()), new PotUpdatedEvent(table.getPotValue())));
+        game.sendMessage(new PlayerUpdated(actualPlayer.getNickname(), actualPlayer.getChips(),
+                action.getAction().getClass().getSimpleName(), action.getAction().getValue()));
+        game.sendMessage(new PotUpdated(table.getPotValue()));
 
         if(table.getPlayerByName(player.getNickname()).getChips() == 0)
             player.setAllIn(true);

@@ -3,7 +3,6 @@ package client.events;
 import client.net.Client;
 import client.ui.userboard.ActionBoard;
 import interfaces.ActionManager;
-import server.events.EventsContainer;
 import server.model.actions.*;
 
 public class ConcreteActionManager implements ActionManager {
@@ -18,7 +17,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setCallEnabled(true);
         actionBoard.setCallText(" " + call.getValue() + "$");
         actionBoard.addCallListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(call)));
+            Client.getInstance().writeMessage(new ActionPerformed(call));
             actionBoard.setCallText("");
             actionBoard.repaint();
             actionBoard.validate();
@@ -29,10 +28,10 @@ public class ConcreteActionManager implements ActionManager {
 
     @Override
     public void process(RaiseNoLimit raiseNoLimitOption) {
-        actionBoard.setRaiseText("RAISE");
+        actionBoard.setRaiseText("");
         actionBoard.setMinSlider(raiseNoLimitOption.getValue());
         actionBoard.addRaiseListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new RaiseNoLimit(actionBoard.getSliderValue()))));
+            Client.getInstance().writeMessage(new ActionPerformed(new RaiseNoLimit(actionBoard.getSliderValue())));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
         });
@@ -43,7 +42,7 @@ public class ConcreteActionManager implements ActionManager {
     public void process(Fold fold) {
         actionBoard.setFoldEnabled(true);
         actionBoard.addFoldListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(fold)));
+            Client.getInstance().writeMessage(new ActionPerformed(fold));
             actionBoard.setActionButtonsEnabled(false);
             actionBoard.setCallText("");
         });
@@ -53,7 +52,7 @@ public class ConcreteActionManager implements ActionManager {
     public void process(Check check) {
         actionBoard.setCheckEnabled(true);
         actionBoard.addCheckListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new Check())));
+            Client.getInstance().writeMessage(new ActionPerformed(new Check()));
             actionBoard.setActionButtonsEnabled(false);
         });
     }
@@ -63,16 +62,15 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setBetText(Integer.toString(betNoLimit.getValue()));
         actionBoard.setMinSlider(betNoLimit.getValue());
         actionBoard.addRaiseListener(eventG -> {
-            Client.getInstance().writeMessage(new EventsContainer(new ActionPerformedEvent(new BetNoLimit(actionBoard.getSliderValue()))));
+            Client.getInstance().writeMessage(new ActionPerformed(new BetNoLimit(actionBoard.getSliderValue())));
             actionBoard.setCallText("");
             actionBoard.setActionButtonsEnabled(false);
-            actionBoard.setRaiseText("BET");
+            actionBoard.setRaiseText("");
         });
     }
 
     @Override
     public void process(AllIn allin) {
-        System.out.println("PROVA ALL IN LATO CLIENT");
         actionBoard.setMaxSlider(allin.getValue());
         actionBoard.refreshSlider();
         actionBoard.setRaiseEnabled(true);
@@ -80,12 +78,26 @@ public class ConcreteActionManager implements ActionManager {
 
     @Override
     public void process(RaiseLimit raiseLimit) {
-
+        actionBoard.setRaiseText(Integer.toString(raiseLimit.getValue()));
+        actionBoard.setRaiseEnabled(true);
+        actionBoard.setRaiseSliderEnabled(false);
+        actionBoard.addRaiseListener(eventG -> {
+            Client.getInstance().writeMessage(new ActionPerformed(new RaiseLimit(raiseLimit.getValue())));
+            actionBoard.setCallText("");
+            actionBoard.setActionButtonsEnabled(false);
+        });
     }
 
     @Override
     public void process(BetLimit betLimit) {
-
+        actionBoard.setBetText(Integer.toString(betLimit.getValue()));
+        actionBoard.setRaiseEnabled(true);
+        actionBoard.setRaiseSliderEnabled(false);
+        actionBoard.addRaiseListener(eventG -> {
+            Client.getInstance().writeMessage(new ActionPerformed(new BetLimit(betLimit.getValue())));
+            actionBoard.setCallText("");
+            actionBoard.setActionButtonsEnabled(false);
+        });
     }
 
     @Override

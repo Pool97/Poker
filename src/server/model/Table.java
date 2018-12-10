@@ -120,8 +120,6 @@ public class Table implements Iterable<PlayerModel> {
         Collections.rotate(players, 1);
     }
 
-
-
     @Override
     public ListIterator<PlayerModel> iterator() {
         return new TableIterator();

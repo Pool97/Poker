@@ -19,13 +19,9 @@ public class ActionBoard extends BorderPanel {
     private final static String FOLD_TEXT = "FOLD";
     private final static int INSET = 20;
     private final static int WEIGHT = 33;
-    private final static int START_PADDING = 6;
-    private final static int END_PADDING = 6;
-    private final static int ARC_SIZE = 30;
-    private final static float STROKE_WIDTH = 6.0F;
     private ActionButton call;
     private ActionButton check;
-    private ActionButton raise;
+    private ActionButton raiseAndBet;
     private ActionButton fold;
     private RaiseSlider raiseSlider;
 
@@ -64,7 +60,7 @@ public class ActionBoard extends BorderPanel {
     }
 
     private void createRaise() {
-        raise = new ActionButton(RAISE_TEXT, Color.ORANGE);
+        raiseAndBet = new ActionButton(RAISE_TEXT, Color.ORANGE);
     }
 
     private void createFold() {
@@ -72,7 +68,7 @@ public class ActionBoard extends BorderPanel {
     }
 
     private void attachRaise() {
-        add(raise, new GBC(2, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
+        add(raiseAndBet, new GBC(2, 0, WEIGHT, 1, 1, 1, CENTER, HORIZONTAL,
                 new Insets(15, INSET, INSET, INSET)));
     }
 
@@ -115,9 +111,9 @@ public class ActionBoard extends BorderPanel {
     }
 
     public void addRaiseListener(ActionListener listener) {
-        if (raise.getActionListeners().length > 0)
-            raise.removeActionListener(raise.getActionListeners()[0]);
-        raise.addActionListener(listener);
+        if (raiseAndBet.getActionListeners().length > 0)
+            raiseAndBet.removeActionListener(raiseAndBet.getActionListeners()[0]);
+        raiseAndBet.addActionListener(listener);
     }
 
     public void addFoldListener(ActionListener listener) {
@@ -140,18 +136,25 @@ public class ActionBoard extends BorderPanel {
         raiseSlider.regenerateSlider();
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2D = (Graphics2D) g;
+
+        g2D.setColor(new Color(171, 39, 60));
+        //Draws the rounded opaque panel with borders.
+        g2D.fillRoundRect(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
+                getHeight() - shadowGap - strokeSize, arcs.width, arcs.height);
+    }
 
     @Override
     protected void drawBackground(Graphics2D g2D) {
-        g2D.setColor(new Color(171, 39, 60));
-        g2D.fillRoundRect(START_PADDING + 3, START_PADDING + 3, getWidth() - END_PADDING - 4, getHeight() - END_PADDING - 10, ARC_SIZE, ARC_SIZE);
+
     }
 
     @Override
     protected void drawBorder(Graphics2D g2D, Color color) {
-        g2D.setStroke(new BasicStroke(STROKE_WIDTH));
-        g2D.setColor(color);
-        g2D.drawRoundRect(START_PADDING, START_PADDING, getWidth() - END_PADDING - 4, getHeight() - END_PADDING - 4, ARC_SIZE, ARC_SIZE);
+
     }
 
     public void setCallText(String text) {
@@ -159,11 +162,11 @@ public class ActionBoard extends BorderPanel {
     }
 
     public void setRaiseText(String text) {
-        raise.setText(text);
+        raiseAndBet.setText(RAISE_TEXT + " $" + text);
     }
 
     public void setBetText(String text) {
-        raise.setText(BET_TEXT + text);
+        raiseAndBet.setText(BET_TEXT + " $" + text);
     }
     public void setCallEnabled(boolean enable) {
         call.setEnabled(enable);
@@ -174,11 +177,15 @@ public class ActionBoard extends BorderPanel {
     }
 
     public void setRaiseEnabled(boolean enable) {
-        raise.setEnabled(enable);
+        raiseAndBet.setEnabled(enable);
     }
 
     public void setFoldEnabled(boolean enable) {
         fold.setEnabled(enable);
+    }
+
+    public void setRaiseSliderEnabled(boolean enable){
+        raiseSlider.setEnabled(enable);
     }
 
     public void setActionButtonsEnabled(boolean enable) {

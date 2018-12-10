@@ -1,14 +1,13 @@
 package server.model.automa;
 
-import server.events.EventsContainer;
-import server.events.PlayerLoggedEvent;
-import server.events.RoomCreatedEvent;
+import server.controller.Game;
+import server.events.PlayerLogged;
+import server.events.RoomCreated;
 import server.model.Dealer;
 import server.model.PlayerModel;
 import server.model.Position;
 import server.model.Table;
 
-import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
 
@@ -28,8 +27,8 @@ public class StartGame extends AbstractPokerState {
 
         configureRoom();
 
-        game.sendMessage(new EventsContainer(new RoomCreatedEvent()));
-        game.sendMessage(preparePlayersLoggedEvents());
+        game.sendMessage(new RoomCreated());
+        preparePlayersLoggedEvents(game);
 
         Game.logger.info(START_MATCH);
 
@@ -47,8 +46,7 @@ public class StartGame extends AbstractPokerState {
         table.translatePositions();
     }
 
-    private EventsContainer preparePlayersLoggedEvents() {
-        ArrayList<PlayerLoggedEvent> loggedEvents = new ArrayList<>();
+    private void preparePlayersLoggedEvents(Game game) {
         String position = "";
 
         ListIterator<PlayerModel> iterator = table.iterator();
@@ -58,11 +56,10 @@ public class StartGame extends AbstractPokerState {
             if(iterator.previousIndex() == Position.SB.ordinal() || iterator.previousIndex() == Position.BB.ordinal()
                     || iterator.previousIndex() == table.size() - 1)
                 position = Position.values()[iterator.previousIndex()].name();
-            loggedEvents.add(new PlayerLoggedEvent(player.getNickname(), player.getAvatar(), position,
+            game.sendMessage(new PlayerLogged(player.getNickname(), player.getAvatar(), position,
                     player.getChips()));
             position = "";
         }
-        return new EventsContainer(loggedEvents);
     }
 
 }

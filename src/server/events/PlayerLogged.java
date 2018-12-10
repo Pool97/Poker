@@ -3,20 +3,20 @@ package server.events;
 import interfaces.EventsManager;
 import interfaces.ServerEvent;
 
-public class PlayerLoggedEvent implements ServerEvent {
+public class PlayerLogged implements ServerEvent {
     private String nickname;
     private String avatar;
     private String position;
     private int chips;
 
-    public PlayerLoggedEvent(String nickname, String avatar, String position, int chips) {
+    public PlayerLogged(String nickname, String avatar, String position, int chips) {
         this.nickname = nickname;
         this.avatar = avatar;
         this.position = position;
         this.chips = chips;
     }
 
-    public PlayerLoggedEvent(String nickname, String avatar) {
+    public PlayerLogged(String nickname, String avatar) {
         this.nickname = nickname;
         this.avatar = avatar;
     }

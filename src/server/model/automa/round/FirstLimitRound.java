@@ -2,9 +2,9 @@ package server.model.automa.round;
 
 import interfaces.PokerState;
 import interfaces.TransitionStrategy;
+import server.controller.Game;
 import server.model.PlayerModel;
 import server.model.Position;
-import server.model.automa.Game;
 import server.model.automa.Showdown;
 
 import java.util.ListIterator;

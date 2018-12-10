@@ -1,9 +1,8 @@
 package client.ui.frames;
 
-import client.events.MatchCanStartEvent;
+import client.events.MatchCanStart;
 import client.net.Client;
 import client.net.UpdateLobbyListTask;
-import server.events.EventsContainer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +30,6 @@ public class Lobby extends JFrame{
         playersList.setAlignmentX(Component.CENTER_ALIGNMENT);
         playersList.add(Box.createVerticalStrut(10));
         playersList.setLayout(new BoxLayout(playersList, BoxLayout.Y_AXIS));
-
         JPanel south = new JPanel();
         south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
         JLabel hostInfo = new JLabel("Server IP: " + ipAddress, SwingConstants.CENTER);
@@ -46,7 +44,7 @@ public class Lobby extends JFrame{
         container.add(Box.createVerticalStrut(20));
 
         JButton startGame = new JButton("START");
-        startGame.addActionListener(event -> Client.getInstance().writeMessage(new EventsContainer(new MatchCanStartEvent())));
+        startGame.addActionListener(event -> Client.getInstance().writeMessage(new MatchCanStart()));
 
         south.add(startGame);
         south.add(hostInfo);

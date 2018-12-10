@@ -53,7 +53,11 @@ public class CommunityCardsBoard extends JPanel {
     }
 
     private void createPlate() {
-        pot = new PotLabel(NAMEPLATE, CENTER);
+        pot = new PotLabel(CENTER);
+    }
+
+    public void updatePotValue(int value){
+        pot.appendPotValue(value);
     }
 
     private void setPlateProperties() {
@@ -78,12 +82,14 @@ public class CommunityCardsBoard extends JPanel {
         g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
         g2D.setColor(new Color(0,70 , 20));
         Paint oldPaint = g2D.getPaint();
-        LinearGradientPaint gradient = new LinearGradientPaint(0, 0, getWidth(), getHeight(),
+        LinearGradientPaint gradient = new LinearGradientPaint(0, 0, getWidth() - 4, getHeight() - 6,
                 new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(0,70 , 20), new Color(0, 90, 20), new Color(0, 70, 20)});
-        g2D.setPaint(gradient);
-        //g2D.setStroke(new BasicStroke(2));
 
-        g2D.fillRoundRect(0,0, getWidth(), getHeight(), 60, 60);
+        g2D.setColor(new Color(0, 60, 5));
+        g2D.fillRoundRect(2,2, getWidth() - 2, getHeight() - 4, 60, 60);
+        g2D.setPaint(gradient);
+        g2D.fillRoundRect(4,4, getWidth() - 6, getHeight() - 8, 60, 60);
+
         g2D.setPaint(oldPaint);
 
     }
@@ -102,11 +108,17 @@ public class CommunityCardsBoard extends JPanel {
         add(cardsContainer);
     }
 
-    private void createCards() {
+    public void createCards() {
         IntStream.range(0, 5).forEach($ -> cards.add(Card.createEmptyCard()));
+
     }
 
-    private void attachCards() {
+    public void removeCards(){
+        cards.forEach(card -> cardsContainer.remove(card));
+        cards.clear();
+    }
+
+    public void attachCards() {
         cards.forEach(this::addCard);
         add(Box.createVerticalStrut(25));
     }

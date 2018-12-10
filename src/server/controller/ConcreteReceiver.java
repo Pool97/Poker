@@ -1,10 +1,12 @@
 package server.controller;
 
+import interfaces.Event;
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.Receiver;
-import server.events.EventsContainer;
+import server.events.ChatMessage;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -12,18 +14,20 @@ import java.util.concurrent.BlockingQueue;
 public class ConcreteReceiver implements Receiver, Observable {
     private String nickname;
     private Set<Observer> observers;
-    private BlockingQueue<EventsContainer> readQueue;
-    private BlockingQueue<EventsContainer> writeQueue;
+    private ArrayList<ChatMessage> messages;
+    private BlockingQueue<Event> readQueue;
+    private BlockingQueue<Event> writeQueue;
 
-    public ConcreteReceiver(String nickname, BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue){
+    public ConcreteReceiver(String nickname, BlockingQueue<Event> readQueue, BlockingQueue<Event> writeQueue){
         observers = new HashSet<>();
+        messages = new ArrayList<>();
         this.nickname = nickname;
         this.readQueue = readQueue;
         this.writeQueue = writeQueue;
     }
 
     @Override
-    public void sendMessage(EventsContainer eventsContainer) {
+    public void sendMessage(Event eventsContainer) {
         try {
             writeQueue.put(eventsContainer);
             notifyObservers();
@@ -33,9 +37,15 @@ public class ConcreteReceiver implements Receiver, Observable {
     }
 
     @Override
-    public EventsContainer readMessage() {
+    public Event readMessage() {
+        Event event;
         try {
-            return readQueue.take();
+             event = readQueue.take();
+             if(event instanceof ChatMessage) {
+                 messages.add((ChatMessage) event);
+             }
+             else
+                 return event;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

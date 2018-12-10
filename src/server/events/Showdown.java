@@ -3,8 +3,9 @@ package server.events;
 import interfaces.EventsManager;
 import interfaces.ServerEvent;
 
-public class ServerClosedEvent implements ServerEvent {
-    public ServerClosedEvent() {
+public class Showdown implements ServerEvent {
+
+    public Showdown() {
 
     }
 

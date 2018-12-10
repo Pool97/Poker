@@ -3,16 +3,16 @@ package server.events;
 import interfaces.EventsManager;
 import interfaces.ServerEvent;
 
-public class MatchLostEvent implements ServerEvent {
+public class MatchLost implements ServerEvent {
     private String nickname;
     private int rankPosition;
     private boolean isCreator;
 
-    public MatchLostEvent(String nickname) {
+    public MatchLost(String nickname) {
         this.nickname = nickname;
     }
 
-    public MatchLostEvent(String nickname, int rankPosition, boolean isCreator){
+    public MatchLost(String nickname, int rankPosition, boolean isCreator){
         this.nickname = nickname;
         this.rankPosition = rankPosition;
         this.isCreator = isCreator;

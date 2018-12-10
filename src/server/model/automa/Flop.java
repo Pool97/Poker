@@ -1,8 +1,8 @@
 package server.model.automa;
 
-import server.events.CommunityUpdatedEvent;
-import server.events.EventsContainer;
-import server.model.automa.round.FirstLimitRound;
+import server.controller.Game;
+import server.events.CommunityUpdated;
+import server.model.automa.round.NextLimitRound;
 import server.model.automa.round.NextNoLimitRound;
 import server.model.gamestructure.FixedLimit;
 import server.model.gamestructure.NoLimit;
@@ -22,8 +22,8 @@ public class Flop extends AbstractPokerState {
         Game.logger.info(CARDS_GEN);
 
         Game.logger.info(CARDS_READY);
-        game.sendMessage(new EventsContainer(new CommunityUpdatedEvent(dealer.dealCommunityCard(),
-                dealer.dealCommunityCard(), dealer.dealCommunityCard())));
+        game.sendMessage(new CommunityUpdated(dealer.dealCommunityCard(),
+                dealer.dealCommunityCard(), dealer.dealCommunityCard()));
 
         game.getBettingStructure().reach(this);
 
@@ -38,7 +38,7 @@ public class Flop extends AbstractPokerState {
 
     @Override
     public void nextState(FixedLimit type) {
-        nextState = new FirstLimitRound(fixedLimit);
-        ((FirstLimitRound) nextState).setTransitionStrategy(Turn::new);
+        nextState = new NextLimitRound(fixedLimit);
+        ((NextLimitRound) nextState).setTransitionStrategy(Turn::new);
     }
 }

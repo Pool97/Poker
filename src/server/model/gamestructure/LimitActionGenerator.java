@@ -59,6 +59,10 @@ public class LimitActionGenerator implements ActionGenerator {
 
     @Override
     public PokerAction retrieveAllIn() {
-        return null;
+        if(currentBet >= playerModel.getChips())
+            return new AllIn(playerModel.getChips(), false);
+        else if(currentBet + fixedLimit == playerModel.getChips())
+            return new AllIn(playerModel.getChips(), true);
+        return NullAction.getInstance();
     }
 }

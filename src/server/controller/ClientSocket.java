@@ -1,9 +1,8 @@
 package server.controller;
 
-import client.events.MatchCanStartEvent;
+import client.events.MatchCanStart;
+import interfaces.Event;
 import interfaces.Observer;
-import server.events.EventsContainer;
-import server.model.automa.Game;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,13 +16,13 @@ public class ClientSocket implements Runnable, Observer {
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
     private CountDownLatch latch;
-    private BlockingQueue<EventsContainer> readQueue;
-    private BlockingQueue<EventsContainer> writeQueue;
+    private BlockingQueue<Event> readQueue;
+    private BlockingQueue<Event> writeQueue;
 
     private final static String STREAM_CREATION_ERROR = "Errore nella creazione degli stream... ";
     private final static String STREAM_ERROR = "Errore avvenuto nello stream... ";
 
-    public ClientSocket(Socket socket, BlockingQueue<EventsContainer> readQueue, BlockingQueue<EventsContainer> writeQueue, CountDownLatch latch){
+    public ClientSocket(Socket socket, BlockingQueue<Event> readQueue, BlockingQueue<Event> writeQueue, CountDownLatch latch){
         this.socket = socket;
         this.readQueue = readQueue;
         this.writeQueue = writeQueue;
@@ -43,7 +42,7 @@ public class ClientSocket implements Runnable, Observer {
         }
     }
 
-    private void sendMessage(EventsContainer message) {
+    private void sendMessage(Event message) {
         try {
             outStream.writeObject(message);
             outStream.flush();
@@ -54,9 +53,9 @@ public class ClientSocket implements Runnable, Observer {
         }
     }
 
-    private EventsContainer readMessage(){
+    private Event readMessage(){
         try {
-            return (EventsContainer) inStream.readObject();
+            return (Event) inStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -67,14 +66,12 @@ public class ClientSocket implements Runnable, Observer {
     public void run() {
         while(true){
             try {
-                EventsContainer event = readMessage();
-                if(event.lookEvent() instanceof MatchCanStartEvent) {
+                Event event = readMessage();
+                if(event instanceof MatchCanStart) {
                     latch.countDown();
-                    System.out.println("ENCULET");
                 }
                 else {
                     writeQueue.put(event);
-                    System.out.println("ENCULET1");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

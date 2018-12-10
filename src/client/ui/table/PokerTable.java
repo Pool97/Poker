@@ -2,7 +2,7 @@ package client.ui.table;
 
 import client.ui.components.PlayerBoard;
 import interfaces.TableSide;
-import server.events.PlayerUpdatedEvent;
+import server.events.PlayerUpdated;
 import utils.Utils;
 
 import javax.swing.*;
@@ -90,7 +90,18 @@ public class PokerTable {
     public boolean isPlayerPresent(String playerName) {
         return playerBoards.stream().anyMatch(playerBoard -> playerBoard.getNickname().equalsIgnoreCase(playerName));
     }
-    public void updatePlayerProperties(PlayerUpdatedEvent event) {
+
+    public void refreshPot(int updateValue){
+        communityCardsBoard.updatePotValue(updateValue);
+    }
+
+    public void refreshCommunityCardBoard(){
+        communityCardsBoard.removeCards();
+        communityCardsBoard.createCards();
+        communityCardsBoard.attachCards();
+    }
+
+    public void updatePlayerProperties(PlayerUpdated event) {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
         board.setChipIndicator(event.getChips());
         board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() : ""));
@@ -101,6 +112,7 @@ public class PokerTable {
         timer.setRepeats(false);
         timer.start();
     }
+
 
     public void addCardToCommunityCardsBoard(String imageDirectoryPath) {
         communityCardsBoard.updateCard(imageDirectoryPath);

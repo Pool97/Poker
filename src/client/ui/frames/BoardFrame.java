@@ -4,6 +4,7 @@ import client.events.ConcreteActionManager;
 import client.events.EventsAdapter;
 import client.net.Client;
 import client.net.ReadServerMessagesTask;
+import client.ui.components.Chat;
 import client.ui.components.GameBoard;
 import client.ui.components.MatchBoard;
 import client.ui.components.PlayerBoard;
@@ -26,16 +27,22 @@ public class BoardFrame extends JFrame {
     private PokerTable pokerTable;
     private ActionBoard actionBoard;
     private MatchBoard matchBoard;
+    private Chat chat;
 
     public BoardFrame() {
 
         createBoard();
+        createChat();
         createPokerTable();
         createUserBoard();
 
         attachComponents();
         setFrameProperties();
         listenToServer();
+    }
+
+    private void createChat(){
+        chat = new Chat();
     }
 
     private void createBoard() {
@@ -55,10 +62,15 @@ public class BoardFrame extends JFrame {
         attachPokerTable();
         attachUserBoard();
         attachBoard();
+        attachChat();
     }
 
     private void attachPokerTable() {
         gameBoard.attach(pokerTable);
+    }
+
+    private void attachChat(){
+        gameBoard.attachChat(chat);
     }
 
     private void attachUserBoard() {
@@ -88,7 +100,7 @@ public class BoardFrame extends JFrame {
         reader.execute();
     }
 
-    private void logAvailableActions(PlayerRoundEvent event) {
+    private void logAvailableActions(PlayerRound event) {
         Client.logger.info("Azioni disponibili: " + event.getPlayerNickname() + " \n");
         event.getOptions()
                 .forEach(action -> Client.logger.info("Azione: " + action.toString()));
@@ -102,12 +114,12 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(ServerClosedEvent event) {
+        public void process(ServerClosed event) {
             Client.getInstance().close();
         }
 
         @Override
-        public void process(PlayerRoundEvent event) {
+        public void process(PlayerRound event) {
             logAvailableActions(event);
             //PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
             //playerBoard.activateColorTransition();
@@ -116,13 +128,13 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(BlindsUpdatedEvent event) {
+        public void process(BlindsUpdated event) {
             matchBoard.setSmallBlind(event.getSmallBlind());
             matchBoard.setBigBlind(event.getBigBlind());
         }
 
         @Override
-        public void process(PlayerLoggedEvent event) {
+        public void process(PlayerLogged event) {
             PlayerBoard playerBoardLogged;
             playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition(), true, event.getChips(), event.getAvatar());
             if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname())) {
@@ -133,7 +145,7 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerHasWinEvent event) {
+        public void process(PlayerHasWin event) {
             pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
             if (Client.getInstance().getNickname().equals(event.getNickname())) {
                 WinnerDialog dialog = new WinnerDialog("Hai vinto mentekatto", "Complimenti Player!! " +
@@ -146,7 +158,7 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(MatchLostEvent event) {
+        public void process(MatchLost event) {
             if (Client.getInstance().getNickname().equals(event.getNickname())) {
                 LoserDialog dialog = new LoserDialog("Hai perso!", "Ti sei classificato: " + event.getRankPosition() + "°. " +
                         "Vuoi continuare a seguire il match?", event.isCreator());
@@ -158,23 +170,24 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerUpdatedEvent event) {
+        public void process(PlayerUpdated event) {
             pokerTable.updatePlayerProperties(event);
         }
 
         @Override
-        public void process(PotUpdatedEvent event) {
+        public void process(PotUpdated event) {
+            pokerTable.refreshPot(event.getPot());
             matchBoard.setPot(event.getPot());
         }
 
         @Override
-        public void process(CommunityUpdatedEvent event) {
+        public void process(CommunityUpdated event) {
             while (event.number() != 0)
                 pokerTable.addCardToCommunityCardsBoard(event.getCard().getImageDirectoryPath());
         }
 
         @Override
-        public void process(TurnStartedEvent event) {
+        public void process(TurnStarted event) {
             PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getNickname());
             playerBoard.setPosition(event.getTurnPosition());
             playerBoard.assignNewCards(event.getFrontImageCards().get(0), event.getFrontImageCards().get(1));
@@ -185,21 +198,26 @@ public class BoardFrame extends JFrame {
         }
 
         @Override
-        public void process(PlayerDisconnectedEvent event) {
+        public void process(PlayerDisconnected event) {
             if (pokerTable.isPlayerPresent(event.getNickname()))
                 pokerTable.removePlayer(pokerTable.getPlayerBoardBy(event.getNickname()));
         }
 
         @Override
-        public void process(ShowdownEvent event) {
+        public void process(Showdown event) {
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(false));
         }
 
         @Override
-        public void process(TurnEndedEvent event) {
-            pokerTable.getCommunityCardsBoard().hideAllCards();
+        public void process(TurnEnded event) {
+            pokerTable.refreshCommunityCardBoard();
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(true));
             pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setHandIndicator(Utils.EMPTY));
+        }
+
+        @Override
+        public void process(ChatMessage event) {
+            chat.addMessage(event);
         }
     }
 }

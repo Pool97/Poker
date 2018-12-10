@@ -1,7 +1,6 @@
 package client.ui.frames;
 
 import client.ui.components.Avatar;
-import client.ui.dialogs.PlayerDialog;
 import client.ui.dialogs.PokerDialog;
 import utils.GBC;
 import utils.Utils;
@@ -175,12 +174,11 @@ public class SelectAvatarFrame extends JFrame {
                 SelectModeFrame frame = new SelectModeFrame(avatar);
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setTitle(FRAME_TITLE);
                 frame.setVisible(true);
                 frame.setResizable(false);
             }
             else {
-                dialog = new PlayerDialog(avatar);
+                dialog = new PokerDialog(avatar);
                 dialog.pack();
                 dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);

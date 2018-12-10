@@ -1,8 +1,8 @@
 package server.model.automa;
 
-import server.events.EventsContainer;
-import server.events.PlayerUpdatedEvent;
-import server.events.PotUpdatedEvent;
+import server.controller.Game;
+import server.events.PlayerUpdated;
+import server.events.PotUpdated;
 import server.model.PlayerModel;
 import server.model.automa.round.FirstLimitRound;
 import server.model.automa.round.FirstNoLimitRound;
@@ -12,7 +12,7 @@ import server.model.gamestructure.NoLimit;
 import java.util.ListIterator;
 
 public class ForcedBets extends AbstractPokerState {
-    AbstractPokerState nextState;
+    private AbstractPokerState nextState;
     private int bigBlind;
 
     @Override
@@ -20,9 +20,9 @@ public class ForcedBets extends AbstractPokerState {
         PlayerModel playerModel;
         bigBlind = game.getBigBlind();
         for(PlayerModel player : table){
-            game.sendMessage(new EventsContainer(
-                    new PlayerUpdatedEvent(player.getNickname(), player.getChips(), "PAY",
-                            dealer.collectForcedBetFrom(player, game.getAnte()))));
+            game.sendMessage(
+                    new PlayerUpdated(player.getNickname(), player.getChips(), "PAY",
+                            dealer.collectForcedBetFrom(player, game.getAnte())));
             try {
                 Thread.sleep(1500);
                 System.out.println("Sleep....");
@@ -36,20 +36,20 @@ public class ForcedBets extends AbstractPokerState {
         playerModel = iterator.next();
 
         payBlindAndUpdate(game, playerModel, dealer.collectForcedBetFrom(playerModel, game.getSmallBlind()));
-        game.sendMessage(new EventsContainer(new PotUpdatedEvent(dealer.getPotValue())));
+        game.sendMessage(new PotUpdated(dealer.getPotValue()));
 
         playerModel = iterator.next();
 
 
         payBlindAndUpdate(game, playerModel, dealer.collectForcedBetFrom(playerModel, game.getBigBlind()));
-        game.sendMessage(new EventsContainer(new PotUpdatedEvent(dealer.getPotValue())));
+        game.sendMessage(new PotUpdated(dealer.getPotValue()));
         game.getBettingStructure().reach(this);
         game.setState(nextState);
     }
 
     private void payBlindAndUpdate(Game game, PlayerModel player, int value) {
-        PlayerUpdatedEvent event = new PlayerUpdatedEvent(player.getNickname(), player.getChips(), "PAY ", value);
-        game.sendMessage(new EventsContainer(event));
+        PlayerUpdated event = new PlayerUpdated(player.getNickname(), player.getChips(), "PAY ", value);
+        game.sendMessage(event);
     }
 
     @Override

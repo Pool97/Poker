@@ -1,6 +1,6 @@
 package client.net;
 
-import server.events.EventsContainer;
+import interfaces.Event;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -76,7 +76,7 @@ public class Client {
         return null;
     }
 
-    public Object writeMessage(EventsContainer message){
+    public Object writeMessage(Event message){
         try {
             outputStream.writeObject(message);
             outputStream.flush();
