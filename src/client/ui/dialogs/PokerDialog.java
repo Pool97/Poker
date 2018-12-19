@@ -32,7 +32,8 @@ public class PokerDialog extends JDialog {
 
     public PokerDialog(Avatar avatar, boolean fixedLimitMode){
         createGUI();
-        System.out.println("IP: " + Utils.getIpAddress());
+        ipAddress.setEnabled(false);
+        ipAddress.setText(Utils.getIpAddress());
         addConfirmButtonListener(event -> {
             connectToServer();
             Client.getInstance().writeMessage(new MatchMode(fixedLimitMode));
@@ -97,7 +98,7 @@ public class PokerDialog extends JDialog {
     }
 
     private void openLobby(){
-        new Lobby(ipAddress.getText());
+        new Lobby(nicknameField.getText());
         dispose();
     }
 

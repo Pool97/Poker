@@ -26,4 +26,8 @@ public class BetLimit extends AbstractPokerAction {
     public boolean isEmpty(){
         return value == 0;
     }
+
+    public String toString(){
+        return "BET";
+    }
 }

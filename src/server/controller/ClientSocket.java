@@ -3,6 +3,7 @@ package server.controller;
 import client.events.MatchCanStart;
 import interfaces.Event;
 import interfaces.Observer;
+import server.events.ChatMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,17 +17,17 @@ public class ClientSocket implements Runnable, Observer {
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
     private CountDownLatch latch;
-    private BlockingQueue<Event> readQueue;
+    private BlockingQueue<ChatMessage> messageQueue;
     private BlockingQueue<Event> writeQueue;
 
     private final static String STREAM_CREATION_ERROR = "Errore nella creazione degli stream... ";
     private final static String STREAM_ERROR = "Errore avvenuto nello stream... ";
 
-    public ClientSocket(Socket socket, BlockingQueue<Event> readQueue, BlockingQueue<Event> writeQueue, CountDownLatch latch){
+    public ClientSocket(Socket socket, BlockingQueue<Event> writeQueue, BlockingQueue<ChatMessage> messageQueue, CountDownLatch latch){
         this.socket = socket;
-        this.readQueue = readQueue;
         this.writeQueue = writeQueue;
         this.latch = latch;
+        this.messageQueue = messageQueue;
         createIOStream();
     }
 
@@ -57,7 +58,7 @@ public class ClientSocket implements Runnable, Observer {
         try {
             return (Event) inStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         return null; //ritorna l'evento di disconnessione!
     }
@@ -69,22 +70,24 @@ public class ClientSocket implements Runnable, Observer {
                 Event event = readMessage();
                 if(event instanceof MatchCanStart) {
                     latch.countDown();
-                }
-                else {
-                    writeQueue.put(event);
+                }else if(event instanceof ChatMessage){
+                    messageQueue.put((ChatMessage)event);
+                }else {
+                    if(event != null)
+                        writeQueue.put(event);
+                    else {
+                        return;
+                    }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                System.out.println("DISCONNESSO");
             }
         }
     }
 
     @Override
-    public void update() {
-        try {
-            sendMessage(readQueue.take());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void update(Event event) {
+        sendMessage(event);
     }
 }

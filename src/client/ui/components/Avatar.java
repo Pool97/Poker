@@ -72,9 +72,8 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
 
     @Override
     public Dimension getPreferredSize() {
-        if(isMinimum){
+        if(isMinimum)
             return getMinimumSize();
-        }
         return getMaximumSize();
     }
 

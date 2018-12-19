@@ -24,4 +24,8 @@ public class ChatMessage implements ServerEvent {
     public void accept(EventsManager processor) {
         processor.process(this);
     }
+
+    public String toString(){
+        return nickname + ": " + message;
+    }
 }

@@ -1,6 +1,7 @@
 package server.controller;
 
 import interfaces.Event;
+import interfaces.Observer;
 import interfaces.PokerState;
 import server.model.Table;
 import server.model.automa.StartGame;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
-public class Game implements Runnable{
+public class Game implements Runnable, Observer {
     private CountDownLatch countDownLatch;
     private PokerState currentState;
     private List<ConcreteReceiver> receivers;
@@ -77,7 +78,6 @@ public class Game implements Runnable{
     public void await(CountDownLatch latch){
         try {
             latch.await();
-            System.out.println("CIAONE");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -97,5 +97,10 @@ public class Game implements Runnable{
         ConcreteReadCommand readCommand = new ConcreteReadCommand(receiver);
         readCommand.execute();
         return readCommand.getMessage();
+    }
+
+    @Override
+    public void update(Event event) {
+        sendMessage(event);
     }
 }

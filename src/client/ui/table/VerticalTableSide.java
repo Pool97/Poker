@@ -23,6 +23,7 @@ public class VerticalTableSide extends JPanel implements TableSide {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Utils.TRANSPARENT);
         setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        setOpaque(false);
     }
 
     @Override

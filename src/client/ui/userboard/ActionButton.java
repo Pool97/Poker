@@ -1,9 +1,13 @@
 package client.ui.userboard;
 
+import org.jdesktop.animation.timing.Animator;
+import org.jdesktop.animation.timing.interpolation.PropertySetter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 
 import static java.awt.Font.PLAIN;
@@ -13,6 +17,7 @@ public class ActionButton extends JButton implements MouseListener {
     public float opacity;
     BufferedImage buttonImage = null;
     Color color;
+    private float alpha;
 
     public ActionButton(String action, Color color) {
         super(action);
@@ -48,14 +53,20 @@ public class ActionButton extends JButton implements MouseListener {
 
         Graphics gButton = buttonImage.getGraphics();
         gButton.setClip(g.getClip());
-
         super.paint(g);
-        Graphics2D g2D = (Graphics2D) g;
-        g2D.setColor(Color.WHITE);
-        AlphaComposite newComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
-        g2D.setComposite(newComposite);
+        Graphics2D g2 = (Graphics2D)g.create();
+        g2.setClip(new RoundRectangle2D.Double(2, 2, getWidth() - 4, getHeight() - 4, 5, 5));
+        g2.setComposite(AlphaComposite.SrcOver.derive(alpha));
+        g2.drawImage(buttonImage, 0, 0, null);
+    }
 
-        g2D.drawImage(buttonImage, 0, 0, null);
+    public void setAlpha(float alpha){
+        this.alpha = alpha;
+        repaint();
+    }
+
+    public float getAlpha(){
+        return alpha;
     }
 
     @Override
@@ -77,8 +88,11 @@ public class ActionButton extends JButton implements MouseListener {
     public void mouseEntered(MouseEvent e) {
         if (isEnabled()) {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            opacity = .20f;
-
+            Animator animator = new Animator(300);
+            animator.addTarget(new PropertySetter(this, "alpha", 0.35f));
+            animator.setAcceleration(0.2f);
+            animator.setDeceleration(0.4f);
+            animator.start();
         }
     }
 
@@ -86,5 +100,10 @@ public class ActionButton extends JButton implements MouseListener {
     public void mouseExited(MouseEvent e) {
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         opacity = .0f;
+        Animator animator = new Animator(300);
+        animator.addTarget(new PropertySetter(this, "alpha", 0f));
+        animator.setAcceleration(0.2f);
+        animator.setDeceleration(0.4f);
+        animator.start();
     }
 }

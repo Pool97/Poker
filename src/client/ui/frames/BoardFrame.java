@@ -6,7 +6,6 @@ import client.net.Client;
 import client.net.ReadServerMessagesTask;
 import client.ui.components.Chat;
 import client.ui.components.GameBoard;
-import client.ui.components.MatchBoard;
 import client.ui.components.PlayerBoard;
 import client.ui.dialogs.LoserDialog;
 import client.ui.dialogs.WinnerDialog;
@@ -21,16 +20,16 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-
 public class BoardFrame extends JFrame {
     private GameBoard gameBoard;
     private PokerTable pokerTable;
     private ActionBoard actionBoard;
-    private MatchBoard matchBoard;
     private Chat chat;
+    private ReadServerMessagesTask readTask;
+    private String nickname;
 
-    public BoardFrame() {
-
+    public BoardFrame(String nickname) {
+        this.nickname = nickname;
         createBoard();
         createChat();
         createPokerTable();
@@ -42,7 +41,7 @@ public class BoardFrame extends JFrame {
     }
 
     private void createChat(){
-        chat = new Chat();
+        chat = new Chat(nickname);
     }
 
     private void createBoard() {
@@ -55,7 +54,6 @@ public class BoardFrame extends JFrame {
 
     private void createUserBoard() {
         actionBoard = new ActionBoard();
-        matchBoard = new MatchBoard();
     }
 
     private void attachComponents() {
@@ -74,7 +72,7 @@ public class BoardFrame extends JFrame {
     }
 
     private void attachUserBoard() {
-        gameBoard.attach(actionBoard, matchBoard);
+        gameBoard.attach(actionBoard);
     }
 
     private void attachBoard() {
@@ -86,6 +84,7 @@ public class BoardFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                readTask.stopTask();
                 Client.getInstance().close();
             }
         });
@@ -95,9 +94,9 @@ public class BoardFrame extends JFrame {
     }
 
     private void listenToServer() {
-        ReadServerMessagesTask reader = new ReadServerMessagesTask();
-        reader.setEventsManager(new ConcreteEventManager());
-        reader.execute();
+        readTask = new ReadServerMessagesTask();
+        readTask.setEventsManager(new ConcreteEventManager());
+        readTask.execute();
     }
 
     private void logAvailableActions(PlayerRound event) {
@@ -121,16 +120,11 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(PlayerRound event) {
             logAvailableActions(event);
-            //PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
-            //playerBoard.activateColorTransition();
+            PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
+            playerBoard.setWaitState(true);
+            playerBoard.repaint();
             if (event.getPlayerNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
                 event.getOptions().forEach(action -> action.accept(actionManager));
-        }
-
-        @Override
-        public void process(BlindsUpdated event) {
-            matchBoard.setSmallBlind(event.getSmallBlind());
-            matchBoard.setBigBlind(event.getBigBlind());
         }
 
         @Override
@@ -177,7 +171,6 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(PotUpdated event) {
             pokerTable.refreshPot(event.getPot());
-            matchBoard.setPot(event.getPot());
         }
 
         @Override
@@ -218,6 +211,11 @@ public class BoardFrame extends JFrame {
         @Override
         public void process(ChatMessage event) {
             chat.addMessage(event);
+        }
+
+        @Override
+        public void process(ChatNotify event) {
+            chat.addNotify(event);
         }
     }
 }

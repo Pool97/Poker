@@ -18,4 +18,8 @@ public class RaiseLimit extends AbstractPokerAction  {
     public int getValue() {
         return value;
     }
+
+    public String toString(){
+        return "RAISE";
+    }
 }

@@ -6,6 +6,7 @@ import server.events.PlayerUpdated;
 import server.model.PlayerModel;
 
 import java.util.ListIterator;
+import java.util.concurrent.TimeUnit;
 
 public class Showdown extends AbstractPokerState{
 
@@ -39,7 +40,7 @@ public class Showdown extends AbstractPokerState{
         }
 
         try {
-            Thread.sleep(10000);
+            TimeUnit.SECONDS.sleep(4);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

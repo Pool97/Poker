@@ -32,13 +32,13 @@ public class TurnEnd extends AbstractPokerState{
             player.setFolded(false);
         }
 
-        game.sendMessage(new TurnEnded());
-
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(4);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        game.sendMessage(new TurnEnded());
 
         dealer.emptyCommunity();
         table.refreshLists();

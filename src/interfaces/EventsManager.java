@@ -5,8 +5,6 @@ import server.events.*;
 public interface EventsManager {
     void process(PlayerRound event);
 
-    void process(BlindsUpdated event);
-
     void process(PlayerLogged event);
 
     void process(PlayerUpdated event);
@@ -32,4 +30,6 @@ public interface EventsManager {
     void process(ServerClosed event);
 
     void process(ChatMessage event);
+
+    void process(ChatNotify event);
 }

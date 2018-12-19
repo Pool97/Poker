@@ -1,7 +1,9 @@
 package server.model.automa.round;
 
 import client.events.ActionPerformed;
+import interfaces.Event;
 import server.controller.Game;
+import server.events.PlayerDisconnected;
 import server.events.PlayerRound;
 import server.events.PlayerUpdated;
 import server.events.PotUpdated;
@@ -38,17 +40,24 @@ public abstract class LimitRound extends BettingRound {
 
         game.sendMessage(optionsEvent);
 
-        ActionPerformed playerAction = (ActionPerformed) game.readMessage(player.getNickname());
-        playerAction.getAction().accept(this);
-        playerAction.getAction().setNickname(player.getNickname());
+        Event userResponse = game.readMessage(player.getNickname());
+        if(!(userResponse instanceof PlayerDisconnected)) {
+            ActionPerformed playerAction = (ActionPerformed) userResponse;
+            playerAction.getAction().accept(this);
+            playerAction.getAction().setNickname(player.getNickname());
 
-        dealer.collectAction(player, playerAction.getAction().getValue());
-        game.sendMessage(new PlayerUpdated(player.getNickname(), player.getChips(),
-                playerAction.getAction().getClass().getSimpleName(), playerAction.getAction().getValue()));
-        game.sendMessage(new PotUpdated(table.getPotValue()));
-        turnActions.add(playerAction.getAction());
-        if(table.getPlayerByName(player.getNickname()).getChips() == 0)
-            player.setAllIn(true);
+            dealer.collectAction(player, playerAction.getAction().getValue());
+            game.sendMessage(new PlayerUpdated(player.getNickname(), player.getChips(),
+                    playerAction.getAction().toString(), playerAction.getAction().getValue()));
+            game.sendMessage(new PotUpdated(table.getPotValue()));
+            turnActions.add(playerAction.getAction());
+            if (table.getPlayerByName(player.getNickname()).getChips() == 0)
+                player.setAllIn(true);
+        }else{
+            table.getPlayerByName(player.getNickname()).setDisconnected(true);
+            table.removeDisconnectedPlayers();
+            game.sendMessage(userResponse);
+        }
     }
 
     @Override

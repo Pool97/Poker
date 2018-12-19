@@ -11,24 +11,14 @@ import java.util.HashMap;
 public class TurnWinnerEvaluator {
     private ArrayList<PlayerModel> players;
     private CommunityModel communityCards;
-    private HashMap<String, Integer> playersHand;
     private HashMap<String, String> playersHandByName;
     private HashMap<Integer, String> playersByName;
     private ArrayList<PokerHandsEvaluator> playerPoints;
     private ArrayList<String> winners;
     ArrayList<Integer> index = new ArrayList<>();
 
-    /*public TurnWinnerEvaluator(ArrayList<PlayerModel> players, CommunityModel communityCards) {
-        playersHand = new HashMap<>();
-        playersByName = new HashMap<>();
-        this.communityCards = communityCards;
-        this.players = players;
-
-    }*/
-
     public TurnWinnerEvaluator(ArrayList<PlayerModel> players, CommunityModel communityCards) {
         playerPoints = new ArrayList<>();
-        playersHand = new HashMap<>();
         playersByName = new HashMap<>();
         playersHandByName = new HashMap<>();
         winners = new ArrayList<>();
@@ -101,38 +91,17 @@ public class TurnWinnerEvaluator {
         }
 
         if(checkFactor == 1){
-            System.out.println("CHECK SOLO");
             checkSolo(tmpAlgo);
         }else if(checkFactor == 2){
-            System.out.println("CHECK DUO");
             checkDuo(tmpAlgoCouples, tmpAlgo, hD);
         } else if(checkFactor == 3){
-            System.out.println("CHECK DOUBLE");
             checkDouble(tmpAlgoCouples, tmpAlgo, hD);
         }else if(checkFactor == 4){
-            System.out.println("CHECK TRIS");
             checkTris(tmpAlgoCouples, tmpAlgo, hD);
-        }else if(checkFactor == 5){
-            System.out.println("CHECK FIVE");
-            //checkDuo(tmpAlgoCouples, tmpAlgo);
-        }else if(checkFactor == 6){
-            System.out.println("CHECK SIX");
-            //checkDuo(tmpAlgoCouples, tmpAlgo);
-        }else if(checkFactor == 7){
-            System.out.println("CHECK SEVEN");
-            //checkDuo(tmpAlgoCouples, tmpAlgo);
-        }else if(checkFactor == 8){
-            System.out.println("CHECK EIGHT");
-            //checkDuo(tmpAlgoCouples, tmpAlgo);
-        }else if(checkFactor == 9){
-            System.out.println("CHECK NINE");
-            //checkDuo(tmpAlgoCouples, tmpAlgo);
         }
-
         letsStart();
 
     }
-    int counterSame = 0;
 
     public void checkSolo(ArrayList<ArrayList<CardModel>> tmpAlgo){
         index.clear();
@@ -239,7 +208,7 @@ public class TurnWinnerEvaluator {
     public void checkTris(ArrayList<ArrayList<CardModel>> tmpAlgoCouples, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<ArrayList<CardModel>, Integer> hD){
         index.clear();
         ArrayList<CardModel> tmpHigh = tmpAlgoCouples.get(0);
-        Boolean high = true;
+        boolean high = true;
         for(int i = 1; i < tmpAlgoCouples.size(); i++){
             if(tmpHigh.get(0).getValue().ordinal() < tmpAlgoCouples.get(i).get(0).getValue().ordinal()){
                 tmpHigh = tmpAlgoCouples.get(i);
@@ -299,9 +268,6 @@ public class TurnWinnerEvaluator {
                 }else if(tmpFirstIndex.getPlayerPoint() == playerPoints.get(i).getPlayerPoint())
                     tmpWinnerIndex = -1;
             }
-
-            //System.out.println("PlayePointVector: " + tmpPP[i]);
-            //System.out.println("PlayePointArray: " + playerPoints.get(i).getPlayerPoint());
         }
 
         if(same == true && tmpWinnerIndex == -1){

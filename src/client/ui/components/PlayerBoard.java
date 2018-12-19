@@ -1,10 +1,17 @@
 package client.ui.components;
 
+import client.ColorTintFilter;
+import client.GraphicsUtilities;
+import org.jdesktop.animation.timing.Animator;
+import org.jdesktop.animation.timing.interpolation.PropertySetter;
 import utils.GBC;
 import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 
 import static java.awt.Color.WHITE;
@@ -14,6 +21,7 @@ import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.SwingConstants.LEFT;
 import static javax.swing.SwingConstants.RIGHT;
 import static utils.Utils.DEFAULT_FONT;
+import static utils.Utils.getGaussianBlurFilter;
 
 public class PlayerBoard extends BorderPanel{
     private Avatar avatar;
@@ -23,8 +31,15 @@ public class PlayerBoard extends BorderPanel{
     private JLabel handIndicator;
     private JPanel avatarAndCardsContainer;
     private ArrayList<Card> cards;
+    private boolean waitState;
+    private Animator animator;
+    private BufferedImage glow;
+    private float alpha = 0.0f;
+    private static int height;
+
 
     public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
+        super();
         setVisible(false);
         cards = new ArrayList<>();
         setComponentProperties();
@@ -139,20 +154,64 @@ public class PlayerBoard extends BorderPanel{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2;
+        if(height == 0)
+            height =  Math.max(getHeight(), height);
+        if (glow == null && waitState) {
+            glow = new BufferedImage(getWidth(), height, BufferedImage.TYPE_INT_ARGB);
+            glow = GraphicsUtilities.createCompatibleImage(getWidth(), height);
+            g2 = glow.createGraphics();
+            g2.dispose();
+
+            BufferedImageOp filter = getGaussianBlurFilter(20, true);
+            glow = filter.filter(glow, null);
+            filter = getGaussianBlurFilter(20, false);
+            glow = filter.filter(glow, null);
+
+            filter = new ColorTintFilter(Color.LIGHT_GRAY, 1.0f);
+            glow = filter.filter(glow, null);
+            startAnimator();
+        }
+
+        if(waitState) {
+            g2 = (Graphics2D) g.create();
+            g2.setClip(new RoundRectangle2D.Double(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
+                    height - shadowGap - strokeSize, arcs.width, arcs.height));
+            g2.setComposite(AlphaComposite.SrcOver.derive(getAlpha()));
+            g2.drawImage(glow, 0, 0, getWidth(), height, null);
+            g2.setComposite(AlphaComposite.SrcOver);
+            g2.dispose();
+        }else{
+            if(animator != null && animator.isRunning()){
+                animator.stop();
+                glow = null;
+            }
+        }
+
     }
 
-    @Override
-    protected void drawBackground(Graphics2D g2D) {
-
+    private void startAnimator() {
+        PropertySetter setter = new PropertySetter(this, "alpha", 0.0f, 1.0f);
+        animator = new Animator(600, Animator.INFINITE,
+                Animator.RepeatBehavior.REVERSE, setter);
+        animator.start();
     }
 
-    @Override
-    protected void drawBorder(Graphics2D g2D, Color color) {
+    public float getAlpha() {
+        return alpha;
+    }
 
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
+        repaint();
+    }
+
+    public void setWaitState(boolean waitState){
+        this.waitState = waitState;
     }
 
     public void setChipIndicator(int chips) {
-        chipIndicator.setText(Integer.toString(chips));
+        chipIndicator.setText(chips + "$");
     }
 
     public String getNickname() {
@@ -188,5 +247,16 @@ public class PlayerBoard extends BorderPanel{
         cards.forEach(Card::getDirectoryPathImageToLoad);
         cards.forEach(Card::loadImage);
         cards.forEach(Card::repaint);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        System.out.println("CIAONE" + height);
+        return height == 0 ? super.getPreferredSize() : new Dimension(300, height);
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return height == 0? super.getMaximumSize() : new Dimension(300, height);
     }
 }

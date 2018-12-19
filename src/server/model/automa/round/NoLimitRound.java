@@ -37,7 +37,7 @@ public abstract class NoLimitRound extends BettingRound {
         action.getAction().accept(this);
 
         game.sendMessage(new PlayerUpdated(actualPlayer.getNickname(), actualPlayer.getChips(),
-                action.getAction().getClass().getSimpleName(), action.getAction().getValue()));
+                action.getAction().toString(), action.getAction().getValue()));
         game.sendMessage(new PotUpdated(table.getPotValue()));
 
         if(table.getPlayerByName(player.getNickname()).getChips() == 0)

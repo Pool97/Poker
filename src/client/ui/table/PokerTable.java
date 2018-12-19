@@ -104,8 +104,9 @@ public class PokerTable {
     public void updatePlayerProperties(PlayerUpdated event) {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
         board.setChipIndicator(event.getChips());
-        board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() : ""));
-        //board.disableColorTransition();
+        board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() + "$" : ""));
+        board.setWaitState(false);
+        board.repaint();
         Timer timer = new Timer(3000, ae -> {
             board.setHandIndicator(Utils.EMPTY);
         });

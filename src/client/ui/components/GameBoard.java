@@ -37,7 +37,7 @@ public class GameBoard extends JPanel {
     }
 
     private void setComponentProperties() {
-        double[][] layoutSize = {{TableLayout.FILL}, {0.20, 0.30, 0.20, 0.30}};
+        double[][] layoutSize = {{TableLayout.FILL}, {0.22, 0.30, 0.22, 0.26}};
         setLayout(new TableLayout(layoutSize));
         setBackground(Color.DARK_GRAY);
     }
@@ -46,6 +46,7 @@ public class GameBoard extends JPanel {
         double[][] layoutSize = {{0.3, 0.4, 0.3}, {TableLayout.FILL}};
         middlePart.setLayout(new TableLayout(layoutSize));
         middlePart.setBackground(Utils.TRANSPARENT);
+        middlePart.setOpaque(false);
     }
 
     private void createBottomPart() {
@@ -67,24 +68,23 @@ public class GameBoard extends JPanel {
     }
 
     public void attachChat(Chat chat){
-        bottomPart.add(chat, new GBC(0, 0, 50, 1, 1, 1, NORTHEAST, BOTH,
-                new Insets(0, 10, 30, 10)));
+        bottomPart.add(chat, new GBC(0, 0, 20, 1, 1, 1, NORTHEAST, BOTH,
+                new Insets(0, 20, 10, 0)));
+        bottomPart.add(Box.createHorizontalGlue(), new GBC(1, 0, 40, 1, 1, 1, NORTHEAST, BOTH,
+                new Insets(0, 0, 0, 0)));
     }
 
     public void attach(PokerTable pokerTable) {
-        add(pokerTable.getTopSide(), new TableLayoutConstraints(0, 0, 0, 0, CENTER, CENTER));
+        add(pokerTable.getTopSide(), new TableLayoutConstraints(0, 0, 0, 0, CENTER, BOTTOM));
         add(pokerTable.getBottomSide(), new TableLayoutConstraints(0, 2, 0, 2, CENTER, BOTTOM));
         middlePart.add(pokerTable.getCommunityCardsBoard(), new TableLayoutConstraints(1, 0, 1, 0, FULL, TOP));
         middlePart.add(pokerTable.getLeftSide(), new TableLayoutConstraints(0, 0, 0, 0, CENTER, CENTER));
         middlePart.add(pokerTable.getRightSide(), new TableLayoutConstraints(2, 0, 2, 0, CENTER, CENTER));
     }
 
-    public void attach(ActionBoard actionBoard, MatchBoard matchBoard) {
-        bottomPart.add(actionBoard, new GBC(1, 0, 40, 1, 1, 1, GBC.CENTER,
-                VERTICAL, new Insets(0, 0, 30, 10)));
-
-        bottomPart.add(matchBoard, new GBC(2, 0, 10, 1, 1, 1, NORTHEAST,
-                VERTICAL, new Insets(0, 0, 30, 10)));
+    public void attach(ActionBoard actionBoard) {
+        bottomPart.add(actionBoard, new GBC(2, 0, 40, 1, 1, 1, NORTHEAST,
+                VERTICAL, new Insets(0, 0, 0, 10)));
     }
 
     @Override
@@ -102,17 +102,18 @@ public class GameBoard extends JPanel {
         graphics.fillRect(0,0, getWidth(), getHeight());
         graphics.setPaint(oldPaint);
         graphics.setColor(new Color(64,32,0));
-        graphics.fillOval(3, 3, getWidth()- 6, getHeight() - 6);
+        graphics.fillRoundRect(getWidth() / 6 + 3, getHeight() / 8 + 3, (2 * getWidth()) / 3- 6, (3 * getHeight() / 5)- 6, getWidth() / 3, getHeight());
+        //graphics.fillOval(getWidth() / 6 + 3, getHeight() / 6 + 3, (2 * getWidth()) / 3- 6, (2 * getHeight()) / 3 - 6);
         graphics.setColor(new Color(139,69,19));
-        graphics.fillOval(5, 5, getWidth()- 10, getHeight() - 10);
+        graphics.fillRoundRect(getWidth() / 6 + 10, getHeight() / 8 + 10, (2 * getWidth()) / 3 - 20, (3* getHeight() / 5) - 20, getWidth() / 3, getHeight());
         graphics.setColor(new Color(64,32,0));
-        graphics.fillOval(38, 38, getWidth()- 76, getHeight() - 76);
+        graphics.fillRoundRect(getWidth() / 6 + 50, getHeight() / 8 + 50, (2 * getWidth()) / 3 - 100, (3 * getHeight() / 5) - 100, getWidth() / 3, getHeight() );
         LinearGradientPaint gradient = new LinearGradientPaint(0, 0, getWidth()- 80, getHeight()-80,
                 new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(0, 60, 20), new Color(0, 100, 20), new Color(0, 60, 20)}
                 , MultipleGradientPaint.CycleMethod.REFLECT);
 
         graphics.setPaint(gradient);
-        graphics.fillOval(40, 40, getWidth() - 80, getHeight() - 80);
+        graphics.fillRoundRect(getWidth() / 6 + 55, getHeight() / 8 + 55, (2 * getWidth()) / 3 - 110 , (3 * getHeight() / 5) - 110, getWidth() / 3, getHeight());
         //graphics.fillRoundRect(50,50, getWidth() - 50, getHeight() - 50, 200, 200);
 
         //g.drawImage(Utils.loadImage(BACKGROUND_IMAGE, getSize()), 0, 0, getWidth(), getHeight(), null);

@@ -3,6 +3,7 @@ package server.controller;
 import client.events.MatchMode;
 import client.events.PlayerConnected;
 import interfaces.Event;
+import server.events.ChatMessage;
 import server.events.PlayerLogged;
 import server.model.Dealer;
 import server.model.PlayerModel;
@@ -34,6 +35,7 @@ public class ServerManager implements Runnable {
 
     private final static Logger logger = Logger.getLogger(ServerManager.class.getName());
     private ServerSocket serverSocket;
+    private BlockingQueue<ChatMessage> chatQueue = new ArrayBlockingQueue<>(40);
     private Table table;
     private Game game;
     private CountDownLatch latch;
@@ -42,8 +44,11 @@ public class ServerManager implements Runnable {
         try {
             serverSocket = new ServerSocket(SERVER_PORT, MAX_CONNECTION_QUEUE_LENGTH);
             initializeModelComponents();
+            ChatThread chat = new ChatThread(chatQueue);
+            new Thread(chat).start();
             latch = new CountDownLatch(1);
             game = new Game(table, latch);
+            chat.register(game);
             new Thread(game).start();
         } catch (IOException e) {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
@@ -82,12 +87,8 @@ public class ServerManager implements Runnable {
     }
 
     private void handleClient(Socket socket){
-        BlockingQueue<Event> queue1 = new ArrayBlockingQueue<>(20);
         BlockingQueue<Event> queue2 = new ArrayBlockingQueue<>(20);
-
-        ClientSocket client = new ClientSocket(socket, queue1, queue2, latch);
-
-
+        ClientSocket client = new ClientSocket(socket, queue2, chatQueue, latch);
 
         PlayerModel model = new PlayerModel();
 
@@ -108,7 +109,7 @@ public class ServerManager implements Runnable {
 
         initializePlayerModel(model, queue2);
 
-        ConcreteReceiver receiver = new ConcreteReceiver(model.getNickname(), queue2, queue1);
+        ConcreteReceiver receiver = new ConcreteReceiver(model.getNickname(), queue2);
         game.register(receiver);
         receiver.register(client);
     }

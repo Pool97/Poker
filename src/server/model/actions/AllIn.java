@@ -20,4 +20,8 @@ public class AllIn extends AbstractPokerAction {
     public int getValue() {
         return value;
     }
+
+    public String toString(){
+        return "ALL IN";
+    }
 }

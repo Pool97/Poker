@@ -5,6 +5,8 @@ import client.ui.userboard.ActionBoard;
 import interfaces.ActionManager;
 import server.model.actions.*;
 
+import static client.ui.userboard.ActionBoard.ActionIndexList.*;
+
 public class ConcreteActionManager implements ActionManager {
     public ActionBoard actionBoard;
 
@@ -14,90 +16,93 @@ public class ConcreteActionManager implements ActionManager {
 
     @Override
     public void process(Call call) {
-        actionBoard.setCallEnabled(true);
-        actionBoard.setCallText(" " + call.getValue() + "$");
-        actionBoard.addCallListener(eventG -> {
+        actionBoard.setButtonEnabled(true, CALL);
+        actionBoard.setButtonText(call.getValue(), CALL);
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(call));
-            actionBoard.setCallText("");
+            actionBoard.setButtonText(0, CALL);
             actionBoard.repaint();
             actionBoard.validate();
-
             actionBoard.setActionButtonsEnabled(false);
-        });
+            }, CALL);
     }
 
     @Override
     public void process(RaiseNoLimit raiseNoLimitOption) {
-        actionBoard.setRaiseText("");
+        actionBoard.setButtonEnabled(true, RAISE);
         actionBoard.setMinSlider(raiseNoLimitOption.getValue());
-        actionBoard.addRaiseListener(eventG -> {
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(new RaiseNoLimit(actionBoard.getSliderValue())));
-            actionBoard.setCallText("");
+            actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
-        });
+        }, RAISE);
     }
 
 
     @Override
     public void process(Fold fold) {
-        actionBoard.setFoldEnabled(true);
-        actionBoard.addFoldListener(eventG -> {
+        actionBoard.setButtonEnabled(true, FOLD);
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(fold));
             actionBoard.setActionButtonsEnabled(false);
-            actionBoard.setCallText("");
-        });
+            actionBoard.setButtonText(0, CALL);
+        }, FOLD);
     }
 
     @Override
     public void process(Check check) {
-        actionBoard.setCheckEnabled(true);
-        actionBoard.addCheckListener(eventG -> {
+        actionBoard.setButtonEnabled(true, CHECK);
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(new Check()));
             actionBoard.setActionButtonsEnabled(false);
-        });
+        }, CHECK);
     }
 
     @Override
     public void process(BetNoLimit betNoLimit) {
-        actionBoard.setBetText(Integer.toString(betNoLimit.getValue()));
         actionBoard.setMinSlider(betNoLimit.getValue());
-        actionBoard.addRaiseListener(eventG -> {
+        actionBoard.setButtonEnabled(true, BET);
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(new BetNoLimit(actionBoard.getSliderValue())));
-            actionBoard.setCallText("");
+            actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
-            actionBoard.setRaiseText("");
-        });
+        }, BET);
     }
 
     @Override
     public void process(AllIn allin) {
         actionBoard.setMaxSlider(allin.getValue());
         actionBoard.refreshSlider();
-        actionBoard.setRaiseEnabled(true);
+        actionBoard.setButtonEnabled(true, ALL_IN);
+        actionBoard.addListenerTo(event -> {
+            Client.getInstance().writeMessage(new ActionPerformed(new AllIn(allin.getValue(), false)));
+            actionBoard.setButtonText(0, CALL);
+            actionBoard.setActionButtonsEnabled(false);
+        }, ALL_IN);
     }
 
     @Override
     public void process(RaiseLimit raiseLimit) {
-        actionBoard.setRaiseText(Integer.toString(raiseLimit.getValue()));
-        actionBoard.setRaiseEnabled(true);
+        actionBoard.setButtonText(raiseLimit.getValue(), RAISE);
+        actionBoard.setButtonEnabled(true, RAISE);
         actionBoard.setRaiseSliderEnabled(false);
-        actionBoard.addRaiseListener(eventG -> {
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(new RaiseLimit(raiseLimit.getValue())));
-            actionBoard.setCallText("");
+            actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
-        });
+        }, RAISE);
     }
 
     @Override
     public void process(BetLimit betLimit) {
-        actionBoard.setBetText(Integer.toString(betLimit.getValue()));
-        actionBoard.setRaiseEnabled(true);
+        actionBoard.setButtonText(betLimit.getValue(), BET);
+        actionBoard.setButtonEnabled(true, BET);
         actionBoard.setRaiseSliderEnabled(false);
-        actionBoard.addRaiseListener(eventG -> {
+        actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(new BetLimit(betLimit.getValue())));
-            actionBoard.setCallText("");
+            actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
-        });
+        }, BET);
     }
 
     @Override

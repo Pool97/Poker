@@ -19,5 +19,7 @@ public class RaiseNoLimit extends AbstractPokerAction  {
         actionManager.process(this);
     }
 
-
+    public String toString(){
+        return "RAISE";
+    }
 }

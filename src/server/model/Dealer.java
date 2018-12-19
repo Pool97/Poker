@@ -49,7 +49,8 @@ public class Dealer {
     }
 
     public void givePotTo(String winner){
-        table.getPlayerByName(winner).addChips(potList.totalValue());
+        table.getPlayerByName(winner).addChips(potList.getAndRemovePotValue(winner));
+        table.getPlayersInGame().forEach(playerModel -> playerModel.addChips(potList.getAndRemovePotValue(playerModel.getNickname())));
         potList.removePots();
     }
 

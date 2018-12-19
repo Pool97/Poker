@@ -11,18 +11,22 @@ import server.events.RoomCreated;
 import utils.Utils;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class UpdateLobbyListTask extends SwingWorker<Void, Event> {
     private final static String WAITING = "In attesa della creazione della stanza...";
     private EventsProcessor processor;
     private Lobby frame;
+    private String nickname;
 
-    public UpdateLobbyListTask(Lobby frame, JPanel playerList) {
-        processor = new EventsProcessor(new ArrayList<>(), playerList);
+    public UpdateLobbyListTask(Lobby frame, JPanel playerList, String nickname) {
+        processor = new EventsProcessor(new ArrayList<>(), playerList );
         this.frame = frame;
+        this.nickname = nickname;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,7 +36,7 @@ public class UpdateLobbyListTask extends SwingWorker<Void, Event> {
         do {
             Client.logger.info(WAITING);
             try {
-                messageObject = (Event)Client.getInstance().readMessage();
+                messageObject = (Event) Client.getInstance().readMessage();
                 publish(messageObject);
                 Thread.sleep(500);
 
@@ -45,46 +49,78 @@ public class UpdateLobbyListTask extends SwingWorker<Void, Event> {
 
     @Override
     protected void process(List<Event> chunks) {
-        Event eventsContainer = chunks.get(0);
-        ((ServerEvent)eventsContainer).accept(processor);
+        Event event = chunks.get(0);
+        ((ServerEvent) event).accept(processor);
         frame.validate();
     }
 
     @Override
     protected void done() {
         frame.dispose();
-        new BoardFrame();
+        new BoardFrame(nickname);
     }
 }
 
 class EventsProcessor extends EventsAdapter {
     private boolean isRoomCreated = false;
     private ArrayList<String> playerLogged;
+    private JPanel avatarList ;
+    private JPanel nickNameList ;
     private JPanel playerList;
+
+    public EventsProcessor(ArrayList<String> playerLogged, JPanel avatarList, JPanel nickNameList){
+        this.playerLogged = playerLogged;
+        this.avatarList = avatarList;
+        this.nickNameList = nickNameList;
+    }
 
     public EventsProcessor(ArrayList<String> playerLogged, JPanel playerList){
         this.playerLogged = playerLogged;
         this.playerList = playerList;
+
     }
 
     @Override
     public void process(PlayerLogged event) {
         if (!playerLogged.contains(event.getNickname())) {
             playerLogged.add(event.getNickname());
-            JPanel tuple = new JPanel();
-            tuple.add(Box.createHorizontalGlue());
-            tuple.setLayout(new BoxLayout(tuple, BoxLayout.X_AXIS));
-            tuple.setBackground(Utils.TRANSPARENT);
-            tuple.setOpaque(false);
+
+            JPanel tupleA = new JPanel();
+            SpringLayout layoutA = new SpringLayout();
+            tupleA.setLayout(layoutA);
+            tupleA.setBackground(Utils.TRANSPARENT);
+            tupleA.setOpaque(false);
+            //System.out.println("Size: " + tupleA.getWidth() + " " + tupleA.getHeight());
             Avatar avatar = new Avatar(event.getAvatar());
             avatar.setMinimumSize(true);
-            avatar.setAlignmentX(Component.LEFT_ALIGNMENT);
-            tuple.add(avatar);
+            avatar.setAlignmentX(Component.CENTER_ALIGNMENT);
+            tupleA.add(avatar);
+            layoutA.putConstraint(SpringLayout.EAST, avatar,-10, SpringLayout.EAST, tupleA);
+            layoutA.putConstraint(SpringLayout.VERTICAL_CENTER, avatar,0, SpringLayout.VERTICAL_CENTER, tupleA);
+
+            JPanel tupleN = new JPanel();
+            SpringLayout layoutN = new SpringLayout();
+            tupleN.setLayout(layoutN);
+            tupleN.setBackground(Utils.TRANSPARENT);
+            tupleA.setOpaque(false);
             JLabel nickname = new JLabel(event.getNickname(), SwingConstants.CENTER);
             nickname.setFont(new Font("helvetica", Font.BOLD, 25));
             nickname.setForeground(Color.WHITE);
-            tuple.add(nickname);
-            tuple.add(Box.createHorizontalGlue());
+            nickname.setVerticalAlignment(SwingConstants.CENTER);
+            tupleN.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+            tupleN.add(nickname);
+            layoutN.putConstraint(SpringLayout.VERTICAL_CENTER, nickname,0, SpringLayout.VERTICAL_CENTER, tupleN);
+            layoutN.putConstraint(SpringLayout.WEST, nickname,10, SpringLayout.WEST, tupleN);
+            //tuple.add(Box.createHorizontalGlue());
+            JPanel tuple = new JPanel();
+            Border redBorder;
+            redBorder = BorderFactory.createLineBorder(new Color(0, 117, 178) ,2);
+            tuple.setBorder(redBorder);
+            tuple.setLayout(new GridLayout(0,2));
+            tuple.setBackground(Utils.TRANSPARENT);
+            tuple.setOpaque(false);
+            tuple.add(tupleA);
+            tuple.add(tupleN);
             playerList.add(tuple);
         }
     }
@@ -98,3 +134,4 @@ class EventsProcessor extends EventsAdapter {
         return isRoomCreated;
     }
 }
+

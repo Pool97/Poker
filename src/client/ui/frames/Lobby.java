@@ -5,51 +5,51 @@ import client.net.Client;
 import client.net.UpdateLobbyListTask;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
-public class Lobby extends JFrame{
+public class Lobby extends JFrame {
     private final static String FRAME_TITLE = "In attesa degli altri players...";
-    private String ipAddress;
-    private JPanel playersList;
+    private JPanel playerList;
 
-    public Lobby(String ipAddr) {
-        this.ipAddress = ipAddr;
+    public Lobby(String nickname) {
 
         initPanel();
-        new UpdateLobbyListTask(this, playersList).execute();
+        new UpdateLobbyListTask(this, playerList, nickname).execute();
 
         createGUI();
     }
 
     private void initPanel() {
         JPanel container = new JPanel();
-        container.setLayout(new BorderLayout());
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBackground(new Color(0, 117, 178));
-        playersList = new JPanel();
-        playersList.setBackground(new Color(2, 168, 255));
-        playersList.setAlignmentX(Component.CENTER_ALIGNMENT);
-        playersList.add(Box.createVerticalStrut(10));
-        playersList.setLayout(new BoxLayout(playersList, BoxLayout.Y_AXIS));
-        JPanel south = new JPanel();
-        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
-        JLabel hostInfo = new JLabel("Server IP: " + ipAddress, SwingConstants.CENTER);
-        hostInfo.setFont(new Font("helvetica", Font.BOLD, 20));
-        hostInfo.setForeground(Color.WHITE);
-        hostInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel playerConnected = new JLabel("Main Event", SwingConstants.CENTER);
+
+        JLabel playerConnected = new JLabel("Lobby", SwingConstants.CENTER);
         playerConnected.setForeground(Color.WHITE);
         playerConnected.setFont(new Font("helvetica", Font.BOLD, 40));
-        container.add(Box.createVerticalStrut(20));
-        container.add(playerConnected, BorderLayout.NORTH);
-        container.add(Box.createVerticalStrut(20));
+        playerConnected.setAlignmentX(CENTER_ALIGNMENT);
+        container.add(playerConnected);
 
+        playerList = new JPanel();
+        Border redBorder;
+        redBorder = BorderFactory.createCompoundBorder(new EmptyBorder(5,5,5,5),
+                new LineBorder(new Color(0, 117, 178), 2));
+        playerList.setBorder(redBorder);
+        playerList.setBackground(new Color(2, 168, 255));
+        playerList.setLayout(new GridLayout(3,2));
+        container.add(playerList);
+
+        container.add(Box.createVerticalStrut(5));
         JButton startGame = new JButton("START");
-        startGame.addActionListener(event -> Client.getInstance().writeMessage(new MatchCanStart()));
+        startGame.setFont(new Font("helvetica", Font.PLAIN, 16));
 
-        south.add(startGame);
-        south.add(hostInfo);
-        container.add(south, BorderLayout.SOUTH);
-        container.add(playersList, BorderLayout.CENTER);
+        startGame.addActionListener(event -> Client.getInstance().writeMessage(new MatchCanStart()));
+        startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        container.add(startGame);
+        container.add(Box.createVerticalStrut(5));
         add(container);
     }
 
@@ -63,6 +63,6 @@ public class Lobby extends JFrame{
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(500, 400);
+        return new Dimension(600, 600);
     }
 }

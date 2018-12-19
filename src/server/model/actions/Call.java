@@ -21,6 +21,6 @@ public class Call extends AbstractPokerAction  {
 
     @Override
     public String toString() {
-        return "CALL: " + value;
+        return "CALL" ;
     }
 }

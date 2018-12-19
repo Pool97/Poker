@@ -41,6 +41,7 @@ public class HorizontalTableSide extends JPanel implements TableSide {
     public void sit(PlayerBoard playerBoard) {
         add(playerBoard);
         playersSeated.add(playerBoard);
+        revalidate();
         separateSeats();
     }
 

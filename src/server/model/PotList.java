@@ -25,7 +25,7 @@ public class PotList {
         }
 
         if(value < pot.getValue()){
-            sidePots.add(index, pot.copySidePotDecrementedBy(value));
+            sidePots.add(index  + 1, pot.copySidePotDecrementedBy(value));
             pot.addWagerFrom(nickname, value);
         }
 
@@ -85,12 +85,25 @@ public class PotList {
         return sidePots.stream().mapToInt(SidePot::sum).sum();
     }
 
+    public int getAndRemovePotValue(String winner){
+        int indexThreshold = getLastPotIndexOf(winner);
+        int sum = 0;
+        for(int i = 0; i <= indexThreshold; i++)
+            sum += sidePots.get(i).sum();
+
+        if (indexThreshold > 0) {
+            sidePots.subList(0, indexThreshold + 1).clear();
+        }
+        return sum;
+    }
+
     public void removePots(){
         sidePots.clear();
         sidePots.add(new SidePot());
     }
 
     public void descr(){
+        System.out.println("REFRESHO LA POT LIST!!!!!");
         sidePots.stream().forEach(pot -> System.out.println(pot.toString() + "\n\n"));
     }
 }

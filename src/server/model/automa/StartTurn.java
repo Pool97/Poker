@@ -1,8 +1,9 @@
 package server.model.automa;
 
 import server.controller.Game;
-import server.events.BlindsUpdated;
+import server.events.ChatNotify;
 import server.events.PlayerHasWin;
+import server.events.ServerClosed;
 import server.events.TurnStarted;
 import server.model.PlayerModel;
 import server.model.Position;
@@ -26,13 +27,14 @@ public class StartTurn extends AbstractPokerState {
         if (table.hasWinner()) {
 
             game.sendMessage(new PlayerHasWin(table.getWinner()));
-            game.setState(new RestartMatch());
-
+            game.sendMessage(new ServerClosed());
+            game.stop();
         } else {
 
             dealer.shuffleCards();
             game.increaseBlinds();
-            game.sendMessage(new BlindsUpdated(game.getSmallBlind(), game.getBigBlind()));
+            game.sendMessage(new ChatNotify("Blinds aumentati: " + "\n" + "Small Blind: "  + game.getSmallBlind()
+            + "\n Big Blind: " + game.getBigBlind()));
 
             table.removeDisconnectedPlayers();
             table.translatePositions();
@@ -51,9 +53,10 @@ public class StartTurn extends AbstractPokerState {
         PlayerModel player;
         while(iterator.hasNext()){
             player = iterator.next();
-            if(iterator.previousIndex() == 0 || iterator.previousIndex() == 1 || iterator.previousIndex() == table.size() - 1)
+            if(iterator.previousIndex() == 0 || iterator.previousIndex() == 1)
                 position = Position.values()[iterator.previousIndex()].name();
-
+            else if(iterator.previousIndex() == table.size() - 1)
+                position = Position.D.name();
             TurnStarted event = new TurnStarted(player.getNickname(), position);
             player.getCards().stream().map(CardModel::getImageDirectoryPath).forEach(event::addCardPath);
             game.sendMessage(event);

@@ -4,52 +4,38 @@ import interfaces.Event;
 import interfaces.Observable;
 import interfaces.Observer;
 import interfaces.Receiver;
-import server.events.ChatMessage;
+import server.events.PlayerDisconnected;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public class ConcreteReceiver implements Receiver, Observable {
     private String nickname;
-    private Set<Observer> observers;
-    private ArrayList<ChatMessage> messages;
+    private Set<Observer> eventObservers;
     private BlockingQueue<Event> readQueue;
-    private BlockingQueue<Event> writeQueue;
 
-    public ConcreteReceiver(String nickname, BlockingQueue<Event> readQueue, BlockingQueue<Event> writeQueue){
-        observers = new HashSet<>();
-        messages = new ArrayList<>();
+    public ConcreteReceiver(String nickname, BlockingQueue<Event> readQueue){
+        eventObservers = new HashSet<>();
         this.nickname = nickname;
         this.readQueue = readQueue;
-        this.writeQueue = writeQueue;
     }
 
     @Override
     public void sendMessage(Event eventsContainer) {
-        try {
-            writeQueue.put(eventsContainer);
-            notifyObservers();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        notifyObservers(eventsContainer);
     }
 
     @Override
     public Event readMessage() {
-        Event event;
         try {
-             event = readQueue.take();
-             if(event instanceof ChatMessage) {
-                 messages.add((ChatMessage) event);
-             }
-             else
-                 return event;
+            return readQueue.take();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            System.out.println("DISCONESSO");
         }
-        return null;
+
+        return new PlayerDisconnected(nickname);
     }
 
     public String getNickname(){
@@ -58,16 +44,16 @@ public class ConcreteReceiver implements Receiver, Observable {
 
     @Override
     public void register(Observer observer) {
-        observers.add(observer);
+        eventObservers.add(observer);
     }
 
     @Override
     public void unregister(Observer observer) {
-        observers.remove(observer);
+        eventObservers.remove(observer);
     }
 
     @Override
-    public void notifyObservers() {
-        observers.forEach(Observer::update);
+    public void notifyObservers(Event event) {
+        eventObservers.forEach(observer -> observer.update(event));
     }
 }

@@ -10,11 +10,6 @@ public class EventsAdapter implements EventsManager {
     }
 
     @Override
-    public void process(BlindsUpdated event) {
-
-    }
-
-    @Override
     public void process(PlayerLogged event) {
 
     }
@@ -76,6 +71,11 @@ public class EventsAdapter implements EventsManager {
 
     @Override
     public void process(ChatMessage event) {
+
+    }
+
+    @Override
+    public void process(ChatNotify event) {
 
     }
 }

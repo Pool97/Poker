@@ -53,9 +53,10 @@ public class StartGame extends AbstractPokerState {
         PlayerModel player;
         while(iterator.hasNext()){
             player = iterator.next();
-            if(iterator.previousIndex() == Position.SB.ordinal() || iterator.previousIndex() == Position.BB.ordinal()
-                    || iterator.previousIndex() == table.size() - 1)
+            if(iterator.previousIndex() == Position.SB.ordinal() || iterator.previousIndex() == Position.BB.ordinal())
                 position = Position.values()[iterator.previousIndex()].name();
+            else if(iterator.previousIndex() == table.size() - 1)
+                position = Position.D.name();
             game.sendMessage(new PlayerLogged(player.getNickname(), player.getAvatar(), position,
                     player.getChips()));
             position = "";
