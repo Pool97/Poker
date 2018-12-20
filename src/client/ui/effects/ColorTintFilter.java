@@ -1,5 +1,5 @@
-package client;/*
- * $Id: client.ColorTintFilter.java,v 1.1 2007/01/28 01:45:30 gfx Exp $
+package client.ui.effects;/*
+ * $Id: client.ui.effects.ColorTintFilter.java,v 1.1 2007/01/28 01:45:30 gfx Exp $
  *
  * Dual-licensed under LGPL (Sun and Romain Guy) and BSD (Romain Guy).
  *

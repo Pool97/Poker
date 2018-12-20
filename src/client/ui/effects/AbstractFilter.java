@@ -1,5 +1,5 @@
-package client;/*
- * $Id: client.AbstractFilter.java,v 1.1 2007/01/28 01:45:27 gfx Exp $
+package client.ui.effects;/*
+ * $Id: client.ui.effects.AbstractFilter.java,v 1.1 2007/01/28 01:45:27 gfx Exp $
  *
  * Dual-licensed under LGPL (Sun and Romain Guy) and BSD (Romain Guy).
  *

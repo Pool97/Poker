@@ -105,11 +105,9 @@ public class PokerTable {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
         board.setChipIndicator(event.getChips());
         board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() + "$" : ""));
-        board.setWaitState(false);
+        board.setAnimationEnabled(false);
         board.repaint();
-        Timer timer = new Timer(3000, ae -> {
-            board.setHandIndicator(Utils.EMPTY);
-        });
+        Timer timer = new Timer(3000, ae -> board.setHandIndicator(Utils.EMPTY));
         timer.setRepeats(false);
         timer.start();
     }
@@ -123,8 +121,11 @@ public class PokerTable {
         return playerBoards;
     }
 
-    public void removePlayer(PlayerBoard playerBoard) {
-        playerBoards.remove(playerBoard);
-        tableSides.stream().filter(tableSide -> tableSide.hasContained(playerBoard)).forEach(tableSide -> tableSide.removePlayer(playerBoard));
+    public void removePlayer(String nickname) {
+        PlayerBoard playerToRemove = getPlayerBoardBy(nickname);
+        playerBoards.remove(playerToRemove);
+        tableSides.stream()
+                .filter(tableSide -> tableSide.hasContained(playerToRemove))
+                .forEach(tableSide -> tableSide.removePlayer(playerToRemove));
     }
 }

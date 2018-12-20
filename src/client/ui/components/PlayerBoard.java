@@ -1,17 +1,12 @@
 package client.ui.components;
 
-import client.ColorTintFilter;
-import client.GraphicsUtilities;
-import org.jdesktop.animation.timing.Animator;
-import org.jdesktop.animation.timing.interpolation.PropertySetter;
+import client.ui.effects.PulseAnimator;
 import utils.GBC;
 import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 
 import static java.awt.Color.WHITE;
@@ -21,7 +16,6 @@ import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.SwingConstants.LEFT;
 import static javax.swing.SwingConstants.RIGHT;
 import static utils.Utils.DEFAULT_FONT;
-import static utils.Utils.getGaussianBlurFilter;
 
 public class PlayerBoard extends BorderPanel{
     private Avatar avatar;
@@ -29,19 +23,17 @@ public class PlayerBoard extends BorderPanel{
     private JLabel nickname;
     private JLabel position;
     private JLabel handIndicator;
-    private JPanel avatarAndCardsContainer;
+    private JPanel avatarAndHandContainer;
     private ArrayList<Card> cards;
-    private boolean waitState;
-    private Animator animator;
-    private BufferedImage glow;
+    private PulseAnimator pulseAnimator;
     private float alpha = 0.0f;
-    private static int height;
+    public static int height;
 
 
     public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
-        super();
-        setVisible(false);
         cards = new ArrayList<>();
+        pulseAnimator = new PulseAnimator(this);
+
         setComponentProperties();
 
         createAvatar(avatarDirectoryPath);
@@ -60,10 +52,11 @@ public class PlayerBoard extends BorderPanel{
 
         createAvatarAndCardsContainer();
         setAvatarAndCardsContainerProperties();
+
         createCards(isCovered);
         attachComponents();
+
         setOpaque(false);
-        setVisible(true);
     }
 
     private void setComponentProperties() {
@@ -106,18 +99,18 @@ public class PlayerBoard extends BorderPanel{
     }
 
     private void createAvatarAndCardsContainer() {
-        avatarAndCardsContainer = new JPanel();
+        avatarAndHandContainer = new JPanel();
     }
 
     private void setAvatarAndCardsContainerProperties() {
-        avatarAndCardsContainer.setLayout(new BoxLayout(avatarAndCardsContainer, X_AXIS));
-        avatarAndCardsContainer.setOpaque(false);
+        avatarAndHandContainer.setLayout(new BoxLayout(avatarAndHandContainer, X_AXIS));
+        avatarAndHandContainer.setOpaque(false);
     }
 
     private void attachComponents() {
         attachAvatar();
         attachCards();
-        add(avatarAndCardsContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(10, 15, 0, 0)));
+        add(avatarAndHandContainer, new GBC(0, 0, 1, 0.70, 2, 1, WEST, NONE, new Insets(10, 15, 0, 0)));
         attachNickname();
         attachPosition();
         attachHand();
@@ -125,14 +118,14 @@ public class PlayerBoard extends BorderPanel{
     }
 
     private void attachAvatar() {
-        avatarAndCardsContainer.add(avatar);
+        avatarAndHandContainer.add(avatar);
     }
 
     private void attachCards() {
-        avatarAndCardsContainer.add(Box.createRigidArea(new Dimension(20, 0)));
-        avatarAndCardsContainer.add(cards.get(0));
-        avatarAndCardsContainer.add(Box.createHorizontalStrut(5));
-        avatarAndCardsContainer.add(cards.get(1));
+        avatarAndHandContainer.add(Box.createRigidArea(new Dimension(20, 0)));
+        avatarAndHandContainer.add(cards.get(0));
+        avatarAndHandContainer.add(Box.createHorizontalStrut(5));
+        avatarAndHandContainer.add(cards.get(1));
     }
 
     private void attachNickname() {
@@ -154,47 +147,22 @@ public class PlayerBoard extends BorderPanel{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2;
+
         if(height == 0)
             height =  Math.max(getHeight(), height);
-        if (glow == null && waitState) {
-            glow = new BufferedImage(getWidth(), height, BufferedImage.TYPE_INT_ARGB);
-            glow = GraphicsUtilities.createCompatibleImage(getWidth(), height);
-            g2 = glow.createGraphics();
-            g2.dispose();
 
-            BufferedImageOp filter = getGaussianBlurFilter(20, true);
-            glow = filter.filter(glow, null);
-            filter = getGaussianBlurFilter(20, false);
-            glow = filter.filter(glow, null);
-
-            filter = new ColorTintFilter(Color.LIGHT_GRAY, 1.0f);
-            glow = filter.filter(glow, null);
-            startAnimator();
+        if (!pulseAnimator.isRunning() && pulseAnimator.isAnimationEnabled()) {
+            pulseAnimator.createPulseEffect();
+            pulseAnimator.startPulseEffect();
         }
 
-        if(waitState) {
-            g2 = (Graphics2D) g.create();
-            g2.setClip(new RoundRectangle2D.Double(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
-                    height - shadowGap - strokeSize, arcs.width, arcs.height));
-            g2.setComposite(AlphaComposite.SrcOver.derive(getAlpha()));
-            g2.drawImage(glow, 0, 0, getWidth(), height, null);
-            g2.setComposite(AlphaComposite.SrcOver);
-            g2.dispose();
-        }else{
-            if(animator != null && animator.isRunning()){
-                animator.stop();
-                glow = null;
-            }
-        }
+        Shape clipShape = new RoundRectangle2D.Double(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
+                height - shadowGap - strokeSize, arcs.width, arcs.height);
 
-    }
-
-    private void startAnimator() {
-        PropertySetter setter = new PropertySetter(this, "alpha", 0.0f, 1.0f);
-        animator = new Animator(600, Animator.INFINITE,
-                Animator.RepeatBehavior.REVERSE, setter);
-        animator.start();
+        if(pulseAnimator.isAnimationEnabled())
+            pulseAnimator.drawPulseEffect(g.create(), clipShape, getAlpha());
+        else
+            pulseAnimator.stop();
     }
 
     public float getAlpha() {
@@ -206,8 +174,8 @@ public class PlayerBoard extends BorderPanel{
         repaint();
     }
 
-    public void setWaitState(boolean waitState){
-        this.waitState = waitState;
+    public void setAnimationEnabled(boolean animationEnabled){
+        pulseAnimator.setAnimationEnabled(animationEnabled);
     }
 
     public void setChipIndicator(int chips) {
@@ -234,24 +202,21 @@ public class PlayerBoard extends BorderPanel{
         nickname.setForeground(color);
     }
 
-
-    public void assignNewCards(String frontImage1, String frontImage2) {
-        cards.get(0).setFrontImageDirectoryPath(frontImage1);
-        cards.get(1).setFrontImageDirectoryPath(frontImage2);
-        cards.forEach(Card::loadImage);
-        cards.forEach(Card::repaint);
+    public void changeCard(String frontImage, int index) {
+        cards.get(index).setFrontImageDirectoryPath(frontImage);
     }
 
     public void coverCards(boolean cover) {
         cards.forEach(card -> card.setCovered(cover));
-        cards.forEach(Card::getDirectoryPathImageToLoad);
-        cards.forEach(Card::loadImage);
-        cards.forEach(Card::repaint);
+    }
+
+    @Override
+    public int getHeight() {
+        return height == 0 ? super.getHeight() : height;
     }
 
     @Override
     public Dimension getPreferredSize() {
-        System.out.println("CIAONE" + height);
         return height == 0 ? super.getPreferredSize() : new Dimension(300, height);
     }
 

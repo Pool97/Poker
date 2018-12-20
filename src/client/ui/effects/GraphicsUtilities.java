@@ -1,4 +1,4 @@
-package client;
+package client.ui.effects;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * <p><code>client.GraphicsUtilities</code> contains a set of tools to perform
+ * <p><code>client.ui.effects.GraphicsUtilities</code> contains a set of tools to perform
  * common graphics operations easily. These operations are divided into
  * several themes, listed below.</p>
  * <h2>Compatible Images</h2>

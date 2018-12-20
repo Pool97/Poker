@@ -3,19 +3,18 @@ package client.ui.components;
 import javax.swing.*;
 import java.awt.*;
 
-import static java.awt.Color.WHITE;
 import static utils.Utils.getHighQualityRenderingHints;
 
 public abstract class BorderPanel extends JPanel {
-    protected Color borderColor;
+    private Color borderColor;
     protected int strokeSize;
-    protected Color shadowColor;
-    protected boolean dropsShadow;
-    protected boolean highQuality;
+    private Color shadowColor;
+    private boolean dropsShadow;
+    private boolean highQuality;
     protected Dimension arcs;
     protected int shadowGap;
-    protected int shadowOffset;
-    protected int shadowAlpha;
+    private int shadowOffset;
+    private int shadowAlpha;
 
     public BorderPanel() {
         shadowColor = new Color(0, 40, 5);
@@ -38,7 +37,7 @@ public abstract class BorderPanel extends JPanel {
             graphics.setRenderingHints(getHighQualityRenderingHints());
 
         if (dropsShadow)
-            drawShadowBorder(graphics);
+            drawDropShadow(graphics);
         else
             shadowGap = 1;
 
@@ -47,27 +46,23 @@ public abstract class BorderPanel extends JPanel {
         drawLinearGradient(graphics);
 
         graphics.setPaint(paint);
-        graphics.setColor(WHITE);
+        graphics.setColor(borderColor);
         graphics.setStroke(new BasicStroke(strokeSize));
         graphics.drawRoundRect(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
                 getHeight() - shadowGap - strokeSize, arcs.width, arcs.height);
     }
 
-    private void drawShadowBorder(Graphics2D graphics){
+    private void drawDropShadow(Graphics2D graphics){
         Color shadowColorA = new Color(shadowColor.getRed(),
                 shadowColor.getGreen(), shadowColor.getBlue(), shadowAlpha);
         graphics.setColor(shadowColorA);
-        graphics.fillRoundRect(
-                shadowOffset,// X position
-                shadowOffset,// Y position
-                getWidth() - strokeSize - shadowOffset, // width
-                getHeight() - strokeSize - shadowOffset, // height
-                arcs.width, arcs.height);// arc Dimension
+        graphics.fillRoundRect(shadowOffset, shadowOffset, getWidth() - strokeSize - shadowOffset,
+                getHeight() - strokeSize - shadowOffset, arcs.width, arcs.height);
     }
 
     private void drawLinearGradient(Graphics2D graphics){
         LinearGradientPaint gradient = new LinearGradientPaint(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
-                getHeight()-shadowGap-strokeSize, new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(0, 130, 178),
+                getHeight() - shadowGap - strokeSize, new float[]{0.0f, 0.5f, 1f}, new Color[]{new Color(0, 130, 178),
                 new Color(0, 115, 178), new Color(0, 100, 178)});
         graphics.setPaint(gradient);
         graphics.fillRoundRect(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,

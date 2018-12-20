@@ -8,7 +8,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 public class Card extends JComponent implements ComponentListener {
-    private final static int TOP_LEFT = 0;
     private final static String DEFAULT_IMAGE = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "back.png";
     private final static String DEFAULT_BACK = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "backOrangePP.png";
     private String frontImageDirectoryPath;
@@ -19,19 +18,12 @@ public class Card extends JComponent implements ComponentListener {
     private Card(boolean isVisible, boolean isCovered) {
         this.frontImageDirectoryPath = DEFAULT_IMAGE;
         this.backImageDirectoryPath = DEFAULT_BACK;
-        setOpaque(false);
-        setVisible(isVisible);
-        setCovered(isCovered);
-        addComponentListener(this);
-    }
 
-    private Card(boolean isVisible, boolean isCovered, String cardBackName) {
-        this.frontImageDirectoryPath = DEFAULT_IMAGE;
-        this.backImageDirectoryPath = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + cardBackName;
+        setOpaque(false);
         setVisible(isVisible);
         setCovered(isCovered);
+
         addComponentListener(this);
-        setOpaque(false);
     }
 
     public static Card createEmptyCard() {
@@ -42,29 +34,27 @@ public class Card extends JComponent implements ComponentListener {
         return new Card(true, isCovered);
     }
 
-    public static Card createCard(boolean isCovered, String cardBackName){
-        return new Card(true, isCovered, cardBackName);
-    }
-
-    public boolean isImageLoaded(Image image) {
+    private boolean isImageLoaded(Image image) {
         return image != null;
     }
 
     public void loadImage() {
-        if(getSize().width != 0 && getSize().height != 0 && !frontImageDirectoryPath.equals(DEFAULT_IMAGE))
+        if(getWidth() != 0 && getWidth() != 0 && !frontImageDirectoryPath.equals(DEFAULT_IMAGE))
             image = Utils.loadImageByPath(getDirectoryPathImageToLoad(), getSize());
     }
 
-    public String getDirectoryPathImageToLoad() {
+    private String getDirectoryPathImageToLoad() {
         return isCovered ? backImageDirectoryPath : frontImageDirectoryPath;
     }
 
     public void setCovered(boolean isCovered) {
         this.isCovered = isCovered;
+        refresh();
     }
 
     public void setFrontImageDirectoryPath(String imageDirectoryPath) {
         this.frontImageDirectoryPath = System.getProperty("user.dir") + imageDirectoryPath;
+        refresh();
     }
 
     @Override
@@ -72,9 +62,11 @@ public class Card extends JComponent implements ComponentListener {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
         g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
-        if (isImageLoaded(image)) {
+
+        if (isImageLoaded(image))
             g2D.drawImage(image, 2, 2, getWidth() - 4, getHeight() - 4, null);
-        }else{
+        else{
+
             Composite composite = g2D.getComposite();
             g2D.setColor(new Color(100, 128, 150));
             g2D.setStroke(new BasicStroke(3));
@@ -84,6 +76,11 @@ public class Card extends JComponent implements ComponentListener {
             g2D.setComposite(composite);
 
         }
+    }
+
+    private void refresh(){
+        loadImage();
+        repaint();
     }
 
     public boolean isDefault(){
@@ -107,8 +104,7 @@ public class Card extends JComponent implements ComponentListener {
 
     @Override
     public void componentResized(ComponentEvent e) {
-        loadImage();
-        repaint();
+        refresh();
     }
 
     @Override

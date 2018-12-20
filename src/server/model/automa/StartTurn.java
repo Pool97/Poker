@@ -53,10 +53,12 @@ public class StartTurn extends AbstractPokerState {
         PlayerModel player;
         while(iterator.hasNext()){
             player = iterator.next();
+
             if(iterator.previousIndex() == 0 || iterator.previousIndex() == 1)
                 position = Position.values()[iterator.previousIndex()].name();
             else if(iterator.previousIndex() == table.size() - 1)
                 position = Position.D.name();
+
             TurnStarted event = new TurnStarted(player.getNickname(), position);
             player.getCards().stream().map(CardModel::getImageDirectoryPath).forEach(event::addCardPath);
             game.sendMessage(event);
