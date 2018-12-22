@@ -2,9 +2,14 @@
 
 Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** dell'*Università degli Studi di Brescia*.
 
+## Features
+* Supporto alla variante Texas Hold'Em
+* Supporto alle modalità Fixed Limit e No Limit
+* Interfaccia grafica 
+
 ## Built With
 
-* [IntelliJ](https://www.jetbrains.com/idea/) - The Java IDE for Professional Developers
+* [IntelliJ]
 
 ## Authors
 
