@@ -68,9 +68,12 @@ public class GameBoard extends JPanel {
     }
 
     public void attachChat(Chat chat){
-        bottomPart.add(chat, new GBC(0, 0, 20, 1, 1, 1, NORTHEAST, BOTH,
+        JPanel chatContainer = new JPanel();
+        chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS));
+        chatContainer.add(chat);
+        bottomPart.add(chatContainer, new GBC(0, 0, 30, 1, 1, 1, NORTHWEST, VERTICAL,
                 new Insets(0, 20, 10, 0)));
-        bottomPart.add(Box.createHorizontalGlue(), new GBC(1, 0, 40, 1, 1, 1, NORTHEAST, BOTH,
+        bottomPart.add(Box.createHorizontalGlue(), new GBC(1, 0, 30, 1, 1, 1, NORTHEAST, BOTH,
                 new Insets(0, 0, 0, 0)));
     }
 

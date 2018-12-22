@@ -18,7 +18,7 @@ public class ActionBoard extends BorderPanel {
     private final static Color bgColor = new Color(171, 39, 60);
     private ArrayList<ActionButton> actionButtons;
     private RaiseSlider raiseSlider;
-    private static String [] actionDescriptions = {"CALL", "CHECK", "BET",  "RAISE", "ALL IN", "FOLD"};
+    private static String [] actionDescriptions = {"CALL", "CHECK", "BET", "RAISE", "ALL IN", "FOLD"};
     public enum ActionIndexList {CALL, CHECK, BET, RAISE, ALL_IN, FOLD}
 
     public ActionBoard() {
@@ -107,12 +107,13 @@ public class ActionBoard extends BorderPanel {
         ActionButton button = actionButtons.get(buttonIndex.ordinal());
         if(actionValue != 0) {
             if (button.getText().contains("$"))
-                button.setText(button.getText().substring(0, button.getText().indexOf("$")) + "$" + actionValue);
+                button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1) + "$" + actionValue);
             else
                 button.setText(button.getText() + " $" + actionValue);
         }
         else
-            button.setText(button.getText().substring(0, button.getText().indexOf("$")));
+            if(button.getText().contains("$"))
+                button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1));
     }
 
     public void setButtonEnabled(boolean enabled, ActionIndexList buttonIndex){

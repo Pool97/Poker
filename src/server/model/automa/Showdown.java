@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class Showdown extends AbstractPokerState{
 
     public Showdown() {
+
     }
 
     @Override
@@ -32,6 +33,12 @@ public class Showdown extends AbstractPokerState{
             dealer.givePotTo(evaluator.getWinners().get(0));
         }
 
+        try {
+            TimeUnit.SECONDS.sleep(4);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         ListIterator<PlayerModel> iterator = table.iterator();
         while(iterator.hasNext()){
             PlayerModel player = iterator.next();
@@ -39,11 +46,7 @@ public class Showdown extends AbstractPokerState{
                     new PlayerUpdated(player.getNickname(), player.getChips(), evaluator.getPlayerHandByName(player.getNickname()), 0));
         }
 
-        try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
 
         game.setState(new TurnEnd());
     }

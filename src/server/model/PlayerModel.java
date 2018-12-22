@@ -2,11 +2,10 @@ package server.model;
 
 import server.model.cards.CardModel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class PlayerModel implements Serializable, Cloneable{
+public class PlayerModel{
     private String nickname;
     private String avatar;
     private int chips;
@@ -21,7 +20,6 @@ public class PlayerModel implements Serializable, Cloneable{
         this.nickname = nickname;
         this.avatar = avatar;
         hand = new Hand();
-
     }
 
     public PlayerModel(){
@@ -121,20 +119,5 @@ public class PlayerModel implements Serializable, Cloneable{
         return chips == that.chips &&
                 Objects.equals(nickname, that.nickname) &&
                 Objects.equals(avatar, that.avatar);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nickname, avatar, chips);
-    }
-
-    @Override
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

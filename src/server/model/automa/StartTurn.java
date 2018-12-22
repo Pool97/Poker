@@ -25,7 +25,6 @@ public class StartTurn extends AbstractPokerState {
         Game.logger.info(CONF_TURN);
 
         if (table.hasWinner()) {
-
             game.sendMessage(new PlayerHasWin(table.getWinner()));
             game.sendMessage(new ServerClosed());
             game.stop();
@@ -33,8 +32,8 @@ public class StartTurn extends AbstractPokerState {
 
             dealer.shuffleCards();
             game.increaseBlinds();
-            game.sendMessage(new ChatNotify("Blinds aumentati: " + "\n" + "Small Blind: "  + game.getSmallBlind()
-            + "\n Big Blind: " + game.getBigBlind()));
+            game.sendMessage(new ChatNotify("Blinds aumentati. Small blind: $"  + game.getSmallBlind()
+            + ", big blind: $" + game.getBigBlind()));
 
             table.removeDisconnectedPlayers();
             table.translatePositions();

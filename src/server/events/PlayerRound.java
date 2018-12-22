@@ -15,11 +15,6 @@ public class PlayerRound implements Serializable, ServerEvent {
         optionsAvailable = new ArrayList<>();
     }
 
-    public PlayerRound(String player) {
-        this.player = player;
-        optionsAvailable = new ArrayList<>();
-    }
-
     public void addOption(PokerAction option) {
         if(!optionsAvailable.contains(option))
             optionsAvailable.add(option);

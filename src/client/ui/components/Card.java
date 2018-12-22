@@ -8,7 +8,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 public class Card extends JComponent implements ComponentListener {
-    private final static String DEFAULT_IMAGE = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "back.png";
+    private final static String PLACEHOLDER_IMAGE = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "back.png";
     private final static String DEFAULT_BACK = System.getProperty(Utils.WORKING_DIRECTORY) + Utils.RES_DIRECTORY + "backOrangePP.png";
     private String frontImageDirectoryPath;
     private String backImageDirectoryPath;
@@ -16,7 +16,7 @@ public class Card extends JComponent implements ComponentListener {
     private Image image;
 
     private Card(boolean isVisible, boolean isCovered) {
-        this.frontImageDirectoryPath = DEFAULT_IMAGE;
+        this.frontImageDirectoryPath = PLACEHOLDER_IMAGE;
         this.backImageDirectoryPath = DEFAULT_BACK;
 
         setOpaque(false);
@@ -26,7 +26,7 @@ public class Card extends JComponent implements ComponentListener {
         addComponentListener(this);
     }
 
-    public static Card createEmptyCard() {
+    public static Card createPlaceholder() {
         return new Card(true, false);
     }
 
@@ -39,7 +39,7 @@ public class Card extends JComponent implements ComponentListener {
     }
 
     public void loadImage() {
-        if(getWidth() != 0 && getWidth() != 0 && !frontImageDirectoryPath.equals(DEFAULT_IMAGE))
+        if(getWidth() != 0 && getWidth() != 0 && !frontImageDirectoryPath.equals(PLACEHOLDER_IMAGE))
             image = Utils.loadImageByPath(getDirectoryPathImageToLoad(), getSize());
     }
 
@@ -83,8 +83,8 @@ public class Card extends JComponent implements ComponentListener {
         repaint();
     }
 
-    public boolean isDefault(){
-        return frontImageDirectoryPath.equals(DEFAULT_IMAGE);
+    public boolean isPlaceHolder(){
+        return frontImageDirectoryPath.equals(PLACEHOLDER_IMAGE);
     }
 
     @Override

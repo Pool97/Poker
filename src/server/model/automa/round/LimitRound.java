@@ -18,8 +18,6 @@ import java.util.List;
 
 public abstract class LimitRound extends BettingRound {
     private List<AbstractPokerAction> turnActions;
-    protected int numberOfRaiseHappened;
-    protected int numberOfBetHappened;
     private int fixedLimit;
 
     public LimitRound(int fixedLimit){
@@ -45,7 +43,6 @@ public abstract class LimitRound extends BettingRound {
             ActionPerformed playerAction = (ActionPerformed) userResponse;
             playerAction.getAction().accept(this);
             playerAction.getAction().setNickname(player.getNickname());
-
             dealer.collectAction(player, playerAction.getAction().getValue());
             game.sendMessage(new PlayerUpdated(player.getNickname(), player.getChips(),
                     playerAction.getAction().toString(), playerAction.getAction().getValue()));
@@ -60,19 +57,7 @@ public abstract class LimitRound extends BettingRound {
         }
     }
 
-    @Override
-    public void process(RaiseLimit raiseNoLimitOption) {
-        numberOfRaiseHappened++;
-    }
-
-    @Override
-    public void process(BetLimit betLimit) {
-        numberOfBetHappened++;
-    }
-
     public int getNumberOfRaiseBy(String nickname){
-        if(turnActions.size() == 0)
-            return 0;
         return (int)turnActions.stream().filter(action -> action.getNickname().equals(nickname))
                 .filter(action -> action instanceof RaiseLimit)
                 .count();

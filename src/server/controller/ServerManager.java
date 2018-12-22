@@ -70,6 +70,7 @@ public class ServerManager implements Runnable {
 
     private void listen(){
         logger.info(SERVER_INFO + LISTEN_FOR_CLIENTS_INFO);
+
         try {
             Socket socket = serverSocket.accept();
 
@@ -84,61 +85,45 @@ public class ServerManager implements Runnable {
             logger.log(Level.WARNING, SERVER_ERROR + SERVER_SHUTDOWN_INFO);
             Thread.currentThread().interrupt();
         }
+
     }
 
     private void handleClient(Socket socket){
-        BlockingQueue<Event> queue2 = new ArrayBlockingQueue<>(20);
-        ClientSocket client = new ClientSocket(socket, queue2, chatQueue, latch);
-
-        PlayerModel model = new PlayerModel();
-
-        table.sit(model);
+        BlockingQueue<Event> writeQueue = new ArrayBlockingQueue<>(20);
+        ClientSocket client = new ClientSocket(socket, writeQueue, chatQueue, latch);
 
         new Thread(client).start();
 
-        if(table.size() == 1){
-            try {
-                Event event = queue2.take();
-                MatchMode matchMode = (MatchMode) event;
-                game.setBettingStructure(matchMode.isFixedLimit() ? new FixedLimit(10) : new NoLimit(20));
-                game.setGameType(new Tournament(game.getSmallBlind()));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if(table.size() == 0){
+            Event event = client.readQueue();
+            MatchMode matchMode = (MatchMode) event;
+            game.setBettingStructure(matchMode.isFixedLimit() ? new FixedLimit(10) : new NoLimit(20));
+            game.setGameType(new Tournament(game.getSmallBlind()));
         }
 
-        initializePlayerModel(model, queue2);
+        PlayerConnected playerProperties = (PlayerConnected)client.readQueue();
 
-        ConcreteReceiver receiver = new ConcreteReceiver(model.getNickname(), queue2);
+        logger.info(PLAYER_ADDED + playerProperties.getNickname());
+
+        PlayerModel model = new PlayerModel();
+        model.setNickname(playerProperties.getNickname());
+        model.setAvatar(playerProperties.getAvatar());
+        model.setCreator(table.currentNumberOfPlayers() == 0);
+        table.sit(model);
+
+        ConcreteReceiver receiver = new ConcreteReceiver(model.getNickname(), writeQueue);
         game.register(receiver);
         receiver.register(client);
-    }
-
-    private void initializePlayerModel(PlayerModel model, BlockingQueue<Event> queue2){
-        Event newPlayerConnected = null;
-        try {
-            newPlayerConnected = queue2.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        PlayerConnected event = (PlayerConnected) newPlayerConnected;
-
-        logger.info(PLAYER_ADDED + event.getNickname());
-
-        model.setNickname(event.getNickname());
-        model.setAvatar(event.getAvatar());
-        model.setCreator(table.currentNumberOfPlayers() == 0);
     }
 
     private void updateLobbyList(){
         ListIterator<PlayerModel> iterator = table.iterator();
         PlayerModel player;
+
         while(iterator.hasNext()){
             player = iterator.next();
             game.sendMessage(new PlayerLogged(player.getNickname(), player.getAvatar()));
         }
-
     }
 }
 

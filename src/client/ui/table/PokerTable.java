@@ -46,7 +46,6 @@ public class PokerTable {
 
     private void createCommunityCardsBoard() {
         communityCardsBoard = CommunityCardsBoard.createEmptyCommunityCards();
-        communityCardsBoard.setOpaque(false);
     }
 
     public HorizontalTableSide getTopSide() {
@@ -91,14 +90,13 @@ public class PokerTable {
         return playerBoards.stream().anyMatch(playerBoard -> playerBoard.getNickname().equalsIgnoreCase(playerName));
     }
 
-    public void refreshPot(int updateValue){
-        communityCardsBoard.updatePotValue(updateValue);
+    public void updatePot(int updateValue){
+        communityCardsBoard.updatePot(updateValue);
     }
 
-    public void refreshCommunityCardBoard(){
-        communityCardsBoard.removeCards();
-        communityCardsBoard.createCards();
-        communityCardsBoard.attachCards();
+    public void clearCommunityCardBoard(){
+        communityCardsBoard.clearBoard();
+        communityCardsBoard.createCardPlaceholders();
     }
 
     public void updatePlayerProperties(PlayerUpdated event) {
@@ -106,7 +104,6 @@ public class PokerTable {
         board.setChipIndicator(event.getChips());
         board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() + "$" : ""));
         board.setAnimationEnabled(false);
-        board.repaint();
         Timer timer = new Timer(3000, ae -> board.setHandIndicator(Utils.EMPTY));
         timer.setRepeats(false);
         timer.start();
@@ -114,11 +111,15 @@ public class PokerTable {
 
 
     public void addCardToCommunityCardsBoard(String imageDirectoryPath) {
-        communityCardsBoard.updateCard(imageDirectoryPath);
+        communityCardsBoard.revealCard(imageDirectoryPath);
     }
 
     public List<PlayerBoard> getPlayerBoard() {
         return playerBoards;
+    }
+
+    public void trigger(String nickname){
+        getPlayerBoardBy(nickname).setAnimationEnabled(true);
     }
 
     public void removePlayer(String nickname) {

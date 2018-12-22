@@ -5,6 +5,4 @@ public class Tournament extends GameType {
     public Tournament(int ante) {
         super(ante);
     }
-
-
 }

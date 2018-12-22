@@ -25,8 +25,7 @@ public class ConcreteEventManager extends EventsAdapter {
 
     private void logAvailableActions(PlayerRound event) {
         Client.logger.info("Azioni disponibili: " + event.getPlayerNickname() + " \n");
-        event.getOptions()
-                .forEach(action -> Client.logger.info("Azione: " + action.toString()));
+        event.getOptions().forEach(action -> Client.logger.info("Azione: " + action.toString()));
     }
 
     @Override
@@ -37,9 +36,7 @@ public class ConcreteEventManager extends EventsAdapter {
     @Override
     public void process(PlayerRound event) {
         logAvailableActions(event);
-        PlayerBoard playerBoard = pokerTable.getPlayerBoardBy(event.getPlayerNickname());
-        playerBoard.setAnimationEnabled(true);
-        playerBoard.repaint();
+        pokerTable.trigger(event.getPlayerNickname());
         if (event.getPlayerNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
             event.getOptions().forEach(action -> action.accept(actionManager));
     }
@@ -48,9 +45,10 @@ public class ConcreteEventManager extends EventsAdapter {
     public void process(PlayerLogged event) {
         PlayerBoard playerBoardLogged;
         playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition(), true, event.getChips(), event.getAvatar());
-        if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname())) {
+
+        if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
             playerBoardLogged.setNicknameColor(Color.YELLOW);
-        }
+
         pokerTable.sit(playerBoardLogged);
 
     }
@@ -87,7 +85,7 @@ public class ConcreteEventManager extends EventsAdapter {
 
     @Override
     public void process(PotUpdated event) {
-        pokerTable.refreshPot(event.getPot());
+        pokerTable.updatePot(event.getPot());
     }
 
     @Override
@@ -121,7 +119,7 @@ public class ConcreteEventManager extends EventsAdapter {
 
     @Override
     public void process(TurnEnded event) {
-        pokerTable.refreshCommunityCardBoard();
+        pokerTable.clearCommunityCardBoard();
         pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(true));
         pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setHandIndicator(Utils.EMPTY));
     }

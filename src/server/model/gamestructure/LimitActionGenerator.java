@@ -22,11 +22,12 @@ public class LimitActionGenerator implements ActionGenerator {
 
     @Override
     public PokerAction retrieveRaise() {
-        if(raiseHappened < 3)
-            if(currentBet == 0)
+        if(raiseHappened < 3) {
+            if (currentBet == 0)
                 return NullAction.getInstance();
-            if(currentBet + fixedLimit < playerModel.getChips())
+            if (currentBet + fixedLimit < playerModel.getChips())
                 return new RaiseLimit(currentBet + fixedLimit);
+        }
         return NullAction.getInstance();
     }
 

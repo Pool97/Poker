@@ -89,6 +89,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.addListenerTo(eventG -> {
             Client.getInstance().writeMessage(new ActionPerformed(new RaiseLimit(raiseLimit.getValue())));
             actionBoard.setButtonText(0, CALL);
+            actionBoard.setButtonText(0, RAISE);
             actionBoard.setActionButtonsEnabled(false);
         }, RAISE);
     }

@@ -15,7 +15,7 @@ public class Fold extends AbstractPokerAction  {
 
     @Override
     public String toString() {
-        return "FOLD ";
+        return "FOLD";
     }
 
 

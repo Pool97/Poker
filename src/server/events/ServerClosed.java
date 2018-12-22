@@ -4,6 +4,7 @@ import interfaces.EventsManager;
 import interfaces.ServerEvent;
 
 public class ServerClosed implements ServerEvent {
+
     public ServerClosed() {
 
     }

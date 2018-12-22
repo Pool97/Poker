@@ -26,6 +26,6 @@ public class ChatMessage implements ServerEvent {
     }
 
     public String toString(){
-        return nickname + ": " + message;
+        return message;
     }
 }

@@ -7,6 +7,7 @@ import client.ui.components.Chat;
 import client.ui.components.GameBoard;
 import client.ui.table.PokerTable;
 import client.ui.userboard.ActionBoard;
+import server.events.ChatNotify;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +35,8 @@ public class BoardFrame extends JFrame {
     }
 
     private void createChat(){
-        chat = new Chat(nickname);
+        chat = new Chat(Toolkit.getDefaultToolkit().getScreenSize().width / 5, nickname);
+        chat.addNotify(new ChatNotify("Benvenuto in Poker Texas!"));
     }
 
     private void createBoard() {

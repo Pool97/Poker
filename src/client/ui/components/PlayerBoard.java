@@ -176,6 +176,7 @@ public class PlayerBoard extends BorderPanel{
 
     public void setAnimationEnabled(boolean animationEnabled){
         pulseAnimator.setAnimationEnabled(animationEnabled);
+        repaint();
     }
 
     public void setChipIndicator(int chips) {

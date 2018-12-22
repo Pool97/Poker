@@ -63,6 +63,14 @@ public class ClientSocket implements Runnable, Observer {
         return null; //ritorna l'evento di disconnessione!
     }
 
+    public Event readQueue(){
+        try {
+            return writeQueue.take();
+        } catch (InterruptedException e) {
+            return null;
+        }
+    }
+
     @Override
     public void run() {
         while(true){

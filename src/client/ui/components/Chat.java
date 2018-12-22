@@ -7,14 +7,20 @@ import server.events.ChatNotify;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 
 import static utils.Utils.TRANSPARENT;
 
 public class Chat extends BorderPanel {
-    private JTextArea log;
-    
-    public Chat(String nickname){
+    private JTextPane log;
+    private int preferredWidth;
+
+    public Chat(int width, String nickname){
+        this.preferredWidth = width;
         setLayout(new BorderLayout());
         setBackground(TRANSPARENT);
         setArcDimension(new Dimension(10, 10));
@@ -35,19 +41,32 @@ public class Chat extends BorderPanel {
         userCommands.add(sendMessage);
         add(scrollPane, BorderLayout.CENTER);
         add(userCommands, BorderLayout.SOUTH);
-        log = new JTextArea();
+        log = new JTextPane();
         log.setFocusable(false);
         scrollPane.setViewportView(log);
     }
 
     public void addMessage(ChatMessage message){
-        log.append(message.toString() + "\n");
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLACK);
+        aset = sc.addAttribute(aset, StyleConstants.CharacterConstants.Bold, Boolean.TRUE);
+        log.setCharacterAttributes(aset, false);
+        log.replaceSelection(message.getNickname() + ": " );
+        aset = sc.addAttribute(aset, StyleConstants.CharacterConstants.Bold, Boolean.FALSE);
+        log.setCharacterAttributes(aset, false);
+        log.replaceSelection(message.toString() + "\n");
     }
 
     public void addNotify(ChatNotify notify){
-        log.setFont(new Font("helvetica", Font.BOLD, 14));
-        log.append("Server -> " + notify.getServerMessage() + "\n");
-        log.setFont(new Font("helvetica", Font.PLAIN, 14));
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.RED);
+        aset = sc.addAttribute(aset, StyleConstants.CharacterConstants.Bold, Boolean.TRUE);
+        log.setCharacterAttributes(aset, false);
+        log.replaceSelection("Server: " + notify.getServerMessage() + "\n");
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(preferredWidth, getHeight());
+    }
 }
