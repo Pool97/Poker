@@ -7,9 +7,9 @@ Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** d
 * Supporto alle modalità Fixed Limit e No Limit
 * Interfaccia grafica 
 
-## Built With
-
-* [IntelliJ]
+## Libraries
+* [TableLayout](https://www.oracle.com/technetwork/java/tablelayout-141489.html): an alternative to GridBagLayout 
+* [Timing Framework](https://github.com/akuhtz/timingframework): a library for making Java animation and timing-based control easier)
 
 ## Authors
 
