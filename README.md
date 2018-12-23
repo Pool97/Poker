@@ -1,6 +1,6 @@
 # Poker
 
-Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** dell'*Università degli Studi di Brescia*.
+Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** dell'*Università degli Studi di Brescia*. 
 
 ## Features
 * Supporto alla variante Texas Hold'Em
@@ -14,11 +14,12 @@ Poker è un progetto nato per il corso di **Programmazione Avanzata Java e C** d
 * [Timing Framework](https://github.com/akuhtz/timingframework): a library for making Java animation and timing-based control easier
 
 ## Usage
-* È disponibile l'ultima versione mediante pull del branch master, utilizzabile su qualsiasi sistema operativo. 
+È disponibile l'ultima versione mediante pull del branch **master**, utilizzabile su qualsiasi sistema operativo. 
 
 ## Feedback
-* Il software è stato testato sia su piattaforma Linux che Windows, non garantiamo comunque l'assenza di glitch. In caso di eventuali bug riscontrati sentiti libero/a di inviare un feedback mediante la sezione degli issues di GitHub oppure inviando una mail a [roberto.poletti@studenti.unibs.it](mailto:roberto.poletti@studenti.unibs.it)". Richieste per eventuali migliorie sono accolte!
+Il software è stato testato sia su piattaforma Linux che Windows, non garantiamo comunque l'assenza di glitch. In caso di eventuali bug riscontrati sentiti libero/a di inviare un feedback mediante la sezione degli issues di GitHub oppure inviando una mail a [roberto.poletti@studenti.unibs.it](mailto:roberto.poletti@studenti.unibs.it)". Richieste per eventuali migliorie sono accolte!
 
+## 
 ## Authors
 
 * **Roberto Poletti** - *Initial work* - [Pool97](https://github.com/Pool97)
