@@ -33,12 +33,12 @@ public class Flop extends AbstractPokerState {
     @Override
     public void nextState(NoLimit type) {
         nextState = new NextNoLimitRound();
-        ((NextNoLimitRound) nextState).setTransitionStrategy(Turn::new);
+        nextState.setTransitionStrategy(Turn::new);
     }
 
     @Override
     public void nextState(FixedLimit type) {
         nextState = new NextLimitRound(fixedLimit);
-        ((NextLimitRound) nextState).setTransitionStrategy(Turn::new);
+        nextState.setTransitionStrategy(Turn::new);
     }
 }
