@@ -33,7 +33,7 @@ public class Game implements Runnable, Observer {
         receivers.add(receiver);
     }
 
-    public void setState(PokerState state) {
+    public void setNextState(PokerState state) {
         this.currentState = state;
     }
 

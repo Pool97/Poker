@@ -10,6 +10,10 @@ public class PlayerDisconnected implements ServerEvent {
         this.nickname = nickname;
     }
 
+    public PlayerDisconnected(){
+
+    }
+
     public String getNickname() {
         return nickname;
     }

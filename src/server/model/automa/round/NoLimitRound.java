@@ -1,73 +1,61 @@
 package server.model.automa.round;
 
-import client.events.ActionPerformed;
 import server.controller.Game;
-import server.events.PlayerRound;
-import server.events.PlayerUpdated;
-import server.events.PotUpdated;
 import server.model.PlayerModel;
-import server.model.actions.AllIn;
-import server.model.actions.BetNoLimit;
-import server.model.actions.Fold;
-import server.model.actions.RaiseNoLimit;
-import server.model.gamestructure.NoLimitActionGenerator;
+import server.model.Position;
+import server.model.automa.Showdown;
 
 import java.util.AbstractMap;
+import java.util.ListIterator;
 
-public abstract class NoLimitRound extends BettingRound {
-    private PlayerModel actualPlayer;
-    private ActionPerformed action;
-    private int currentBet;
+public class NoLimitRound extends AbstractNoLimitRound {
+    private final static String START_ACTIONS = "Inizio il giro di puntate non obbligatorie... \n";
+    private final static String ONE_PLAYER_ONLY = "È rimasto solo un giocatore nel giro di puntate! \n";
+    private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
+    private int nextPosition;
 
-    protected void doAction(PlayerModel player, Game game) {
-        actualPlayer = player;
-        currentBet = dealer.getPotMatchingValue(player.getNickname(), game.getBigBlind());
-
-        actionGenerator = new NoLimitActionGenerator(dealer.getMinimumLegalRaise(), player,
-                currentBet);
-
-        PlayerRound optionsEvent = generateActions();
-        optionsEvent.setPlayerNickname(player.getNickname());
-
-        game.sendMessage(optionsEvent);
-
-        action = (ActionPerformed) game.readMessage(player.getNickname());
-
-        dealer.collectAction(player, action.getAction().getValue());
-        action.getAction().accept(this);
-
-        game.sendMessage(new PlayerUpdated(actualPlayer.getNickname(), actualPlayer.getChips(),
-                action.getAction().toString(), action.getAction().getValue()));
-        game.sendMessage(new PotUpdated(table.getPotValue()));
-
-        if(table.getPlayerByName(player.getNickname()).getChips() == 0)
-            player.setAllIn(true);
-    }
-
-
-    @Override
-    public void process(Fold fold) {
-        actualPlayer.setFolded(true);
+    public NoLimitRound(int nextPosition){
+        this.nextPosition = nextPosition;
+        if(nextPosition == Position.SB.ordinal()){
+            roundNumber = 0;
+        }else{
+            roundNumber = 1;
+        }
     }
 
     @Override
-    public void process(BetNoLimit betNoLimit) {
-        if(action.getAction().getValue() > dealer.getMinimumLegalRaise().getValue())
-            dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(actualPlayer.getNickname(),
-                action.getAction().getValue()));
-    }
+    public void goNext(Game game) {
+        Game.logger.info(START_ACTIONS);
 
-    @Override
-    public void process(RaiseNoLimit raiseNoLimitOption) {
-        if(action.getAction().getValue() - currentBet > dealer.getMinimumLegalRaise().getValue())
-            dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(actualPlayer.getNickname(),
-                action.getAction().getValue() - currentBet));
-    }
+        dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(
+                table.iterator(Position.SB.ordinal()).next().getNickname(), game.getBigBlind()));
 
-    @Override
-    public void process(AllIn allin) {
-        if(allin.getValue() - currentBet > dealer.getMinimumLegalRaise().getValue())
-            dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(actualPlayer.getNickname(),
-                    action.getAction().getValue() - currentBet));
+        ListIterator<PlayerModel> iterator = nextPosition == 0 ? table.iterator() : table.iterator(Position.BB.ordinal());
+
+        PlayerModel player;
+
+        while (!roundFinished(nextPosition)) {
+
+            player = iterator.next();
+            if (!player.hasFolded() && !player.isAllIn()) {
+                doAction(player, game);
+            }
+
+            nextPosition = iterator.nextIndex();
+
+            if(!iterator.hasNext()){
+                iterator = table.iterator();
+                nextPosition = Position.SB.ordinal();
+                roundNumber++;
+            }
+
+        }
+
+        if (table.countPlayersInGame() == 1) {
+            Game.logger.info(ONE_PLAYER_ONLY);
+            game.setNextState(new Showdown());
+        } else if ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) || isMatched() || table.isAllPlayersAllIn()) {
+            game.setNextState(strategy.determineTransition());
+        }
     }
 }

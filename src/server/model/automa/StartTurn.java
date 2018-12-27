@@ -2,8 +2,6 @@ package server.model.automa;
 
 import server.controller.Game;
 import server.events.ChatNotify;
-import server.events.PlayerHasWin;
-import server.events.ServerClosed;
 import server.events.TurnStarted;
 import server.model.PlayerModel;
 import server.model.Position;
@@ -17,6 +15,7 @@ public class StartTurn extends AbstractPokerState {
 
     public StartTurn() {
         super();
+        strategy = ForcedBets::new;
     }
 
     @Override
@@ -24,25 +23,17 @@ public class StartTurn extends AbstractPokerState {
         Game.logger.info(STATE_STARTED);
         Game.logger.info(CONF_TURN);
 
-        if (table.hasWinner()) {
-            game.sendMessage(new PlayerHasWin(table.getWinner()));
-            game.sendMessage(new ServerClosed());
-            game.stop();
-        } else {
+        dealer.shuffleCards();
+        game.increaseBlinds();
+        game.sendMessage(new ChatNotify("Blinds aumentati. Small blind: $"  + game.getSmallBlind()
+        + ", big blind: $" + game.getBigBlind()));
 
-            dealer.shuffleCards();
-            game.increaseBlinds();
-            game.sendMessage(new ChatNotify("Blinds aumentati. Small blind: $"  + game.getSmallBlind()
-            + ", big blind: $" + game.getBigBlind()));
+        table.removeDisconnectedPlayers();
+        table.translatePositions();
+        for(PlayerModel player : table) player.receiveCards(dealer.dealCard(), dealer.dealCard());
+        prepareTurnStartedEvents(game);
 
-            table.removeDisconnectedPlayers();
-            table.translatePositions();
-
-            for(PlayerModel player : table) player.receiveCards(dealer.dealCard(), dealer.dealCard());
-            prepareTurnStartedEvents(game);
-
-            game.setState(new ForcedBets());
-        }
+        game.setNextState(strategy.determineTransition());
     }
 
     private void prepareTurnStartedEvents(Game game) {

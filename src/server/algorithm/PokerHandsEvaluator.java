@@ -13,11 +13,13 @@ public class PokerHandsEvaluator {
     private ArrayList<CardModel> finalCards;
     private List<PokerHand> algorithms;
     private PokerHand maxPlayerHand;
+    private ArrayList<CardModel> playerCard = new ArrayList<>();
 
     public PokerHandsEvaluator(ArrayList<CardModel> playerCards, CardModel... communityCards) {
         finalCards = new ArrayList<>();
         cardsToExamine = Arrays.stream(communityCards).collect(Collectors.toCollection(ArrayList::new));
         cardsToExamine.addAll(playerCards);
+        playerCard = Arrays.stream(communityCards).collect(Collectors.toCollection(ArrayList::new));
 
         algorithms = Arrays.asList(new ScalaReale(), new ScalaColore(), new Colore(), new PokerOrTris(4),
                 new Full(), new Scala(), new PokerOrTris(3), new DoppiaCoppia(), new Coppia(), new CartaPiuAlta());
@@ -32,6 +34,8 @@ public class PokerHandsEvaluator {
             }
         }
     }
+
+    public ArrayList<CardModel> getPlayerCards(){ return playerCard; }
 
     public ArrayList<CardModel> getFinalCards() {
         return finalCards;

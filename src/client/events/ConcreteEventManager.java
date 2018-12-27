@@ -44,7 +44,7 @@ public class ConcreteEventManager extends EventsAdapter {
     @Override
     public void process(PlayerLogged event) {
         PlayerBoard playerBoardLogged;
-        playerBoardLogged = new PlayerBoard(event.getNickname(), event.getPosition(), true, event.getChips(), event.getAvatar());
+        playerBoardLogged = new PlayerBoard(event.getNickname(), true, event.getChips(), event.getAvatar());
 
         if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
             playerBoardLogged.setNicknameColor(Color.YELLOW);

@@ -3,11 +3,13 @@ package server.model.automa.round;
 import interfaces.ActionGenerator;
 import interfaces.ActionManager;
 import server.events.PlayerRound;
+import server.model.Position;
 import server.model.actions.*;
 import server.model.automa.AbstractPokerState;
 
 public abstract class BettingRound extends AbstractPokerState implements ActionManager {
     protected ActionGenerator actionGenerator;
+    protected int roundNumber;
 
     @Override
     public void process(Call call) {
@@ -15,7 +17,7 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
     }
 
     @Override
-    public void process(RaiseNoLimit raiseNoLimitOption) {
+    public void process(RaiseNoLimit raiseNoLimit) {
 
     }
 
@@ -67,7 +69,10 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     }
 
-    protected abstract boolean roundFinished(int cursor);
+    protected boolean roundFinished(int cursor){
+        return (cursor == Position.SB.ordinal() && ((isMatched() && roundNumber >= 1) || table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn()))
+                || (cursor != Position.SB.ordinal()) && (table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn());
+    }
 
     protected PlayerRound generateActions(){
         PlayerRound actions = new PlayerRound();

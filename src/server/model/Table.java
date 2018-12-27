@@ -118,6 +118,7 @@ public class Table implements Iterable<PlayerModel> {
 
     public void translatePositions(){
         Collections.rotate(players, 1);
+        players.forEach(playerModel -> System.out.println(playerModel.getNickname() + " "));
     }
 
     @Override

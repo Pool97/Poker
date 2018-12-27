@@ -20,6 +20,14 @@ public class FixedLimit extends BettingStructure implements Reachable {
         smallBlind = bigBlind / 2;
     }
 
+    public int getLowerLimit() {
+        return lowerLimit;
+    }
+
+    public int getHigherLimit() {
+        return higherLimit;
+    }
+
     @Override
     public void reach(Reacher reacher) {
         reacher.nextState(this);

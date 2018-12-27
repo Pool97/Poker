@@ -20,7 +20,7 @@ public class NoLimitActionGenerator implements ActionGenerator {
 
     @Override
     public PokerAction retrieveRaise() {
-        if(minimumLegalRaise.getKey().equals(playerModel.getNickname()) || currentBet == 0)
+        if(currentBet == 0)
             return NullAction.getInstance();
 
         if(currentBet + minimumLegalRaise.getValue() < playerModel.getChips())

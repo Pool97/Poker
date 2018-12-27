@@ -6,13 +6,11 @@ import interfaces.ServerEvent;
 public class PlayerLogged implements ServerEvent {
     private String nickname;
     private String avatar;
-    private String position;
     private int chips;
 
-    public PlayerLogged(String nickname, String avatar, String position, int chips) {
+    public PlayerLogged(String nickname, String avatar, int chips) {
         this.nickname = nickname;
         this.avatar = avatar;
-        this.position = position;
         this.chips = chips;
     }
 
@@ -31,10 +29,6 @@ public class PlayerLogged implements ServerEvent {
 
     public String getAvatar() {
         return avatar;
-    }
-
-    public String getPosition() {
-        return position;
     }
 
     @Override

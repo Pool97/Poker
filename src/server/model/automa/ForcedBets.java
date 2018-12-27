@@ -4,8 +4,9 @@ import server.controller.Game;
 import server.events.PlayerUpdated;
 import server.events.PotUpdated;
 import server.model.PlayerModel;
-import server.model.automa.round.FirstLimitRound;
-import server.model.automa.round.FirstNoLimitRound;
+import server.model.Position;
+import server.model.automa.round.LimitRound;
+import server.model.automa.round.NoLimitRound;
 import server.model.gamestructure.FixedLimit;
 import server.model.gamestructure.NoLimit;
 
@@ -44,7 +45,7 @@ public class ForcedBets extends AbstractPokerState {
         payBlindAndUpdate(game, playerModel, dealer.collectForcedBetFrom(playerModel, game.getBigBlind()));
         game.sendMessage(new PotUpdated(dealer.getPotValue()));
         game.getBettingStructure().reach(this);
-        game.setState(nextState);
+        game.setNextState(nextState);
     }
 
     private void payBlindAndUpdate(Game game, PlayerModel player, int value) {
@@ -54,12 +55,13 @@ public class ForcedBets extends AbstractPokerState {
 
     @Override
     public void nextState(NoLimit type) {
-        nextState = new FirstNoLimitRound();
+        nextState = new NoLimitRound((Position.BB.ordinal() + 1) % table.size());
+        nextState.setTransitionStrategy(Flop::new);
     }
 
     @Override
     public void nextState(FixedLimit type) {
-        nextState = new FirstLimitRound(bigBlind);
-        ((FirstLimitRound) nextState).setTransitionStrategy(Flop::new);
+        nextState = new LimitRound(bigBlind, (Position.BB.ordinal() + 1) % table.size());
+        nextState.setTransitionStrategy(Flop::new);
     }
 }

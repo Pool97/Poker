@@ -48,6 +48,6 @@ public class Showdown extends AbstractPokerState{
 
 
 
-        game.setState(new TurnEnd());
+        game.setNextState(new TurnEnd());
     }
 }

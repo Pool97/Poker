@@ -92,6 +92,8 @@ public class Client {
     public void close() {
         try {
             socket.close();
+            inputStream.close();
+            outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

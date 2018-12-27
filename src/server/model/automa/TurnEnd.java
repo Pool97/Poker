@@ -1,9 +1,7 @@
 package server.model.automa;
 
 import server.controller.Game;
-import server.events.MatchLost;
-import server.events.PotUpdated;
-import server.events.TurnEnded;
+import server.events.*;
 import server.model.PlayerModel;
 
 import java.util.ListIterator;
@@ -12,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class TurnEnd extends AbstractPokerState{
 
     public TurnEnd() {
+
     }
 
     @Override
@@ -30,6 +29,7 @@ public class TurnEnd extends AbstractPokerState{
                game.sendMessage(new MatchLost(player.getNickname(), table.currentNumberOfPlayers() + 1, player.isCreator()));
             }
             player.setFolded(false);
+            player.setAllIn(false);
         }
 
         try {
@@ -42,7 +42,12 @@ public class TurnEnd extends AbstractPokerState{
 
         dealer.emptyCommunity();
         table.refreshLists();
-        game.setState(new StartTurn());
+        if (table.hasWinner()) {
+            game.sendMessage(new PlayerHasWin(table.getWinner()));
+            game.sendMessage(new ServerClosed());
+            game.stop();
+        }else
+            game.setNextState(new StartTurn());
     }
 
 }

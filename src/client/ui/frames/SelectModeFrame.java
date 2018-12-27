@@ -47,6 +47,7 @@ public class SelectModeFrame extends JFrame {
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
             dialog.setFocusOnButton();
+
         });
         container.add(Box.createHorizontalGlue());
 

@@ -107,7 +107,7 @@ public class ActionBoard extends BorderPanel {
         ActionButton button = actionButtons.get(buttonIndex.ordinal());
         if(actionValue != 0) {
             if (button.getText().contains("$"))
-                button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1) + "$" + actionValue);
+                button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1) + " $" + actionValue);
             else
                 button.setText(button.getText() + " $" + actionValue);
         }

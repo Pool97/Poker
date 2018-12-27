@@ -4,6 +4,7 @@ import client.events.MatchCanStart;
 import interfaces.Event;
 import interfaces.Observer;
 import server.events.ChatMessage;
+import server.events.PlayerDisconnected;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -60,7 +61,7 @@ public class ClientSocket implements Runnable, Observer {
         } catch (IOException | ClassNotFoundException e) {
             Thread.currentThread().interrupt();
         }
-        return null; //ritorna l'evento di disconnessione!
+        return new PlayerDisconnected();
     }
 
     public Event readQueue(){

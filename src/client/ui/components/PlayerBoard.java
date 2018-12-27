@@ -30,7 +30,7 @@ public class PlayerBoard extends BorderPanel{
     public static int height;
 
 
-    public PlayerBoard(String nickname, String position, boolean isCovered, int chips, String avatarDirectoryPath) {
+    public PlayerBoard(String nickname, boolean isCovered, int chips, String avatarDirectoryPath) {
         cards = new ArrayList<>();
         pulseAnimator = new PulseAnimator(this);
 
@@ -41,7 +41,7 @@ public class PlayerBoard extends BorderPanel{
         createNickname(nickname);
         setComponentProperties(this.nickname);
 
-        createPosition(position);
+        createPosition("");
         setComponentProperties(this.position);
 
         createHand();
