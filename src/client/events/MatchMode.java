@@ -1,6 +1,7 @@
 package client.events;
 
 import interfaces.ClientEvent;
+import interfaces.EventManager;
 
 public class MatchMode implements ClientEvent {
     private boolean fixedLimit;
@@ -11,5 +12,10 @@ public class MatchMode implements ClientEvent {
 
     public boolean isFixedLimit(){
         return fixedLimit;
+    }
+
+    @Override
+    public void accept(EventManager processor) {
+        processor.process(this);
     }
 }

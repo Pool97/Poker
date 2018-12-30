@@ -19,14 +19,12 @@ public class Game implements Runnable, Observer {
     private List<ConcreteReceiver> receivers;
     private BettingStructure bettingStructure;
     private GameType gameType;
-    private CountDownLatch latch;
 
     public static final Logger logger = Logger.getLogger(Game.class.getName());
 
-    public Game(Table room, CountDownLatch latch){
+    public Game(Table room){
         currentState = new StartGame(room, room.getDealer());
         receivers = new ArrayList<>();
-        this.latch = latch;
     }
 
     public void register(ConcreteReceiver receiver){
@@ -68,19 +66,12 @@ public class Game implements Runnable, Observer {
 
     @Override
     public void run() {
-        await(latch);
+        for(ConcreteReceiver receiver: receivers)
+            new ConcreteReadCommand(receiver).execute();
         countDownLatch = new CountDownLatch(1);
 
         while (countDownLatch.getCount() > 0)
             currentState.goNext(this);
-    }
-
-    public void await(CountDownLatch latch){
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public void stop(){

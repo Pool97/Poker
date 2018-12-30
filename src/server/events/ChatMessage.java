@@ -1,6 +1,6 @@
 package server.events;
 
-import interfaces.EventsManager;
+import interfaces.EventManager;
 import interfaces.ServerEvent;
 
 public class ChatMessage implements ServerEvent {
@@ -21,7 +21,7 @@ public class ChatMessage implements ServerEvent {
     }
 
     @Override
-    public void accept(EventsManager processor) {
+    public void accept(EventManager processor) {
         processor.process(this);
     }
 

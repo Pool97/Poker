@@ -1,6 +1,7 @@
 package client.events;
 
 import client.net.Client;
+import client.net.ClientWrapper;
 import client.ui.components.PlayerBoard;
 import client.ui.dialogs.LoserDialog;
 import client.ui.dialogs.WinnerDialog;
@@ -11,6 +12,7 @@ import server.events.*;
 import utils.Utils;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ConcreteEventManager extends EventsAdapter {
     private ActionManager actionManager;
@@ -30,14 +32,14 @@ public class ConcreteEventManager extends EventsAdapter {
 
     @Override
     public void process(ServerClosed event) {
-        Client.getInstance().close();
+        ClientWrapper.getInstance().close();
     }
 
     @Override
     public void process(PlayerRound event) {
         logAvailableActions(event);
         pokerTable.trigger(event.getPlayerNickname());
-        if (event.getPlayerNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
+        if (event.getPlayerNickname().equals(ClientWrapper.getInstance().getNickname()))
             event.getOptions().forEach(action -> action.accept(actionManager));
     }
 
@@ -46,31 +48,30 @@ public class ConcreteEventManager extends EventsAdapter {
         PlayerBoard playerBoardLogged;
         playerBoardLogged = new PlayerBoard(event.getNickname(), true, event.getChips(), event.getAvatar());
 
-        if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
+        if (event.getNickname().equals(ClientWrapper.getInstance().getNickname()))
             playerBoardLogged.setNicknameColor(Color.YELLOW);
 
         pokerTable.sit(playerBoardLogged);
-
     }
 
     @Override
     public void process(PlayerHasWin event) {
-        pokerTable.removePlayer(event.getNickname());
-        if (Client.getInstance().getNickname().equals(event.getNickname())) {
-            WinnerDialog dialog = new WinnerDialog("Hai vinto mentekatto", "Complimenti Player!! " +
-                    event.getNickname());
+        if (ClientWrapper.getInstance().getNickname().equals(event.getNickname())) {
+            WinnerDialog dialog = new WinnerDialog(event.getNickname(),
+                    pokerTable.getPlayerBoardBy(event.getNickname()).getChips(),
+                    pokerTable.getPlayerBoardBy(event.getNickname()).getAvatar());
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
-            boardFrame.dispose();
         }
-    }
+
+        pokerTable.removePlayer(event.getNickname());    }
 
     @Override
     public void process(MatchLost event) {
-        if (Client.getInstance().getNickname().equals(event.getNickname())) {
-            LoserDialog dialog = new LoserDialog("Hai perso!", "Ti sei classificato: " + event.getRankPosition() + "°. " +
-                    "Vuoi continuare a seguire il match?", event.isCreator());
+        if (ClientWrapper.getInstance().getNickname().equals(event.getNickname())) {
+            LoserDialog dialog = new LoserDialog(event.isCreator(), event.getNickname(),
+                    pokerTable.getPlayerBoardBy(event.getNickname()).getAvatar(), event.getRankPosition());
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
@@ -101,7 +102,7 @@ public class ConcreteEventManager extends EventsAdapter {
         playerBoard.changeCard(event.getFrontImageCards().get(0), 0);
         playerBoard.changeCard(event.getFrontImageCards().get(1), 1);
 
-        if (event.getNickname().equalsIgnoreCase(Client.getInstance().getNickname()))
+        if (event.getNickname().equalsIgnoreCase(ClientWrapper.getInstance().getNickname()))
             playerBoard.coverCards(false);
 
     }
@@ -114,7 +115,10 @@ public class ConcreteEventManager extends EventsAdapter {
 
     @Override
     public void process(Showdown event) {
-        pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(false));
+        ArrayList<String> nicknamePlayersInGame = event.getPlayersInGame();
+        nicknamePlayersInGame.stream()
+                .map(nickname -> pokerTable.getPlayerBoardBy(nickname))
+                .forEach(playerBoard -> playerBoard.coverCards(false));
     }
 
     @Override
@@ -122,6 +126,7 @@ public class ConcreteEventManager extends EventsAdapter {
         pokerTable.clearCommunityCardBoard();
         pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.coverCards(true));
         pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setHandIndicator(Utils.EMPTY));
+        pokerTable.getPlayerBoard().forEach(playerBoard -> playerBoard.setFolded(false));
     }
 
     @Override

@@ -3,15 +3,16 @@ package server.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class Table implements Iterable<PlayerModel> {
-    private ArrayList<PlayerModel> players;
+    private CopyOnWriteArrayList<PlayerModel> players;
     private ArrayList<PlayerModel> spectators;
     private Dealer dealer;
 
     public Table(){
-        players = new ArrayList<>();
+        players = new CopyOnWriteArrayList<>();
         spectators = new ArrayList<>();
     }
 
@@ -33,7 +34,7 @@ public class Table implements Iterable<PlayerModel> {
         return players.size();
     }
 
-    public ArrayList<PlayerModel> getPlayers() {
+    public CopyOnWriteArrayList<PlayerModel> getPlayers() {
         return players;
     }
 
@@ -77,10 +78,10 @@ public class Table implements Iterable<PlayerModel> {
 
     }
 
-    public ArrayList<PlayerModel> getAllInPlayers(){
+    public CopyOnWriteArrayList<PlayerModel> getAllInPlayers(){
         return getPlayersInGame().stream()
                 .filter(PlayerModel::isAllIn)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
     }
 
     public ArrayList<PlayerModel> getPlayersInGame(){
@@ -189,7 +190,5 @@ public class Table implements Iterable<PlayerModel> {
         public void add(PlayerModel playerModel) {
             players.add(cursor, playerModel);
         }
-
-
     }
 }

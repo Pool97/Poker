@@ -1,6 +1,6 @@
 package server.events;
 
-import interfaces.EventsManager;
+import interfaces.EventManager;
 import interfaces.PokerAction;
 import interfaces.ServerEvent;
 
@@ -33,7 +33,7 @@ public class PlayerRound implements Serializable, ServerEvent {
     }
 
     @Override
-    public void accept(EventsManager processor) {
+    public void accept(EventManager processor) {
         processor.process(this);
     }
 }

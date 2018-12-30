@@ -1,6 +1,7 @@
 package client.events;
 
 import interfaces.ClientEvent;
+import interfaces.EventManager;
 
 import java.io.Serializable;
 
@@ -30,4 +31,8 @@ public class PlayerConnected implements ClientEvent, Serializable {
         return avatar;
     }
 
+    @Override
+    public void accept(EventManager processor) {
+        processor.process(this);
+    }
 }

@@ -1,6 +1,6 @@
 package client.ui.components;
 
-import client.net.Client;
+import client.net.ClientWrapper;
 import client.ui.userboard.ActionButton;
 import server.events.ChatMessage;
 import server.events.ChatNotify;
@@ -12,12 +12,15 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Random;
 
 import static utils.Utils.TRANSPARENT;
 
 public class Chat extends BorderPanel {
     private JTextPane log;
     private int preferredWidth;
+    private HashMap<String, Color> nicknameColor;
 
     public Chat(int width, String nickname){
         this.preferredWidth = width;
@@ -34,10 +37,11 @@ public class Chat extends BorderPanel {
         ActionButton sendMessage = new ActionButton("Invia", new Color(0, 115, 178), 18);
         sendMessage.addActionListener(event -> {
             if(!textField.getText().equals("")) {
-                Client.getInstance().writeMessage(new ChatMessage(nickname, textField.getText()));
+                ClientWrapper.getInstance().writeMessage(new ChatMessage(nickname, textField.getText()));
                 textField.setText("");
             }
         });
+        nicknameColor = new HashMap<>();
         userCommands.add(sendMessage);
         add(scrollPane, BorderLayout.CENTER);
         add(userCommands, BorderLayout.SOUTH);
@@ -47,8 +51,11 @@ public class Chat extends BorderPanel {
     }
 
     public void addMessage(ChatMessage message){
+        Random random = new Random();
+        nicknameColor.putIfAbsent(message.getNickname(), new Color(random.nextInt(256),
+                random.nextInt(256), random.nextInt(256)));
         StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLACK);
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, nicknameColor.get(message.getNickname()));
         aset = sc.addAttribute(aset, StyleConstants.CharacterConstants.Bold, Boolean.TRUE);
         log.setCharacterAttributes(aset, false);
         log.replaceSelection(message.getNickname() + ": " );

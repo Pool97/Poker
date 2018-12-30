@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class PokerHandsEvaluator {
+public class HandEvaluator {
     private ArrayList<CardModel> cardsToExamine;
     private ArrayList<CardModel> finalCards;
     private List<PokerHand> algorithms;
     private PokerHand maxPlayerHand;
-    private ArrayList<CardModel> playerCard = new ArrayList<>();
+    private ArrayList<CardModel> playerCard;
 
-    public PokerHandsEvaluator(ArrayList<CardModel> playerCards, CardModel... communityCards) {
+    public HandEvaluator(ArrayList<CardModel> playerCards, CardModel... communityCards) {
         finalCards = new ArrayList<>();
         cardsToExamine = Arrays.stream(communityCards).collect(Collectors.toCollection(ArrayList::new));
         cardsToExamine.addAll(playerCards);

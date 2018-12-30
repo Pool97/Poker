@@ -1,15 +1,16 @@
 package client.net;
 
 import interfaces.Event;
-import interfaces.EventsManager;
+import interfaces.EventManager;
 import interfaces.ServerEvent;
+import server.events.NullEvent;
 
 import javax.swing.*;
 import java.util.List;
 
 public class ReadServerMessagesTask extends SwingWorker<Void, Event> {
     private final static String WAITING_FOR_SERVER = "In attesa di un messaggio dal Server...";
-    private EventsManager eventsManager;
+    private EventManager eventsManager;
     private boolean hasFinished = true;
 
     public ReadServerMessagesTask() {
@@ -21,10 +22,10 @@ public class ReadServerMessagesTask extends SwingWorker<Void, Event> {
         Event eventsContainer;
         do {
             Client.logger.info(WAITING_FOR_SERVER);
-            eventsContainer = (Event) Client.getInstance().readMessage();
+            eventsContainer = ClientWrapper.getInstance().readMessage();
             publish(eventsContainer);
             Thread.sleep(500);
-        } while (hasFinished);
+        } while (!(eventsContainer instanceof NullEvent));
         return null;
     }
 
@@ -34,11 +35,13 @@ public class ReadServerMessagesTask extends SwingWorker<Void, Event> {
 
     @Override
     protected void process(List<Event> chunks) {
-        Event eventsContainer = chunks.get(0);
-        ((ServerEvent)eventsContainer).accept(eventsManager);
+        if(chunks.size() > 0){
+            Event eventsContainer = chunks.get(0);
+            ((ServerEvent)eventsContainer).accept(eventsManager);
+        }
     }
 
-    public void setEventsManager(EventsManager processor) {
+    public void setEventsManager(EventManager processor) {
         this.eventsManager = processor;
     }
 }

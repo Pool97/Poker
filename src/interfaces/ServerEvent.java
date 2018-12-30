@@ -1,5 +1,5 @@
 package interfaces;
 
 public interface ServerEvent extends Event {
-    void accept(EventsManager processor);
+    void accept(EventManager processor);
 }

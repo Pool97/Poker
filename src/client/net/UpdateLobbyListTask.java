@@ -6,6 +6,7 @@ import client.ui.frames.BoardFrame;
 import client.ui.frames.Lobby;
 import interfaces.Event;
 import interfaces.ServerEvent;
+import server.events.PlayerDisconnected;
 import server.events.PlayerLogged;
 import server.events.RoomCreated;
 import utils.Utils;
@@ -14,6 +15,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -35,14 +37,14 @@ public class UpdateLobbyListTask extends SwingWorker<Void, Event> {
         Event messageObject;
         do {
             Client.logger.info(WAITING);
-            try {
-                messageObject = (Event) Client.getInstance().readMessage();
+                messageObject = ClientWrapper.getInstance().readMessage();
                 publish(messageObject);
+            try {
                 Thread.sleep(500);
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
         } while (!processor.isRoomCreated());
         return null;
     }
@@ -64,19 +66,13 @@ public class UpdateLobbyListTask extends SwingWorker<Void, Event> {
 class EventsProcessor extends EventsAdapter {
     private boolean isRoomCreated = false;
     private ArrayList<String> playerLogged;
-    private JPanel avatarList ;
-    private JPanel nickNameList ;
     private JPanel playerList;
-
-    public EventsProcessor(ArrayList<String> playerLogged, JPanel avatarList, JPanel nickNameList){
-        this.playerLogged = playerLogged;
-        this.avatarList = avatarList;
-        this.nickNameList = nickNameList;
-    }
+    private HashMap<String, JPanel> nicknameTuples;
 
     public EventsProcessor(ArrayList<String> playerLogged, JPanel playerList){
         this.playerLogged = playerLogged;
         this.playerList = playerList;
+        nicknameTuples = new HashMap<>();
 
     }
 
@@ -121,8 +117,16 @@ class EventsProcessor extends EventsAdapter {
             tuple.setOpaque(false);
             tuple.add(tupleA);
             tuple.add(tupleN);
+            nicknameTuples.put(event.getNickname(), tuple);
             playerList.add(tuple);
         }
+    }
+
+    @Override
+    public void process(PlayerDisconnected event) {
+        playerList.remove(nicknameTuples.get(event.getNickname()));
+        playerList.revalidate();
+        playerList.repaint();
     }
 
     @Override

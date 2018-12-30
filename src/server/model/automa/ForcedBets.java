@@ -21,12 +21,10 @@ public class ForcedBets extends AbstractPokerState {
         PlayerModel playerModel;
         bigBlind = game.getBigBlind();
         for(PlayerModel player : table){
-            game.sendMessage(
-                    new PlayerUpdated(player.getNickname(), player.getChips(), "PAY",
+            game.sendMessage(new PlayerUpdated(player.getNickname(), player.getChips(), "PAY",
                             dealer.collectForcedBetFrom(player, game.getAnte())));
             try {
                 Thread.sleep(1500);
-                System.out.println("Sleep....");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

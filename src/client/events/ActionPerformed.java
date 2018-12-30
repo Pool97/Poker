@@ -1,6 +1,7 @@
 package client.events;
 
 import interfaces.ClientEvent;
+import interfaces.EventManager;
 import server.model.actions.AbstractPokerAction;
 
 public class ActionPerformed implements ClientEvent {
@@ -12,5 +13,10 @@ public class ActionPerformed implements ClientEvent {
 
     public AbstractPokerAction getAction() {
         return action;
+    }
+
+    @Override
+    public void accept(EventManager processor) {
+        processor.process(this);
     }
 }

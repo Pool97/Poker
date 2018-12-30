@@ -1,7 +1,9 @@
 package server.controller;
 
-import client.events.MatchCanStart;
+import client.events.*;
+import interfaces.ClientEvent;
 import interfaces.Event;
+import interfaces.Observable;
 import interfaces.Observer;
 import server.events.ChatMessage;
 import server.events.PlayerDisconnected;
@@ -10,26 +12,29 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 
-public class ClientSocket implements Runnable, Observer {
+public class ClientSocket implements Runnable, Observer, Observable {
     private Socket socket;
+    private String nickname;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
-    private CountDownLatch latch;
     private BlockingQueue<ChatMessage> messageQueue;
     private BlockingQueue<Event> writeQueue;
+    private HashSet<Observer> observers;
+    private SocketEventManager eventManager;
 
     private final static String STREAM_CREATION_ERROR = "Errore nella creazione degli stream... ";
     private final static String STREAM_ERROR = "Errore avvenuto nello stream... ";
 
-    public ClientSocket(Socket socket, BlockingQueue<Event> writeQueue, BlockingQueue<ChatMessage> messageQueue, CountDownLatch latch){
+    public ClientSocket(Socket socket, BlockingQueue<Event> writeQueue, BlockingQueue<ChatMessage> messageQueue){
         this.socket = socket;
         this.writeQueue = writeQueue;
-        this.latch = latch;
         this.messageQueue = messageQueue;
+        observers = new HashSet<>();
         createIOStream();
+        eventManager = new SocketEventManager();
     }
 
     private void createIOStream() {
@@ -60,43 +65,91 @@ public class ClientSocket implements Runnable, Observer {
             return (Event) inStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             Thread.currentThread().interrupt();
+            handle();
         }
-        return new PlayerDisconnected();
-    }
-
-    public Event readQueue(){
-        try {
-            return writeQueue.take();
-        } catch (InterruptedException e) {
-            return null;
-        }
+        return null;
     }
 
     @Override
     public void run() {
-        while(true){
-            try {
-                Event event = readMessage();
-                if(event instanceof MatchCanStart) {
-                    latch.countDown();
-                }else if(event instanceof ChatMessage){
-                    messageQueue.put((ChatMessage)event);
-                }else {
-                    if(event != null)
-                        writeQueue.put(event);
-                    else {
-                        return;
-                    }
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                System.out.println("DISCONNESSO");
+        while(!socket.isClosed()){
+            Event event = readMessage();
+            if(event != null)
+                ((ClientEvent)event).accept(eventManager);
+            else {
+                return;
             }
         }
     }
 
+    private void handle(){
+        notifyObservers(new PlayerDisconnected(nickname));
+        try {
+            inStream.close();
+            outStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void update(Event event) {
         sendMessage(event);
+    }
+
+    @Override
+    public void register(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void unregister(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+        observers.forEach(observer -> observer.update(event));
+    }
+
+    class SocketEventManager extends EventsAdapter{
+        @Override
+        public void process(MatchCanStart event) {
+            notifyObservers(event);
+        }
+
+        @Override
+        public void process(ChatMessage event) {
+            try {
+                messageQueue.put(event);
+            } catch (InterruptedException e) {
+                handle();
+            }
+        }
+
+        @Override
+        public void process(ActionPerformed event) {
+            try {
+                writeQueue.put(event);
+            } catch (InterruptedException e) {
+                handle();
+            }
+        }
+
+        @Override
+        public void process(MatchMode event) {
+            notifyObservers(event);
+        }
+
+        @Override
+        public void process(PlayerConnected event) {
+            nickname = event.getNickname();
+            try {
+                writeQueue.put(event);
+                notifyObservers(event);
+            } catch (InterruptedException e) {
+                handle();
+            }
+        }
     }
 }

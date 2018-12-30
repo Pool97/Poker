@@ -1,8 +1,12 @@
 package interfaces;
 
+import client.events.ActionPerformed;
+import client.events.MatchCanStart;
+import client.events.MatchMode;
+import client.events.PlayerConnected;
 import server.events.*;
 
-public interface EventsManager {
+public interface EventManager {
     void process(PlayerRound event);
 
     void process(PlayerLogged event);
@@ -32,4 +36,14 @@ public interface EventsManager {
     void process(ChatMessage event);
 
     void process(ChatNotify event);
+
+    void process(NullEvent event);
+
+    void process(MatchCanStart event);
+
+    void process(ActionPerformed event);
+
+    void process(MatchMode event);
+
+    void process(PlayerConnected event);
 }

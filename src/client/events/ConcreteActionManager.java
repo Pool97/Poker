@@ -1,6 +1,6 @@
 package client.events;
 
-import client.net.Client;
+import client.net.ClientWrapper;
 import client.ui.userboard.ActionBoard;
 import interfaces.ActionManager;
 import server.model.actions.*;
@@ -19,7 +19,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setButtonEnabled(true, CALL);
         actionBoard.setButtonText(call.getValue(), CALL);
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(call));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(call));
             actionBoard.setButtonText(0, CALL);
             actionBoard.repaint();
             actionBoard.validate();
@@ -32,7 +32,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setButtonEnabled(true, RAISE);
         actionBoard.setMinSlider(raiseNoLimitOption.getValue());
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(new RaiseNoLimit(actionBoard.getSliderValue())));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(new RaiseNoLimit(actionBoard.getSliderValue())));
             actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
         }, RAISE);
@@ -43,7 +43,7 @@ public class ConcreteActionManager implements ActionManager {
     public void process(Fold fold) {
         actionBoard.setButtonEnabled(true, FOLD);
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(fold));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(fold));
             actionBoard.setActionButtonsEnabled(false);
             actionBoard.setButtonText(0, CALL);
         }, FOLD);
@@ -53,7 +53,7 @@ public class ConcreteActionManager implements ActionManager {
     public void process(Check check) {
         actionBoard.setButtonEnabled(true, CHECK);
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(new Check()));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(new Check()));
             actionBoard.setActionButtonsEnabled(false);
         }, CHECK);
     }
@@ -63,7 +63,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setMinSlider(betNoLimit.getValue());
         actionBoard.setButtonEnabled(true, BET);
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(new BetNoLimit(actionBoard.getSliderValue())));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(new BetNoLimit(actionBoard.getSliderValue())));
             actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
         }, BET);
@@ -75,7 +75,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.refreshSlider();
         actionBoard.setButtonEnabled(true, ALL_IN);
         actionBoard.addListenerTo(event -> {
-            Client.getInstance().writeMessage(new ActionPerformed(new AllIn(allin.getValue(), false)));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(new AllIn(allin.getValue(), false)));
             actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
         }, ALL_IN);
@@ -87,7 +87,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setButtonEnabled(true, RAISE);
         actionBoard.setRaiseSliderEnabled(false);
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(new RaiseLimit(raiseLimit.getValue())));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(new RaiseLimit(raiseLimit.getValue())));
             actionBoard.setButtonText(0, CALL);
             actionBoard.setButtonText(0, RAISE);
             actionBoard.setActionButtonsEnabled(false);
@@ -100,7 +100,7 @@ public class ConcreteActionManager implements ActionManager {
         actionBoard.setButtonEnabled(true, BET);
         actionBoard.setRaiseSliderEnabled(false);
         actionBoard.addListenerTo(eventG -> {
-            Client.getInstance().writeMessage(new ActionPerformed(new BetLimit(betLimit.getValue())));
+            ClientWrapper.getInstance().writeMessage(new ActionPerformed(new BetLimit(betLimit.getValue())));
             actionBoard.setButtonText(0, CALL);
             actionBoard.setActionButtonsEnabled(false);
         }, BET);

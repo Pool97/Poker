@@ -2,6 +2,7 @@ package server.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PotList {
     private List<SidePot> sidePots;
@@ -39,12 +40,8 @@ public class PotList {
         }
     }
 
-    public int givePotValueBy(int index){
-        return sidePots.get(index).getValue();
-    }
-
-    public boolean isNicknameInPot(int potIndex, String nickname){
-        return sidePots.get(potIndex).isPresent(nickname);
+    public ArrayList<String> getNicknamesInPot(int index){
+        return sidePots.get(index).nicknames();
     }
 
     public int getLastPotIndexOf(String nickname){
@@ -71,7 +68,7 @@ public class PotList {
                 .count();
     }
 
-    public int maxBetAmong(ArrayList<PlayerModel> players, int limit){
+    public int maxBetAmong(CopyOnWriteArrayList<PlayerModel> players, int limit){
         int maxBet = 0;
         if(players.size() != 0)
             maxBet = players.stream()
@@ -85,16 +82,12 @@ public class PotList {
         return sidePots.stream().mapToInt(SidePot::sum).sum();
     }
 
-    public int getAndRemovePotValue(String winner){
-        int indexThreshold = getLastPotIndexOf(winner);
-        int sum = 0;
-        for(int i = 0; i <= indexThreshold; i++)
-            sum += sidePots.get(i).sum();
+    public int getSidePotValue(int index){
+        return sidePots.get(index).sum();
+    }
 
-        if (indexThreshold > 0) {
-            sidePots.subList(0, indexThreshold + 1).clear();
-        }
-        return sum;
+    public void removeSidePot(int index){
+        sidePots.remove(index);
     }
 
     public void removePots(){
@@ -105,5 +98,9 @@ public class PotList {
     public void descr(){
         System.out.println("REFRESHO LA POT LIST!!!!!");
         sidePots.stream().forEach(pot -> System.out.println(pot.toString() + "\n\n"));
+    }
+
+    public int size(){
+        return sidePots.size();
     }
 }

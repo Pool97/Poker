@@ -47,6 +47,7 @@ public abstract class AbstractNoLimitRound extends BettingRound {
 
     @Override
     public void process(Fold fold) {
+        System.out.println("FOLDED");
         actualPlayer.setFolded(true);
     }
 

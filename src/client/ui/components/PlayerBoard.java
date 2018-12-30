@@ -28,6 +28,7 @@ public class PlayerBoard extends BorderPanel{
     private PulseAnimator pulseAnimator;
     private float alpha = 0.0f;
     public static int height;
+    private boolean folded;
 
 
     public PlayerBoard(String nickname, boolean isCovered, int chips, String avatarDirectoryPath) {
@@ -159,10 +160,18 @@ public class PlayerBoard extends BorderPanel{
         Shape clipShape = new RoundRectangle2D.Double(strokeSize, strokeSize, getWidth() - shadowGap - strokeSize,
                 height - shadowGap - strokeSize, arcs.width, arcs.height);
 
+
         if(pulseAnimator.isAnimationEnabled())
             pulseAnimator.drawPulseEffect(g.create(), clipShape, getAlpha());
         else
             pulseAnimator.stop();
+
+        if(folded){
+            Graphics2D g2D = (Graphics2D)g.create();
+            g2D.setColor(Color.BLACK);
+            g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
+            g2D.fill(clipShape);
+        }
     }
 
     public float getAlpha() {
@@ -211,6 +220,11 @@ public class PlayerBoard extends BorderPanel{
         cards.forEach(card -> card.setCovered(cover));
     }
 
+    public void setFolded(boolean folded){
+        this.folded = folded;
+        repaint();
+    }
+
     @Override
     public int getHeight() {
         return height == 0 ? super.getHeight() : height;
@@ -224,5 +238,11 @@ public class PlayerBoard extends BorderPanel{
     @Override
     public Dimension getMaximumSize() {
         return height == 0? super.getMaximumSize() : new Dimension(300, height);
+    }
+
+    public Avatar getAvatar() { return avatar; }
+
+    public String getChips(){
+        return chipIndicator.getText();
     }
 }

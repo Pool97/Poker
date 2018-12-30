@@ -102,11 +102,15 @@ public class PokerTable {
     public void updatePlayerProperties(PlayerUpdated event) {
         PlayerBoard board = getPlayerBoardBy(event.getNickname());
         board.setChipIndicator(event.getChips());
-        board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() + "$" : ""));
+        if(!event.getAction().equals(""))
+            board.setHandIndicator(event.getAction() + " "+ (event.getValue() != 0 ? event.getValue() + "$" : ""));
         board.setAnimationEnabled(false);
         Timer timer = new Timer(3000, ae -> board.setHandIndicator(Utils.EMPTY));
         timer.setRepeats(false);
         timer.start();
+        if(event.getAction().equals("FOLD"))
+            board.setFolded(true);
+
     }
 
 

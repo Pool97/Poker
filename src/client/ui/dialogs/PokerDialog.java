@@ -2,7 +2,7 @@ package client.ui.dialogs;
 
 import client.events.MatchMode;
 import client.events.PlayerConnected;
-import client.net.Client;
+import client.net.ClientWrapper;
 import client.ui.components.Avatar;
 import client.ui.components.PokerTextField;
 import client.ui.frames.Lobby;
@@ -35,11 +35,14 @@ public class PokerDialog extends JDialog {
         ipAddress.setEnabled(false);
         ipAddress.setText(Utils.getIpAddress());
         addConfirmButtonListener(event -> {
-            connectToServer();
-            Client.getInstance().writeMessage(new MatchMode(fixedLimitMode));
-            Client.getInstance().writeMessage(new PlayerConnected(nicknameField.getText(),
-                    avatar.getName() + ".png"));
-            openLobby();
+            if((!nicknameField.getText().equals(Utils.EMPTY) && !nicknameField.getText().equals(INSERT_NICKNAME.toUpperCase()))) {
+                if(connectToServer()) {
+                    ClientWrapper.getInstance().writeMessage(new MatchMode(fixedLimitMode));
+                    ClientWrapper.getInstance().writeMessage(new PlayerConnected(nicknameField.getText(),
+                            avatar.getName() + ".png"));
+                    openLobby(true);
+                }
+            }
         });
 
         addCancelButtonListener(event -> {
@@ -52,9 +55,12 @@ public class PokerDialog extends JDialog {
         createGUI();
         System.out.println("IP: " + Utils.getIpAddress());
         addConfirmButtonListener(event -> {
-            connectToServer();
-            Client.getInstance().writeMessage(new PlayerConnected(nicknameField.getText(), avatar.getName() + ".png"));
-            openLobby();
+            if((!nicknameField.getText().equals(Utils.EMPTY) && !nicknameField.getText().equals(INSERT_NICKNAME.toUpperCase()))) {
+                if (connectToServer()) {
+                    ClientWrapper.getInstance().writeMessage(new PlayerConnected(nicknameField.getText(), avatar.getName() + ".png"));
+                    openLobby(false);
+                }
+            }
         });
 
         addCancelButtonListener(event -> {
@@ -89,16 +95,16 @@ public class PokerDialog extends JDialog {
         add(bgPanel);
     }
 
-    private void connectToServer(){
-        Client client = Client.getInstance();
+    private boolean connectToServer(){
+        ClientWrapper client = ClientWrapper.getInstance();
 
         client.setNickname(nicknameField.getText());
         client.setParameters(ipAddress.getText(), 4040);
-        client.attemptToConnect();
+        return client.attemptToConnect();
     }
 
-    private void openLobby(){
-        new Lobby(nicknameField.getText());
+    private void openLobby(boolean creator){
+        new Lobby(nicknameField.getText(), creator);
         dispose();
     }
 

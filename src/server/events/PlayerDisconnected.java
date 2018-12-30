@@ -1,17 +1,14 @@
 package server.events;
 
-import interfaces.EventsManager;
+import interfaces.ClientEvent;
+import interfaces.EventManager;
 import interfaces.ServerEvent;
 
-public class PlayerDisconnected implements ServerEvent {
+public class PlayerDisconnected implements ClientEvent, ServerEvent {
     private String nickname;
 
     public PlayerDisconnected(String nickname) {
         this.nickname = nickname;
-    }
-
-    public PlayerDisconnected(){
-
     }
 
     public String getNickname() {
@@ -19,7 +16,7 @@ public class PlayerDisconnected implements ServerEvent {
     }
 
     @Override
-    public void accept(EventsManager processor) {
+    public void accept(EventManager processor) {
         processor.process(this);
     }
 }

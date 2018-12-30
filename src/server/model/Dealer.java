@@ -5,9 +5,8 @@ import server.model.cards.CommunityModel;
 import server.model.cards.DeckModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Dealer {
     private DeckModel deck;
@@ -48,12 +47,6 @@ public class Dealer {
         this.table = table;
     }
 
-    public void givePotTo(String winner){
-        table.getPlayerByName(winner).addChips(potList.getAndRemovePotValue(winner));
-        table.getPlayersInGame().forEach(playerModel -> playerModel.addChips(potList.getAndRemovePotValue(playerModel.getNickname())));
-        potList.removePots();
-    }
-
     public void setMinimumLegalRaise(Map.Entry<String, Integer> minimumLegalRaise){
         this.minimumLegalRaise = minimumLegalRaise;
     }
@@ -62,8 +55,8 @@ public class Dealer {
         return minimumLegalRaise;
     }
 
-    public void giveChipsToPotWinners(){
-        List<String> activePlayers = Arrays.asList("Prova", "Prova2", "Prova3");
+    public void emptyPot(){
+        potList.removePots();
     }
 
     public int collectForcedBetFrom(PlayerModel player, int forcedBet){
@@ -102,16 +95,28 @@ public class Dealer {
         for (PlayerModel playerModel : table) playerModel.setChips(table.currentNumberOfPlayers() * 10000);
     }
 
+    public ArrayList<String> playersInPot(int potIndex){
+        return potList.getNicknamesInPot(potIndex);
+    }
+
+    public int totalSidePots(){
+        return potList.size();
+    }
+
     public int getTurnBetOf(String nickname){
         return potList.getTurnBetOf(nickname);
     }
 
-    public int maxBetAmong(ArrayList<PlayerModel> players){
+    public int maxBetAmong(CopyOnWriteArrayList<PlayerModel> players){
         return potList.maxBetAmong(players, 0);
     }
 
     public int getPotValue(){
         return potList.totalValue();
+    }
+
+    public int getSidePotValue(int index){
+        return potList.getSidePotValue(index);
     }
 
     public CommunityModel getCommunityModel(){

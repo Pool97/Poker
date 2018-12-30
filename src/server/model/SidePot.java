@@ -1,5 +1,6 @@
 package server.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -41,6 +42,10 @@ public class SidePot {
         }
 
         return new SidePot(copy);
+    }
+
+    public ArrayList<String> nicknames(){
+        return new ArrayList<>(wagers.keySet());
     }
 
     public boolean isPresent(String nickname){

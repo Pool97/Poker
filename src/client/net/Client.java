@@ -5,6 +5,7 @@ import interfaces.Event;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Logger;
 
@@ -17,11 +18,9 @@ import java.util.logging.Logger;
  */
 
 public class Client {
-    private static Client istanza = null;
     private String serverName;
     private int serverPort;
     public final static Logger logger = Logger.getLogger(Client.class.getName());
-    private String nickname;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private Socket socket;
@@ -30,50 +29,24 @@ public class Client {
     private final static String CONNECTING_INFO = " STA CERCANDO DI STABILIRE UNA CONNESSIONE VERSO IL SERVER \n";
     private final static String CONNECTION_ESTABLISHED_INFO = " CONNESSIONE AVVENUTA VERSO IL SERVER ";
     private final static String PORT_INFO = " ALLA PORTA ";
-    private final static String SERVICE_INTERRUPTED = " STO INTERROMPENDO IL SERVIZIO PER UN ERRORE I/O \n";
-
-    public static Client getInstance() {
-        if(istanza == null)
-            istanza = new Client();
-        return istanza;
-    }
 
     public void setParameters(String serverName, int serverPort){
         this.serverName = serverName;
         this.serverPort = serverPort;
     }
 
-    public void setNickname(String nickname){
-        if(this.nickname == null)
-            this.nickname = nickname;
-    }
-
-    public String getNickname(){
-        return nickname;
-    }
-
-    public void attemptToConnect() {
+    public void attemptToConnect() throws IOException{
         logger.info(CLIENT_INFO + CONNECTING_INFO);
-        try {
-            socket = new Socket(serverName, serverPort);
-            outputStream = new ObjectOutputStream(socket.getOutputStream());
-            outputStream.flush();
-            inputStream = new ObjectInputStream(socket.getInputStream());
-            logger.info(CLIENT_INFO + CONNECTION_ESTABLISHED_INFO + serverName + PORT_INFO +  serverPort + "\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.info(CLIENT_INFO  + SERVICE_INTERRUPTED);
-            Thread.currentThread().interrupt();
-        }
+        socket = new Socket();
+        socket.connect(new InetSocketAddress(serverName, serverPort), 3000);
+        outputStream = new ObjectOutputStream(socket.getOutputStream());
+        outputStream.flush();
+        inputStream = new ObjectInputStream(socket.getInputStream());
+        logger.info(CLIENT_INFO + CONNECTION_ESTABLISHED_INFO + serverName + PORT_INFO +  serverPort + "\n");
     }
 
-    public Object readMessage(){
-        try {
-            return inputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public Object readMessage() throws IOException, ClassNotFoundException {
+        return inputStream.readObject();
     }
 
     public Object writeMessage(Event message){
@@ -82,7 +55,6 @@ public class Client {
             outputStream.flush();
         }
          catch (IOException e) {
-            //Client.logger.finer(WRITE_ERROR);
             e.printStackTrace();
             Thread.currentThread().interrupt();
         }

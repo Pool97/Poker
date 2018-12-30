@@ -23,7 +23,6 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     @Override
     public void process(Fold fold) {
-
     }
 
     @Override

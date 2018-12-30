@@ -1,7 +1,7 @@
 package client.ui.frames;
 
 import client.events.ConcreteEventManager;
-import client.net.Client;
+import client.net.ClientWrapper;
 import client.net.ReadServerMessagesTask;
 import client.ui.components.Chat;
 import client.ui.components.GameBoard;
@@ -75,12 +75,13 @@ public class BoardFrame extends JFrame {
     }
 
     private void setFrameProperties() {
+        //setExtendedState(JFrame.MAXIMIZED_BOTH);
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 readTask.stopTask();
-                Client.getInstance().close();
+                ClientWrapper.getInstance().close();
             }
         });
         setDefaultCloseOperation(EXIT_ON_CLOSE);

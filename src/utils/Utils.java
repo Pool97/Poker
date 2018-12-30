@@ -1,6 +1,6 @@
 package utils;
 
-import server.algorithm.PokerHandsEvaluator;
+import server.algorithm.HandEvaluator;
 import server.model.cards.CardModel;
 import server.model.cards.CardRank;
 
@@ -139,52 +139,13 @@ public class Utils {
         return tmpCounter;
     }
 
-    public static int[] riordina(ArrayList<PokerHandsEvaluator> p, int s) {
+    public static int[] riordina(ArrayList<HandEvaluator> p, int s) {
         int[] tmp = new int[s];
         for (int i = 0; i < p.size(); i++) {
             tmp[i] = p.get(i).getPlayerPoint();
         }
 
         Arrays.sort(tmp);
-        return tmp;
-    }
-
-    public static ArrayList<CardModel> getCouples(ArrayList<CardModel> cards) {
-        ArrayList<CardModel> tmp = new ArrayList<>();
-        int k = 0;
-        int n = cards.size();
-        for (int i = 0; i < n; i++) {
-            if (i != n - 1) {
-                if (cards.get(i).getValue() == cards.get(i + 1).getValue()) {
-                    tmp.add(cards.get(i));
-                    tmp.add(cards.get(i + 1));
-                    k++;
-                }
-            }
-
-        }
-        return tmp;
-    }
-
-    public static ArrayList<CardModel> getTris(ArrayList<CardModel> cards) {
-        ArrayList<CardModel> tmp = new ArrayList<>();
-        int k = 0;
-        int n = cards.size();
-        for (int i = 0; i < n; i++) {
-            if (i != n - 1) {
-                if (cards.get(i).getValue() == cards.get(i + 1).getValue()) {
-                    if (tmp.size() == 2)
-                        tmp.add(cards.get(i + 1));
-                    else {
-                        tmp.add(cards.get(i));
-                        tmp.add(cards.get(i + 1));
-                    }
-
-                    k++;
-                }
-            }
-
-        }
         return tmp;
     }
 

@@ -1,7 +1,7 @@
 package client.ui.frames;
 
 import client.events.MatchCanStart;
-import client.net.Client;
+import client.net.ClientWrapper;
 import client.net.UpdateLobbyListTask;
 
 import javax.swing.*;
@@ -14,15 +14,15 @@ public class Lobby extends JFrame {
     private final static String FRAME_TITLE = "In attesa degli altri players...";
     private JPanel playerList;
 
-    public Lobby(String nickname) {
+    public Lobby(String nickname, boolean isCreator) {
 
-        initPanel();
+        initPanel(isCreator);
         new UpdateLobbyListTask(this, playerList, nickname).execute();
 
         createGUI();
     }
 
-    private void initPanel() {
+    private void initPanel(boolean isCreator) {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBackground(new Color(0, 117, 178));
@@ -43,12 +43,15 @@ public class Lobby extends JFrame {
         container.add(playerList);
 
         container.add(Box.createVerticalStrut(5));
-        JButton startGame = new JButton("START");
-        startGame.setFont(new Font("helvetica", Font.PLAIN, 16));
 
-        startGame.addActionListener(event -> Client.getInstance().writeMessage(new MatchCanStart()));
-        startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-        container.add(startGame);
+        if(isCreator) {
+            JButton startGame = new JButton("START");
+            startGame.setFont(new Font("helvetica", Font.PLAIN, 16));
+
+            startGame.addActionListener(event -> ClientWrapper.getInstance().writeMessage(new MatchCanStart()));
+            startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+            container.add(startGame);
+        }
         container.add(Box.createVerticalStrut(5));
         add(container);
     }

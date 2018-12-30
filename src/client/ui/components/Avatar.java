@@ -27,10 +27,6 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
         addMouseListener(this);
     }
 
-    public String getDirectoryPath() {
-        return directoryPath;
-    }
-
     public void setOpacity(boolean isOpacity) {
         this.isOpacity = isOpacity;
     }
@@ -84,18 +80,18 @@ public class Avatar extends JComponent implements MouseListener, ComponentListen
         g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
         g2D.setColor(Color.WHITE);
         g2D.setStroke(new BasicStroke(2));
+
         if (isImageLoaded(image)) {
             g.drawImage(image, 0, 1, null);
             g.drawOval(1, 1, dimension-3, dimension-3);
         }
-
 
         if (isOpacity)
             applyOpacity((Graphics2D) g.create(), opacity);
 
     }
 
-    public void applyOpacity(Graphics2D g2D, float alpha) {
+    private void applyOpacity(Graphics2D g2D, float alpha) {
         g2D.setRenderingHints(Utils.getHighQualityRenderingHints());
         AlphaComposite composite = AlphaComposite.SrcOver;
         g2D.setComposite(composite.derive(alpha).derive(AlphaComposite.SRC_OVER));

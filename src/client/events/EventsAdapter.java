@@ -1,9 +1,9 @@
 package client.events;
 
-import interfaces.EventsManager;
+import interfaces.EventManager;
 import server.events.*;
 
-public class EventsAdapter implements EventsManager {
+public class EventsAdapter implements EventManager {
     @Override
     public void process(PlayerRound event) {
 
@@ -76,6 +76,31 @@ public class EventsAdapter implements EventsManager {
 
     @Override
     public void process(ChatNotify event) {
+
+    }
+
+    @Override
+    public void process(NullEvent event) {
+
+    }
+
+    @Override
+    public void process(MatchCanStart event) {
+
+    }
+
+    @Override
+    public void process(ActionPerformed event) {
+
+    }
+
+    @Override
+    public void process(MatchMode event) {
+
+    }
+
+    @Override
+    public void process(PlayerConnected event) {
 
     }
 }

@@ -14,7 +14,8 @@ public class TurnWinnerEvaluator {
     private CommunityModel communityCards;
     private HashMap<String, String> playersHandByName;
     private HashMap<Integer, String> playersByName;
-    private ArrayList<PokerHandsEvaluator> playerPoints;
+    private ArrayList<HandEvaluator> playerPoints;
+    private ArrayList<Integer> playersFinalPoints = new ArrayList<>();
     private ArrayList<String> winners;
     ArrayList<Integer> index = new ArrayList<>();
 
@@ -28,24 +29,26 @@ public class TurnWinnerEvaluator {
 
     }
 
-    public void evaluateTurnWinner(){
+    public boolean evaluateTurnWinner(){
         for(int i = 0; i < players.size(); i++){
             checkWhoWin(communityCards.getCardsList(), players.get(i).getCards().get(0), players.get(i).getCards().get(1), players.get(i).getNickname(), i);
         }
-        letsStart();
+
+        return letsStart();
     }
 
-    public ArrayList<PokerHandsEvaluator> checkWhoWin(ArrayList<CardModel> c, CardModel p1, CardModel p2, String playerName, int playerIndex){
+    public ArrayList<HandEvaluator> checkWhoWin(ArrayList<CardModel> c, CardModel p1, CardModel p2, String playerName, int playerIndex){
 
-        PokerHandsEvaluator algo = new PokerHandsEvaluator(c, p1, p2);
+        HandEvaluator algo = new HandEvaluator(c, p1, p2);
         algo.evaluate();
         playersHandByName.put(playerName, algo.getPlayerPointName());
         playersByName.put(playerIndex,playerName);
         playerPoints.add(algo);
+        playersFinalPoints.add(playerPoints.get(playerIndex).getPlayerPoint());
         return playerPoints;
     }
 
-    public void pareggio(ArrayList<PokerHandsEvaluator> algo, int checkFactor){
+    public void pareggio(ArrayList<HandEvaluator> algo, int checkFactor){
         index.add(0);
 
         ArrayList<ArrayList<CardModel>> tmpAlgo = new ArrayList<>();
@@ -53,7 +56,7 @@ public class TurnWinnerEvaluator {
         ArrayList<Integer> countC = new ArrayList<>();
         HashMap<ArrayList<CardModel>,Integer> hD = new HashMap<>();
         HashMap<ArrayList<CardModel>,Integer> hD2 = new HashMap<>();
-        HashMap<PokerHandsEvaluator, Integer> tmpHD = new HashMap<>();
+        HashMap<HandEvaluator, Integer> tmpHD = new HashMap<>();
 
         int tmpZ = 0;
 
@@ -93,19 +96,16 @@ public class TurnWinnerEvaluator {
             checkFourOfAKind(algo, tmpAlgo, tmpHD);
         }else if(checkFactor == 9){
             checkFlush_StraightFlush(algo, tmpHD);
-        }else if(checkFactor == 10){
-            System.out.println("CHECK ROYAL FLUSH");
-            checkRoyalFlush(algo, tmpHD);
         }
 
         letsStart();
 
     }
 
-    public void letsStart(){
+    public boolean letsStart(){
         System.out.println("CHECK FASE");
-        ArrayList<PokerHandsEvaluator> algo = new ArrayList<>();
-        PokerHandsEvaluator tmpFirstIndex = playerPoints.get(0);
+        ArrayList<HandEvaluator> algo = new ArrayList<>();
+        HandEvaluator tmpFirstIndex = playerPoints.get(0);
         int[] tmpPP = Utils.riordina(playerPoints, playerPoints.size());
         int tmpWinnerIndex = 0;
         Boolean same = false;
@@ -142,11 +142,17 @@ public class TurnWinnerEvaluator {
                 for(int ind : index){
                     winners.add(playersByName.get(ind));
                 }
+                //new PlyrSituation(index, playersFinalPoints, playerPoints, playersByName, tmpWinnerIndex,2);
             }
             System.out.println("\nPAREGGIO");
+            return true;
         }else{
             winners.add(playersByName.get(tmpWinnerIndex));
             System.out.println("VINCITORE");
+            System.out.println(playersByName.toString());
+            System.out.println(playersFinalPoints.toString());
+            //new PlyrSituation(index, playersFinalPoints, playerPoints, playersByName, tmpWinnerIndex, 1);
+            return false;
         }
     }
 
@@ -220,10 +226,10 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public void checkOnePair(ArrayList<PokerHandsEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkOnePair(ArrayList<HandEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK ONE PAIR");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         //ArrayList<CardModel> tmpHigh = tmpAlgoCouples.get(0);
         boolean high = true;
         for(int i = 1; i < algo.size(); i++){
@@ -259,10 +265,10 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public void checkTwoPair(ArrayList<PokerHandsEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkTwoPair(ArrayList<HandEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK TWO PAIR");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         //ArrayList<CardModel> tmpHigh = tmpAlgoCouples.get(0);
         boolean high = true;
         for(int i = 1; i < algo.size(); i++){
@@ -301,10 +307,10 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public void checkThreeOfAKind(ArrayList<PokerHandsEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkThreeOfAKind(ArrayList<HandEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK THREE OF A KIND");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         //ArrayList<CardModel> tmpHigh = tmpAlgoCouples.get(0);
         boolean high = true;
         for(int i = 1; i < algo.size(); i++){
@@ -336,10 +342,10 @@ public class TurnWinnerEvaluator {
             checkHigherCard(tmpAlgo);
     }
 
-    public void checkStraight(ArrayList<PokerHandsEvaluator> algo,  HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkStraight(ArrayList<HandEvaluator> algo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK STRAIGHT");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         boolean high = true;
 
         for (int i = 1; i < algo.size(); i++){
@@ -415,10 +421,10 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public void checkFlush_StraightFlush(ArrayList<PokerHandsEvaluator> algo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkFlush_StraightFlush(ArrayList<HandEvaluator> algo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK FLUSH & STRAIGHT FLUSH");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         boolean high = true;
         int counterEq = 0;
 
@@ -491,10 +497,10 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public void checkFullHouse(ArrayList<PokerHandsEvaluator> algo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkFullHouse(ArrayList<HandEvaluator> algo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK FULL HOUSE");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         boolean high = true;
 
         for(int i = 1; i < algo.size(); i++){
@@ -545,10 +551,10 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public void checkFourOfAKind(ArrayList<PokerHandsEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
+    public void checkFourOfAKind(ArrayList<HandEvaluator> algo, ArrayList<ArrayList<CardModel>> tmpAlgo, HashMap<HandEvaluator, Integer> tmpHD){
         System.out.println("CHECK FOUR OF A KIND");
         index.clear();
-        PokerHandsEvaluator tmpHigh = algo.get(0);
+        HandEvaluator tmpHigh = algo.get(0);
         //ArrayList<CardModel> tmpHigh = tmpAlgoCouples.get(0);
         boolean high = true;
         for(int i = 1; i < algo.size(); i++){
@@ -580,11 +586,7 @@ public class TurnWinnerEvaluator {
             checkHigherCard(tmpAlgo);
     }
 
-    public void checkRoyalFlush(ArrayList<PokerHandsEvaluator> algo, HashMap<PokerHandsEvaluator, Integer> tmpHD){
-
-    }
-
-    public ArrayList<CardModel> higher(PokerHandsEvaluator pCards){
+    public ArrayList<CardModel> higher(HandEvaluator pCards){
         ArrayList<CardModel> tmp = new ArrayList<>();
         if(pCards.getPlayerCards().get(0).getValue().ordinal() > pCards.getPlayerCards().get(1).getValue().ordinal()) {
             tmp.add(pCards.getPlayerCards().get(0));
@@ -597,7 +599,7 @@ public class TurnWinnerEvaluator {
         }
     }
 
-    public Boolean contiene(PokerHandsEvaluator common, int i){
+    public Boolean contiene(HandEvaluator common, int i){
         return common.getFinalCards().contains(common.getPlayerCards().get(i));
     }
 

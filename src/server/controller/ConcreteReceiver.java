@@ -1,5 +1,6 @@
 package server.controller;
 
+import client.events.PlayerConnected;
 import interfaces.Event;
 import interfaces.Observable;
 import interfaces.Observer;
@@ -15,9 +16,8 @@ public class ConcreteReceiver implements Receiver, Observable {
     private Set<Observer> eventObservers;
     private BlockingQueue<Event> readQueue;
 
-    public ConcreteReceiver(String nickname, BlockingQueue<Event> readQueue){
+    public ConcreteReceiver(BlockingQueue<Event> readQueue){
         eventObservers = new HashSet<>();
-        this.nickname = nickname;
         this.readQueue = readQueue;
     }
 
@@ -29,13 +29,15 @@ public class ConcreteReceiver implements Receiver, Observable {
     @Override
     public Event readMessage() {
         try {
-            return readQueue.take();
+            Event event = readQueue.take();
+            if(event instanceof PlayerConnected) {
+                nickname = ((PlayerConnected) event).getNickname();
+            }
+            return event;
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            System.out.println("DISCONESSO");
+            System.out.println("DISCONNESSO");
+            return new PlayerDisconnected(nickname);
         }
-
-        return new PlayerDisconnected(nickname);
     }
 
     public String getNickname(){

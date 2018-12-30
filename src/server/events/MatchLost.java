@@ -1,6 +1,6 @@
 package server.events;
 
-import interfaces.EventsManager;
+import interfaces.EventManager;
 import interfaces.ServerEvent;
 
 public class MatchLost implements ServerEvent {
@@ -31,7 +31,7 @@ public class MatchLost implements ServerEvent {
     }
 
     @Override
-    public void accept(EventsManager processor) {
+    public void accept(EventManager processor) {
         processor.process(this);
     }
 }

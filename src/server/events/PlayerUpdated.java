@@ -1,16 +1,7 @@
 package server.events;
 
-import interfaces.EventsManager;
+import interfaces.EventManager;
 import interfaces.ServerEvent;
-
-/**
- * Evento generato dal Server ogni qualvolta il model di un PlayerBoard viene modificato
- * a causa dell'evoluzione della partita.
- *
- * @author Roberto Poletti
- * @author Nipuna Perera
- * @since 1.0
- */
 
 public class PlayerUpdated implements ServerEvent {
     private String nickname;
@@ -42,7 +33,7 @@ public class PlayerUpdated implements ServerEvent {
     }
 
     @Override
-    public void accept(EventsManager processor) {
+    public void accept(EventManager processor) {
         processor.process(this);
     }
 }
