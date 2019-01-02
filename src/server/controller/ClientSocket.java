@@ -1,6 +1,6 @@
 package server.controller;
 
-import client.events.*;
+import client.event.*;
 import interfaces.ClientEvent;
 import interfaces.Event;
 import interfaces.Observable;
@@ -92,6 +92,7 @@ public class ClientSocket implements Runnable, Observer, Observable {
             e.printStackTrace();
         }
     }
+
     @Override
     public void update(Event event) {
         sendMessage(event);

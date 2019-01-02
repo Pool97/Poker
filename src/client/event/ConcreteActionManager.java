@@ -1,11 +1,11 @@
-package client.events;
+package client.event;
 
 import client.net.ClientWrapper;
-import client.ui.userboard.ActionBoard;
+import client.ui.components.ActionBoard;
 import interfaces.ActionManager;
 import server.model.actions.*;
 
-import static client.ui.userboard.ActionBoard.ActionIndexList.*;
+import static client.ui.components.ActionBoard.ActionIndexList.*;
 
 public class ConcreteActionManager implements ActionManager {
     public ActionBoard actionBoard;

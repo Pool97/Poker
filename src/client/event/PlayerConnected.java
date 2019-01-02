@@ -1,4 +1,4 @@
-package client.events;
+package client.event;
 
 import interfaces.ClientEvent;
 import interfaces.EventManager;

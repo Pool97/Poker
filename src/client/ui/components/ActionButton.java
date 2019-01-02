@@ -1,4 +1,4 @@
-package client.ui.userboard;
+package client.ui.components;
 
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.interpolation.PropertySetter;

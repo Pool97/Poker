@@ -1,6 +1,6 @@
 package client.ui.frames;
 
-import client.events.MatchCanStart;
+import client.event.MatchCanStart;
 import client.net.ClientWrapper;
 import client.net.UpdateLobbyListTask;
 

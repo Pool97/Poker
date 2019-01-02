@@ -1,6 +1,6 @@
 package client.net;
 
-import client.events.EventsAdapter;
+import client.event.EventsAdapter;
 import client.ui.components.Avatar;
 import client.ui.frames.BoardFrame;
 import client.ui.frames.Lobby;

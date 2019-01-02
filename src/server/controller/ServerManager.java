@@ -1,9 +1,9 @@
 package server.controller;
 
-import client.events.EventsAdapter;
-import client.events.MatchCanStart;
-import client.events.MatchMode;
-import client.events.PlayerConnected;
+import client.event.EventsAdapter;
+import client.event.MatchCanStart;
+import client.event.MatchMode;
+import client.event.PlayerConnected;
 import interfaces.ClientEvent;
 import interfaces.Event;
 import interfaces.Observer;

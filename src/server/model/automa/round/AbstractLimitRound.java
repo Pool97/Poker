@@ -1,6 +1,6 @@
 package server.model.automa.round;
 
-import client.events.ActionPerformed;
+import client.event.ActionPerformed;
 import interfaces.Event;
 import server.controller.Game;
 import server.events.PlayerDisconnected;

@@ -1,8 +1,8 @@
 package client.ui.frames;
 
+import client.ui.components.ActionButton;
 import client.ui.components.Avatar;
 import client.ui.dialogs.PokerDialog;
-import client.ui.userboard.ActionButton;
 import server.controller.ServerManager;
 
 import javax.swing.*;

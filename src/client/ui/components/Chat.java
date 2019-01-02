@@ -1,7 +1,6 @@
 package client.ui.components;
 
 import client.net.ClientWrapper;
-import client.ui.userboard.ActionButton;
 import server.events.ChatMessage;
 import server.events.ChatNotify;
 

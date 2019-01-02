@@ -1,6 +1,6 @@
 package client.ui.frames;
 
-import client.ui.userboard.ActionButton;
+import client.ui.components.ActionButton;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,13 +1,13 @@
 package client.ui.dialogs;
 
-import client.events.MatchMode;
-import client.events.PlayerConnected;
+import client.event.MatchMode;
+import client.event.PlayerConnected;
 import client.net.ClientWrapper;
+import client.ui.components.ActionButton;
 import client.ui.components.Avatar;
 import client.ui.components.PokerTextField;
 import client.ui.frames.Lobby;
 import client.ui.frames.SelectAvatarFrame;
-import client.ui.userboard.ActionButton;
 import utils.GBC;
 import utils.Utils;
 

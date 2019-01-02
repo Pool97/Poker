@@ -1,6 +1,5 @@
-package client.ui.userboard;
+package client.ui.components;
 
-import client.ui.components.BorderPanel;
 import utils.GBC;
 
 import javax.swing.*;
@@ -8,7 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import static client.ui.userboard.ActionBoard.ActionIndexList.values;
+import static client.ui.components.ActionBoard.ActionIndexList.values;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static utils.Utils.TRANSPARENT;

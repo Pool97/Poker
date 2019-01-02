@@ -1,4 +1,4 @@
-package client.events;
+package client.event;
 
 import interfaces.EventManager;
 import server.events.*;

@@ -1,12 +1,12 @@
 package client.ui.frames;
 
-import client.events.ConcreteEventManager;
+import client.event.ConcreteEventManager;
 import client.net.ClientWrapper;
 import client.net.ReadServerMessagesTask;
+import client.ui.components.ActionBoard;
 import client.ui.components.Chat;
 import client.ui.components.GameBoard;
 import client.ui.table.PokerTable;
-import client.ui.userboard.ActionBoard;
 import server.events.ChatNotify;
 
 import javax.swing.*;

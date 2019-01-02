@@ -1,6 +1,5 @@
-package client.ui.userboard;
+package client.ui.components;
 
-import client.ui.components.SliderListener;
 import utils.Utils;
 
 import javax.swing.*;

@@ -1,9 +1,10 @@
 package server.events;
 
+import interfaces.ClientEvent;
 import interfaces.EventManager;
 import interfaces.ServerEvent;
 
-public class ChatMessage implements ServerEvent {
+public class ChatMessage implements ClientEvent, ServerEvent {
     private String nickname;
     private String message;
 

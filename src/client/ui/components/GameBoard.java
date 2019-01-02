@@ -1,7 +1,6 @@
 package client.ui.components;
 
 import client.ui.table.PokerTable;
-import client.ui.userboard.ActionBoard;
 import layout.TableLayout;
 import layout.TableLayoutConstraints;
 import utils.GBC;

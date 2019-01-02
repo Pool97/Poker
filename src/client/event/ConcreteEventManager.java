@@ -1,4 +1,4 @@
-package client.events;
+package client.event;
 
 import client.net.Client;
 import client.net.ClientWrapper;

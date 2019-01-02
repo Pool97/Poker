@@ -1,6 +1,6 @@
 package server.controller;
 
-import client.events.PlayerConnected;
+import client.event.PlayerConnected;
 import interfaces.Event;
 import interfaces.Observable;
 import interfaces.Observer;

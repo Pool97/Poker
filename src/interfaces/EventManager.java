@@ -1,9 +1,9 @@
 package interfaces;
 
-import client.events.ActionPerformed;
-import client.events.MatchCanStart;
-import client.events.MatchMode;
-import client.events.PlayerConnected;
+import client.event.ActionPerformed;
+import client.event.MatchCanStart;
+import client.event.MatchMode;
+import client.event.PlayerConnected;
 import server.events.*;
 
 public interface EventManager {
