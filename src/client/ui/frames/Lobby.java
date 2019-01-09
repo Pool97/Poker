@@ -1,7 +1,7 @@
 package client.ui.frames;
 
 import client.event.MatchCanStart;
-import client.net.ClientWrapper;
+import client.net.SendEventTask;
 import client.net.UpdateLobbyListTask;
 
 import javax.swing.*;
@@ -48,7 +48,7 @@ public class Lobby extends JFrame {
             JButton startGame = new JButton("START");
             startGame.setFont(new Font("helvetica", Font.PLAIN, 16));
 
-            startGame.addActionListener(event -> ClientWrapper.getInstance().writeMessage(new MatchCanStart()));
+            startGame.addActionListener(event -> new SendEventTask(new MatchCanStart()).execute());
             startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
             container.add(startGame);
         }

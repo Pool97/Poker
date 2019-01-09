@@ -7,18 +7,18 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import static client.ui.components.ActionBoard.ActionIndexList.values;
-import static java.awt.GridBagConstraints.CENTER;
-import static java.awt.GridBagConstraints.HORIZONTAL;
+import static client.ui.components.ActionBoard.ActionIndexList.*;
+import static java.awt.GridBagConstraints.*;
 import static utils.Utils.TRANSPARENT;
 
 public class ActionBoard extends BorderPanel {
-    private final static int INSET = 20;
+    private final static int INSET = 10;
     private final static Color bgColor = new Color(171, 39, 60);
     private ArrayList<ActionButton> actionButtons;
     private RaiseSlider raiseSlider;
-    private static String [] actionDescriptions = {"CALL", "CHECK", "BET", "RAISE", "ALL IN", "FOLD"};
-    public enum ActionIndexList {CALL, CHECK, BET, RAISE, ALL_IN, FOLD}
+    private static String[] actionDescriptions = {"CALL", "CHECK", "BET", "FOLD", "RAISE", "x3", "1/2 POT", "POT", "ALL IN"};
+
+    public enum ActionIndexList {CALL, CHECK, BET, FOLD, RAISE, THREE_BET, HALF_POT, POT, ALL_IN}
 
     public ActionBoard() {
         actionButtons = new ArrayList<>();
@@ -45,14 +45,21 @@ public class ActionBoard extends BorderPanel {
 
     private void attachComponents(){
         int rowIndex = -1;
-        for(int i = 0; i < values().length; i++){
-
-            if(i % 3 == 0)
-                rowIndex++;
-
-            add(actionButtons.get(i), new GBC(i % 3, rowIndex, 33, 1, 1, 1, CENTER, HORIZONTAL,
-                    new Insets(10, INSET, 5, INSET)));
-        }
+        JPanel actionsContainer = new JPanel();
+        actionsContainer.setBackground(bgColor);
+        for (int i = 0; i < 4; i++)
+            actionsContainer.add(actionButtons.get(i));
+        add(actionsContainer, new GBC(0, rowIndex, 1, 1, 4, 1, CENTER, NONE,
+                new Insets(10, INSET, 5, INSET)));
+        JPanel raiseContainer = new JPanel();
+        raiseContainer.setBackground(bgColor);
+        raiseContainer.add(actionButtons.get(RAISE.ordinal()));
+        raiseContainer.add(actionButtons.get(THREE_BET.ordinal()));
+        raiseContainer.add(actionButtons.get(HALF_POT.ordinal()));
+        raiseContainer.add(actionButtons.get(POT.ordinal()));
+        raiseContainer.add(actionButtons.get(ALL_IN.ordinal()));
+        add(raiseContainer, new GBC(0, 3, 1, 1, 4, 1, CENTER, NONE,
+                new Insets(5, INSET, 20, INSET)));
     }
 
     private void createRaiseSlider() {
@@ -64,7 +71,7 @@ public class ActionBoard extends BorderPanel {
         sliderContainer.setBackground(bgColor);
         sliderContainer.add(raiseSlider);
         add(sliderContainer, new GBC(0, 2, 1, 1, 4, 1, CENTER, HORIZONTAL,
-                new Insets(0, 15, 15, 15)));
+                new Insets(0, 15, 7, 15)));
 
     }
 
@@ -92,6 +99,16 @@ public class ActionBoard extends BorderPanel {
         raiseSlider.regenerateSlider();
     }
 
+    public void setSpecialRaiseValue(int value, ActionIndexList index) {
+        if (value > 0) {
+            ActionButton specialRaise = actionButtons.get(index.ordinal());
+            specialRaise.setEnabled(true);
+            if (specialRaise.getActionListeners().length > 0)
+                specialRaise.removeActionListener(specialRaise.getActionListeners()[0]);
+            specialRaise.addActionListener(event -> raiseSlider.setValue(value));
+        }
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -104,15 +121,14 @@ public class ActionBoard extends BorderPanel {
 
     public void setButtonText(int actionValue, ActionIndexList buttonIndex){
         ActionButton button = actionButtons.get(buttonIndex.ordinal());
+
         if(actionValue != 0) {
             if (button.getText().contains("$"))
                 button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1) + " $" + actionValue);
             else
                 button.setText(button.getText() + " $" + actionValue);
-        }
-        else
-            if(button.getText().contains("$"))
-                button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1));
+        } else if (button.getText().contains("$"))
+            button.setText(button.getText().substring(0, button.getText().indexOf("$") - 1));
     }
 
     public void setButtonEnabled(boolean enabled, ActionIndexList buttonIndex){

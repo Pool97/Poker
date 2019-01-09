@@ -1,6 +1,6 @@
 package client.ui.components;
 
-import client.net.ClientWrapper;
+import client.net.SendEventTask;
 import server.events.ChatMessage;
 import server.events.ChatNotify;
 
@@ -13,6 +13,8 @@ import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static utils.Utils.TRANSPARENT;
 
@@ -20,6 +22,7 @@ public class Chat extends BorderPanel {
     private JTextPane log;
     private int preferredWidth;
     private HashMap<String, Color> nicknameColor;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public Chat(int width, String nickname){
         this.preferredWidth = width;
@@ -36,7 +39,7 @@ public class Chat extends BorderPanel {
         ActionButton sendMessage = new ActionButton("Invia", new Color(0, 115, 178), 18);
         sendMessage.addActionListener(event -> {
             if(!textField.getText().equals("")) {
-                ClientWrapper.getInstance().writeMessage(new ChatMessage(nickname, textField.getText()));
+                executor.submit(new SendEventTask(new ChatMessage(nickname, textField.getText())));
                 textField.setText("");
             }
         });

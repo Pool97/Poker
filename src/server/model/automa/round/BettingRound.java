@@ -3,13 +3,13 @@ package server.model.automa.round;
 import interfaces.ActionGenerator;
 import interfaces.ActionManager;
 import server.events.PlayerRound;
-import server.model.Position;
 import server.model.actions.*;
 import server.model.automa.AbstractPokerState;
 
 public abstract class BettingRound extends AbstractPokerState implements ActionManager {
     protected ActionGenerator actionGenerator;
     protected int roundNumber;
+    protected int lastRaiseOrBetCursor;
 
     @Override
     public void process(Call call) {
@@ -18,7 +18,7 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     @Override
     public void process(RaiseNoLimit raiseNoLimit) {
-
+        lastRaiseOrBetCursor = table.getPlayerPosition(raiseNoLimit.getNickname());
     }
 
     @Override
@@ -32,7 +32,9 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     @Override
     public void process(BetNoLimit betNoLimit) {
-
+        System.out.println("Entrato!");
+        System.out.println(betNoLimit.getNickname());
+        lastRaiseOrBetCursor = table.getPlayerPosition(betNoLimit.getNickname());
     }
 
     @Override
@@ -42,12 +44,12 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     @Override
     public void process(RaiseLimit raiseLimit) {
-
+        lastRaiseOrBetCursor = table.getPlayerPosition(raiseLimit.getNickname());
     }
 
     @Override
     public void process(BetLimit betLimit) {
-
+        lastRaiseOrBetCursor = table.getPlayerPosition(betLimit.getNickname());
     }
 
     protected boolean checkForActingPlayer() {
@@ -69,8 +71,8 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
     }
 
     protected boolean roundFinished(int cursor){
-        return (cursor == Position.SB.ordinal() && ((isMatched() && roundNumber >= 1) || table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn()))
-                || (cursor != Position.SB.ordinal()) && (table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer()) || table.isAllPlayersAllIn());
+        return roundNumber >= 1 && (table.countPlayersInGame() == 1 || ((table.countActivePlayers() == 1 && table.countPlayersAllIn() > 0) && !checkForActingPlayer())
+                || table.isAllPlayersAllIn() || (cursor == lastRaiseOrBetCursor && isMatched()));
     }
 
     protected PlayerRound generateActions(){

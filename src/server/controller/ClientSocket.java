@@ -82,8 +82,7 @@ public class ClientSocket implements Runnable, Observer, Observable {
         }
     }
 
-    private void handle(){
-        notifyObservers(new PlayerDisconnected(nickname));
+    public void close() {
         try {
             inStream.close();
             outStream.close();
@@ -91,6 +90,11 @@ public class ClientSocket implements Runnable, Observer, Observable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handle() {
+        notifyObservers(new PlayerDisconnected(nickname));
+        close();
     }
 
     @Override

@@ -3,10 +3,11 @@ package client.ui.dialogs;
 import client.event.MatchMode;
 import client.event.PlayerConnected;
 import client.net.ClientWrapper;
+import client.net.LoggingTask;
+import client.net.SendEventTask;
 import client.ui.components.ActionButton;
 import client.ui.components.Avatar;
 import client.ui.components.PokerTextField;
-import client.ui.frames.Lobby;
 import client.ui.frames.SelectAvatarFrame;
 import utils.GBC;
 import utils.Utils;
@@ -14,6 +15,8 @@ import utils.Utils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PokerDialog extends JDialog {
     private final static String INSERT_NICKNAME = "Inserisci nickname";
@@ -37,10 +40,12 @@ public class PokerDialog extends JDialog {
         addConfirmButtonListener(event -> {
             if((!nicknameField.getText().equals(Utils.EMPTY) && !nicknameField.getText().equals(INSERT_NICKNAME.toUpperCase()))) {
                 if(connectToServer()) {
-                    ClientWrapper.getInstance().writeMessage(new MatchMode(fixedLimitMode));
-                    ClientWrapper.getInstance().writeMessage(new PlayerConnected(nicknameField.getText(),
-                            avatar.getName() + ".png"));
-                    openLobby(true);
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    executor.submit(new SendEventTask(new MatchMode(fixedLimitMode)));
+                    executor.submit(new SendEventTask(new PlayerConnected(nicknameField.getText(),
+                            avatar.getName() + ".png")));
+                    LoggingTask task = new LoggingTask(this, true, nicknameField.getText());
+                    task.execute();
                 }
             }
         });
@@ -57,8 +62,9 @@ public class PokerDialog extends JDialog {
         addConfirmButtonListener(event -> {
             if((!nicknameField.getText().equals(Utils.EMPTY) && !nicknameField.getText().equals(INSERT_NICKNAME.toUpperCase()))) {
                 if (connectToServer()) {
-                    ClientWrapper.getInstance().writeMessage(new PlayerConnected(nicknameField.getText(), avatar.getName() + ".png"));
-                    openLobby(false);
+                    new SendEventTask(new PlayerConnected(nicknameField.getText(), avatar.getName() + ".png")).execute();
+                    LoggingTask task = new LoggingTask(this, false, nicknameField.getText());
+                    task.execute();
                 }
             }
         });
@@ -101,11 +107,6 @@ public class PokerDialog extends JDialog {
         client.setNickname(nicknameField.getText());
         client.setParameters(ipAddress.getText(), 4040);
         return client.attemptToConnect();
-    }
-
-    private void openLobby(boolean creator){
-        new Lobby(nicknameField.getText(), creator);
-        dispose();
     }
 
     private void createBgPanel(){

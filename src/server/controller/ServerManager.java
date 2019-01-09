@@ -8,6 +8,7 @@ import interfaces.ClientEvent;
 import interfaces.Event;
 import interfaces.Observer;
 import server.events.ChatMessage;
+import server.events.LoggingStatus;
 import server.events.PlayerDisconnected;
 import server.events.PlayerLogged;
 import server.model.Dealer;
@@ -88,10 +89,15 @@ public class ServerManager implements Runnable, Observer {
         BlockingQueue<Event> writeQueue = new ArrayBlockingQueue<>(20);
         ClientSocket client = new ClientSocket(socket, writeQueue, chatQueue);
         client.register(this);
-        ConcreteReceiver receiver = new ConcreteReceiver(writeQueue);
-        receiver.register(client);
-        game.register(receiver);
         new Thread(client).start();
+        client.update(new LoggingStatus(!game.isRunning()));
+
+        if (!game.isRunning()) {
+            ConcreteReceiver receiver = new ConcreteReceiver(writeQueue);
+            receiver.register(client);
+            game.register(receiver);
+        }
+
     }
 
     private void updateLobbyList(){
@@ -129,13 +135,15 @@ public class ServerManager implements Runnable, Observer {
 
         @Override
         public void process(PlayerConnected event) {
-            PlayerModel model = new PlayerModel();
-            model.setNickname(event.getNickname());
-            model.setAvatar(event.getAvatar());
-            model.setCreator(table.currentNumberOfPlayers() == 0);
-            table.sit(model);
-            logger.info(PLAYER_ADDED + event.getNickname());
-            updateLobbyList();
+            if (!game.isRunning()) {
+                PlayerModel model = new PlayerModel();
+                model.setNickname(event.getNickname());
+                model.setAvatar(event.getAvatar());
+                model.setCreator(table.currentNumberOfPlayers() == 0);
+                table.sit(model);
+                logger.info(PLAYER_ADDED + event.getNickname());
+                updateLobbyList();
+            }
         }
     }
 }

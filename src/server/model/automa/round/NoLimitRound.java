@@ -14,13 +14,15 @@ public class NoLimitRound extends AbstractNoLimitRound {
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
     private int nextPosition;
 
-    public NoLimitRound(int nextPosition){
+    public NoLimitRound(int nextPosition, int previousPosition) {
         this.nextPosition = nextPosition;
-        if(nextPosition == Position.SB.ordinal()){
-            roundNumber = 0;
-        }else{
+        lastRaiseOrBetCursor = previousPosition;
+        if (table.countPlayersInGame() == 2)
             roundNumber = 1;
-        }
+    }
+
+    public NoLimitRound(int nextPosition) {
+        lastRaiseOrBetCursor = nextPosition;
     }
 
     @Override
@@ -33,7 +35,7 @@ public class NoLimitRound extends AbstractNoLimitRound {
         ListIterator<PlayerModel> iterator = nextPosition == 0 ? table.iterator() : table.iterator(Position.BB.ordinal());
 
         PlayerModel player;
-
+        System.out.println("Last: " + lastRaiseOrBetCursor);
         while (!roundFinished(nextPosition)) {
 
             player = iterator.next();
@@ -48,7 +50,7 @@ public class NoLimitRound extends AbstractNoLimitRound {
                 nextPosition = Position.SB.ordinal();
                 roundNumber++;
             }
-
+            System.out.println("Last: " + lastRaiseOrBetCursor);
         }
 
         if (table.countPlayersInGame() == 1) {

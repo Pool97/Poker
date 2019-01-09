@@ -24,7 +24,7 @@ public abstract class AbstractNoLimitRound extends BettingRound {
         currentBet = dealer.getPotMatchingValue(player.getNickname(), game.getBigBlind());
 
         actionGenerator = new NoLimitActionGenerator(dealer.getMinimumLegalRaise(), player,
-                currentBet);
+                currentBet, dealer.getPotValue());
 
         PlayerRound optionsEvent = generateActions();
         optionsEvent.setPlayerNickname(player.getNickname());
@@ -53,6 +53,8 @@ public abstract class AbstractNoLimitRound extends BettingRound {
 
     @Override
     public void process(BetNoLimit betNoLimit) {
+        betNoLimit.setNickname(actualPlayer.getNickname());
+        super.process(betNoLimit);
         if(action.getAction().getValue() > dealer.getMinimumLegalRaise().getValue())
             dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(actualPlayer.getNickname(),
                 action.getAction().getValue()));
@@ -60,6 +62,8 @@ public abstract class AbstractNoLimitRound extends BettingRound {
 
     @Override
     public void process(RaiseNoLimit raiseNoLimit) {
+        raiseNoLimit.setNickname(actualPlayer.getNickname());
+        super.process(raiseNoLimit);
         if(action.getAction().getValue() - currentBet > dealer.getMinimumLegalRaise().getValue())
             dealer.setMinimumLegalRaise(new AbstractMap.SimpleEntry<>(actualPlayer.getNickname(),
                 action.getAction().getValue() - currentBet));

@@ -19,6 +19,7 @@ public class Game implements Runnable, Observer {
     private List<ConcreteReceiver> receivers;
     private BettingStructure bettingStructure;
     private GameType gameType;
+    private boolean isRunning;
 
     public static final Logger logger = Logger.getLogger(Game.class.getName());
 
@@ -66,12 +67,17 @@ public class Game implements Runnable, Observer {
 
     @Override
     public void run() {
+        isRunning = true;
         for(ConcreteReceiver receiver: receivers)
             new ConcreteReadCommand(receiver).execute();
         countDownLatch = new CountDownLatch(1);
 
         while (countDownLatch.getCount() > 0)
             currentState.goNext(this);
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     public void stop(){

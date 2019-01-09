@@ -11,11 +11,13 @@ public class NoLimitActionGenerator implements ActionGenerator {
     private Map.Entry<String, Integer> minimumLegalRaise;
     private PlayerModel playerModel;
     private int currentBet;
+    private int potValue;
 
-    public NoLimitActionGenerator(Map.Entry<String, Integer> minimumLegalRaise, PlayerModel playerModel, int currentBet){
+    public NoLimitActionGenerator(Map.Entry<String, Integer> minimumLegalRaise, PlayerModel playerModel, int currentBet, int potValue) {
         this.minimumLegalRaise = minimumLegalRaise;
         this.playerModel = playerModel;
         this.currentBet = currentBet;
+        this.potValue = potValue;
     }
 
     @Override
@@ -23,8 +25,14 @@ public class NoLimitActionGenerator implements ActionGenerator {
         if(currentBet == 0)
             return NullAction.getInstance();
 
-        if(currentBet + minimumLegalRaise.getValue() < playerModel.getChips())
-            return new RaiseNoLimit(currentBet + minimumLegalRaise.getValue());
+        if (currentBet + minimumLegalRaise.getValue() < playerModel.getChips()) {
+            RaiseNoLimit raiseNoLimit = new RaiseNoLimit(currentBet + minimumLegalRaise.getValue());
+            raiseNoLimit.setThree(playerModel.getChips() > currentBet + minimumLegalRaise.getValue() * 3 ?
+                    currentBet + minimumLegalRaise.getValue() * 3 : 0);
+            raiseNoLimit.setHalfPot((playerModel.getChips() > currentBet + potValue / 2) && (currentBet > minimumLegalRaise.getValue()) ? currentBet + potValue / 2 : 0);
+            raiseNoLimit.setPot((playerModel.getChips() > currentBet + potValue) && (potValue > minimumLegalRaise.getValue()) ? currentBet + potValue : 0);
+            return raiseNoLimit;
+        }
 
         return NullAction.getInstance();
     }
@@ -42,7 +50,10 @@ public class NoLimitActionGenerator implements ActionGenerator {
             return NullAction.getInstance();
         }
 
-        return new BetNoLimit(minimumLegalRaise.getValue());
+        BetNoLimit betNoLimit = new BetNoLimit(minimumLegalRaise.getValue());
+        betNoLimit.setHalfPot((playerModel.getChips() > potValue / 2 && (potValue / 2) > minimumLegalRaise.getValue()) ? potValue / 2 : 0);
+        betNoLimit.setPot((playerModel.getChips() > potValue) && (potValue > minimumLegalRaise.getValue()) ? potValue : 0);
+        return betNoLimit;
     }
 
     @Override

@@ -4,6 +4,8 @@ import interfaces.ActionManager;
 
 public class BetNoLimit extends AbstractPokerAction  {
     private int value;
+    private int pot;
+    private int halfPot;
 
     public BetNoLimit(int value) {
         this.value = value;
@@ -17,6 +19,22 @@ public class BetNoLimit extends AbstractPokerAction  {
     @Override
     public int getValue() {
         return value;
+    }
+
+    public int getPot() {
+        return pot;
+    }
+
+    public void setPot(int pot) {
+        this.pot = pot;
+    }
+
+    public int getHalfPot() {
+        return halfPot;
+    }
+
+    public void setHalfPot(int halfPot) {
+        this.halfPot = halfPot;
     }
 
     public static BetNoLimit empty(){

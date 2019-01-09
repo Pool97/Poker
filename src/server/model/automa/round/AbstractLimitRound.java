@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractLimitRound extends BettingRound {
+    private PlayerModel actualPlayer;
     private List<AbstractPokerAction> turnActions;
     private int fixedLimit;
 
@@ -26,6 +27,7 @@ public abstract class AbstractLimitRound extends BettingRound {
     }
 
     protected void doAction(PlayerModel player, Game game) {
+        this.actualPlayer = player;
         PlayerRound optionsEvent;
         int currentBet = dealer.getPotMatchingValue(player.getNickname(), game.getBigBlind());
 
@@ -55,6 +57,18 @@ public abstract class AbstractLimitRound extends BettingRound {
             table.removeDisconnectedPlayers();
             game.sendMessage(userResponse);
         }
+    }
+
+    @Override
+    public void process(BetLimit betLimit) {
+        betLimit.setNickname(actualPlayer.getNickname());
+        super.process(betLimit);
+    }
+
+    @Override
+    public void process(RaiseLimit raiseLimit) {
+        raiseLimit.setNickname(actualPlayer.getNickname());
+        super.process(raiseLimit);
     }
 
     public int getNumberOfRaiseBy(String nickname){

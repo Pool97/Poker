@@ -19,10 +19,12 @@ public class PulseAnimator {
     }
 
     public void createPulseEffect(){
-        glow = new BufferedImage(target.getWidth(), target.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        glow = GraphicsUtilities.createCompatibleImage(target.getWidth(), target.getHeight());
+        glow = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice()
+                .getDefaultConfiguration().createCompatibleImage(target.getWidth(), target.getHeight());
 
-        BufferedImageOp filter = new ColorTintFilter(Color.LIGHT_GRAY, 0.8f);
+        BufferedImageOp filter = new ColorTintFilter(Color.LIGHT_GRAY, 1f);
+        //è possibile applicare ulteriori filtri
         glow = filter.filter(glow, null);
     }
 

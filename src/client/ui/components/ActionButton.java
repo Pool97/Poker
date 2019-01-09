@@ -22,7 +22,7 @@ public class ActionButton extends JButton implements MouseListener {
     public ActionButton(String action, Color color) {
         super(action);
         this.color = color;
-        setComponentProperties(30);
+        setComponentProperties(25);
         setOpaque(false);
         addMouseListener(this);
         opacity = .0f;

@@ -20,6 +20,10 @@ public class Table implements Iterable<PlayerModel> {
         players.add(player);
     }
 
+    public int getPlayerPosition(String nickname) {
+        return players.indexOf(getPlayerByName(nickname));
+    }
+
     public int size(){
         return players.size();
     }
