@@ -27,6 +27,7 @@ public class Chat extends BorderPanel {
     public Chat(int width, String nickname){
         this.preferredWidth = width;
         setLayout(new BorderLayout());
+        setOpaque(true);
         setBackground(TRANSPARENT);
         setArcDimension(new Dimension(10, 10));
         setBorder(new EmptyBorder(5,5,10,10));
