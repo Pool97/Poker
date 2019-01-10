@@ -12,7 +12,7 @@ public class NoLimit extends BettingStructure implements Reachable {
 
     @Override
     public void increaseBlinds() {
-        bigBlind *= 2;
+        bigBlind = bigBlind + bigBlind / 2;
         smallBlind = bigBlind / 2;
     }
 

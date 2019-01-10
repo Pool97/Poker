@@ -14,10 +14,10 @@ public class NoLimitRound extends AbstractNoLimitRound {
     private final static String EQUITY_REACHED = "La puntata massima è stata pareggiata! \n";
     private int nextPosition;
 
-    public NoLimitRound(int nextPosition, int previousPosition) {
+    public NoLimitRound(int nextPosition, int previousPosition, int betRound) {
         this.nextPosition = nextPosition;
         lastRaiseOrBetCursor = previousPosition;
-        if (table.countPlayersInGame() == 2)
+        if (table.countPlayersInGame() == 2 && betRound != 0)
             roundNumber = 1;
     }
 

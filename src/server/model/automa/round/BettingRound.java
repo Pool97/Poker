@@ -32,7 +32,6 @@ public abstract class BettingRound extends AbstractPokerState implements ActionM
 
     @Override
     public void process(BetNoLimit betNoLimit) {
-        System.out.println("Entrato!");
         System.out.println(betNoLimit.getNickname());
         lastRaiseOrBetCursor = table.getPlayerPosition(betNoLimit.getNickname());
     }

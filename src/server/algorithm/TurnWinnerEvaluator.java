@@ -166,38 +166,42 @@ public class TurnWinnerEvaluator {
         for (int i = 0; i < index.size(); i++) {
             System.out.println("INDEX " + i + ": " + index.get(i));
         }
-        if (index.isEmpty()) {
-            tmpHigh = tmpAlgo.get(0);
-            System.out.println("tmpHigh :" + tmpHigh.get(0).getValue());
-            for (int i = 1; i < tmpAlgo.size(); i++) {
-                System.out.println("EMPTY INDEX -> CARD " + 0 + ": " + tmpHigh.get(0).getValue() + " CARD " + i + ": " + tmpAlgo.get(i).get(0).getValue());
-                if (tmpHigh.get(0).getValue().ordinal() < tmpAlgo.get(i).get(0).getValue().ordinal()) {
-                    tmpHigh = tmpAlgo.get(i);
-                    high = true;
-                } else if (tmpHigh.get(0).getValue().ordinal() == tmpAlgo.get(i).get(0).getValue().ordinal()) {
-                    high = false;
-                    if (!index.contains(tmpHD.get(tmpHigh)))
-                        index.add(tmpHD.get(tmpHigh));
-                    index.add(i);
+        if (counterSame < 5) {
+            if (index.isEmpty()) {
+                tmpHigh = tmpAlgo.get(0);
+                System.out.println("tmpHigh :" + tmpHigh.get(0).getValue());
+                for (int i = 1; i < tmpAlgo.size(); i++) {
+                    System.out.println("EMPTY INDEX -> CARD " + 0 + ": " + tmpHigh.get(0).getValue() + " CARD " + i + ": " + tmpAlgo.get(i).get(0).getValue());
+                    if (tmpHigh.get(0).getValue().ordinal() < tmpAlgo.get(i).get(0).getValue().ordinal()) {
+                        tmpHigh = tmpAlgo.get(i);
+                        high = true;
+                    } else if (tmpHigh.get(0).getValue().ordinal() == tmpAlgo.get(i).get(0).getValue().ordinal()) {
+                        high = false;
+                        if (!index.contains(tmpHD.get(tmpHigh)))
+                            index.add(tmpHD.get(tmpHigh));
+                        index.add(i);
+                    }
+                }
+            } else {
+                tmpHigh = tmpAlgo.get(index.get(0));
+                for (int i = 1; i < index.size(); i++) {
+                    System.out.println("INDEX SIZE: " + index.size());
+                    System.out.println("INDEX -> CARD " + 0 + ": " + tmpHigh.get(0).getValue() + " CARD " + index.get(i) + ": " + tmpAlgo.get(index.get(i)).get(0).getValue());
+                    if (tmpHigh.get(0).getValue().ordinal() < tmpAlgo.get(index.get(i)).get(0).getValue().ordinal()) {
+                        tmpHigh = tmpAlgo.get(index.get(i));
+                        high = true;
+                    } else if (tmpHigh.get(0).getValue().ordinal() == tmpAlgo.get(index.get(i)).get(0).getValue().ordinal()) {
+                        high = false;
+                        if (!index.contains(tmpHD.get(tmpHigh)) && !index.contains(index.get(i))) {
+                            index.add(tmpHD.get(tmpHigh));
+                            index.add(index.get(i));
+                        }
+
+                    }
                 }
             }
         } else {
-            tmpHigh = tmpAlgo.get(index.get(0));
-            for (int i = 1; i < index.size(); i++) {
-                System.out.println("INDEX SIZE: " + index.size());
-                System.out.println("INDEX -> CARD " + 0 + ": " + tmpHigh.get(0).getValue() + " CARD " + index.get(i) + ": " + tmpAlgo.get(index.get(i)).get(0).getValue());
-                if (tmpHigh.get(0).getValue().ordinal() < tmpAlgo.get(index.get(i)).get(0).getValue().ordinal()) {
-                    tmpHigh = tmpAlgo.get(index.get(i));
-                    high = true;
-                } else if (tmpHigh.get(0).getValue().ordinal() == tmpAlgo.get(index.get(i)).get(0).getValue().ordinal()) {
-                    high = false;
-                    if (!index.contains(tmpHD.get(tmpHigh)) && !index.contains(index.get(i))) {
-                        index.add(tmpHD.get(tmpHigh));
-                        index.add(index.get(i));
-                    }
-
-                }
-            }
+            tmpHigh = new ArrayList<>();
         }
 
         if (high == true) {
@@ -218,7 +222,8 @@ public class TurnWinnerEvaluator {
                 } else
                     tmpCheck++;
             }
-            if (tmpCheck != tmpAlgo.size())
+            counterSame++;
+            if (tmpCheck != tmpAlgo.size() && counterSame < 5)
                 checkHigherCard(tmpAlgo);
         }
     }
@@ -373,10 +378,10 @@ public class TurnWinnerEvaluator {
                     index = cc.getIndex();
                 } else if (!contiene(tmpHigh, 0) && !contiene(algo.get(i), 0) && !contiene(tmpHigh, 1) && !contiene(algo.get(i), 1)) {
                     System.out.println("F & SF  NOT CONTAINS-> CARD " + 0 + ": " + tmpHigh.getFinalCards().get(0).getValue() + " CARD " + i + ": " + algo.get(i).getFinalCards().get(0).getValue());
-                    CommonClss cc = commonMethod(tmpHigh, algo, 0, 0, i, 5, high, tmpHD, index, checkFactor);
-                    tmpHigh = cc.getTmpHigh();
-                    high = cc.isHigh();
-                    index = cc.getIndex();
+                    high = false;
+                    if (!index.contains(tmpHD.get(tmpHigh)))
+                        index.add(tmpHD.get(tmpHigh));
+                    index.add(i);
                 } else {
                     System.out.println("F & SF MAYBE CONTAINS-> CARD " + 0 + ": " + tmpHigh.getFinalCards().get(0).getValue() + " CARD " + i + ": " + algo.get(i).getFinalCards().get(0).getValue());
                     CommonClss cc = commonMethod(tmpHigh, algo, 0, 0, i, 0, high, tmpHD, index, checkFactor);

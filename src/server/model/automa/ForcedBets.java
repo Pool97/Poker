@@ -53,13 +53,13 @@ public class ForcedBets extends AbstractPokerState {
 
     @Override
     public void nextState(NoLimit type) {
-        nextState = new NoLimitRound((Position.BB.ordinal() + 1) % table.size(), Position.BB.ordinal());
+        nextState = new NoLimitRound((Position.BB.ordinal() + 1) % table.size(), Position.BB.ordinal(), 0);
         nextState.setTransitionStrategy(Flop::new);
     }
 
     @Override
     public void nextState(FixedLimit type) {
-        nextState = new LimitRound(bigBlind, (Position.BB.ordinal() + 1) % table.size(), Position.BB.ordinal());
+        nextState = new LimitRound(bigBlind, (Position.BB.ordinal() + 1) % table.size(), Position.BB.ordinal(), 0);
         nextState.setTransitionStrategy(Flop::new);
     }
 }

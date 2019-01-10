@@ -16,12 +16,14 @@ public class LimitRound extends AbstractLimitRound {
         this.nextPosition = nextPosition;
     }
 
-    public LimitRound(int betAndRaiseValue, int nextPosition, int previousPosition) {
+    public LimitRound(int betAndRaiseValue, int nextPosition, int previousPosition, int betRound) {
         super(betAndRaiseValue);
         this.nextPosition = nextPosition;
         lastRaiseOrBetCursor = previousPosition;
-        if (table.countPlayersInGame() == 2)
+
+        if (table.countPlayersInGame() == 2 && betRound != 0)
             roundNumber = 1;
+
     }
 
     @Override

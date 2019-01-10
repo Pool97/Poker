@@ -43,7 +43,7 @@ public class ClientWrapper {
         try {
            return (Event)client.readMessage();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return new NullEvent();
     }
