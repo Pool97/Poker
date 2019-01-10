@@ -9,7 +9,7 @@ public class WelcomeFrame extends JFrame {
     private final static String FRAME_TITLE = "Benvenuto in Poker Texas!";
     private final static String ROOM_CREATION_OPTION = "Crea una stanza";
     private final static String ROOM_CONNECT_OPTION = "Connettiti";
-    private final static String ABOUT_US_OPTION = "About us";
+    private final static String EXIT_OPTION = "Esci";
     private final static String ROOM_CREATION_INFO = "La stanza verrà hostata sulla porta 4040. Invia questi dati agli altri utenti.";
     private final static String MESSAGE_DIALOG_ROOM = "Creazione della stanza";
 
@@ -46,6 +46,13 @@ public class WelcomeFrame extends JFrame {
         });
         container.add(Box.createVerticalGlue());
 
+        ActionButton exitButton = new ActionButton(EXIT_OPTION, new Color(3, 169, 244));
+        setCustomButton(exitButton, EXIT_OPTION.toUpperCase(), new Color(3, 169, 244));
+        container.add(exitButton);
+        exitButton.addActionListener(event -> {
+            dispose();
+        });
+        container.add(Box.createVerticalGlue());
         add(container);
         pack();
     }
