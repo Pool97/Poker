@@ -26,6 +26,7 @@ public abstract class BorderPanel extends JPanel {
         shadowGap = 8;
         shadowOffset = 7;
         shadowAlpha = 180;
+        setOpaque(false);
     }
 
     @Override

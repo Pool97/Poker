@@ -44,9 +44,6 @@ public class WelcomeFrame extends JFrame {
             dispose();
             new SelectAvatarFrame(1);
         });
-        ActionButton infoButton = new ActionButton(ABOUT_US_OPTION, new Color(18, 109, 183));
-        setCustomButton(infoButton, ABOUT_US_OPTION.toUpperCase(), Color.CYAN);
-        container.add(infoButton);
         container.add(Box.createVerticalGlue());
 
         add(container);

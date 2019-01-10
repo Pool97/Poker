@@ -11,7 +11,6 @@ import java.util.List;
 public class ReadServerMessagesTask extends SwingWorker<Void, Event> {
     private final static String WAITING_FOR_SERVER = "In attesa di un messaggio dal Server...";
     private EventManager eventsManager;
-    private boolean hasFinished = true;
 
     public ReadServerMessagesTask() {
     }
@@ -27,10 +26,6 @@ public class ReadServerMessagesTask extends SwingWorker<Void, Event> {
             Thread.sleep(500);
         } while (!(eventsContainer instanceof NullEvent));
         return null;
-    }
-
-    public void stopTask(){
-        hasFinished = false;
     }
 
     @Override

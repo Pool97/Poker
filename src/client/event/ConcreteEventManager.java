@@ -63,6 +63,7 @@ public class ConcreteEventManager extends EventsAdapter {
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
+            boardFrame.dispose();
         }
 
         pokerTable.removePlayer(event.getNickname());    }
@@ -75,6 +76,11 @@ public class ConcreteEventManager extends EventsAdapter {
             dialog.pack();
             dialog.setLocationRelativeTo(null);
             dialog.setVisible(true);
+            if (!event.isCreator()) {
+                boardFrame.dispose();
+            } else if (event.getRankPosition() == 2) {
+                boardFrame.dispose();
+            }
         }
         pokerTable.removePlayer(event.getNickname());
     }

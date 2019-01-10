@@ -86,7 +86,7 @@ public class PlayerBoard extends BorderPanel{
     }
 
     private void setComponentProperties(JComponent component) {
-        component.setFont(new Font("helvetica", Font.PLAIN, 20));
+        component.setFont(new Font("helvetica", Font.PLAIN, 18));
         component.setForeground(WHITE);
     }
 

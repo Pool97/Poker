@@ -80,7 +80,6 @@ public class BoardFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                readTask.stopTask();
                 ClientWrapper.getInstance().close();
             }
         });

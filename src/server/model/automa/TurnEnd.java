@@ -26,7 +26,7 @@ public class TurnEnd extends AbstractPokerState{
             player.giveBackCards();
             if(player.getChips() <= 0) {
                 player.setLost(true);
-               game.sendMessage(new MatchLost(player.getNickname(), table.currentNumberOfPlayers() + 1, player.isCreator()));
+                game.sendMessage(new MatchLost(player.getNickname(), table.currentNumberOfPlayers(), player.isCreator()));
             }
             player.setFolded(false);
             player.setAllIn(false);

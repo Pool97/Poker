@@ -64,25 +64,11 @@ public class LoserDialog extends JDialog {
         cSP.gridy = 0; // row 0
         cSP.ipadx = 5; // increases components width by 10 pixels
         cSP.ipady = 5; // increases components height by 10 pixels
-        JButton si = new JButton("SI");
+        JButton si = new JButton("OK");
         si.setFont(new Font("helvetica", Font.PLAIN, 16));
         si.setAlignmentX(Component.CENTER_ALIGNMENT);
         cSouthL.add(si, cSP);
         containerL.add(cSouthL);
-        if(!isCreator){
-            cSP.gridx = 3; // column 0
-            cSP.gridy = 0; // row 0
-            cSP.ipadx = 5; // increases components width by 10 pixels
-            cSP.ipady = 5; // increases components height by 10 pixels
-            JButton no = new JButton("NO");
-            no.setFont(new Font("helvetica", Font.PLAIN, 16));
-            no.setAlignmentX(Component.CENTER_ALIGNMENT);
-            cSouthL.add(no, cSP);
-            no.addActionListener(event -> {
-                dispose();
-            });
-            containerL.add(cSouthL);
-        }
         si.addActionListener(event -> {
             WelcomeFrame.launchGame();
             dispose();
